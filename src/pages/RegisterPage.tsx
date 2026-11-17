@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Sparkle, Mail, Lock, User } from "lucide-react";
 import { registerUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "../store/toastStore";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -23,9 +24,10 @@ export default function RegisterPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
+      toast.success("Account created successfully!");
       navigate("/dashboard");
     } catch (error: any) {
-      alert("Registration Failed: " + (error?.message || "Unknown error"));
+      toast.error(error?.message || "Registration failed");
     }
   };
 
@@ -39,9 +41,10 @@ export default function RegisterPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
+      toast.success("Signed up with Google!");
       navigate("/dashboard");
     } catch (error: any) {
-      alert("Google Login Failed: " + (error?.message || "Unknown error"));
+      toast.error(error?.message || "Google sign-up failed");
     }
   };
 

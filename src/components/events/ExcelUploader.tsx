@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useEventStore } from "../../store/eventStore";
 import { uploadExcel, fetchEventsBySource } from "../../services/event";
 import { read, utils } from "xlsx";
+import { toast } from "../../store/toastStore";
 
 export default function ExcelUploader() {
   const { setManualEvents, setUploadedFileName, clearEvents } = useEventStore();
@@ -51,9 +52,10 @@ export default function ExcelUploader() {
       
       setIsImporting(false);
       setImportSuccess(true);
+      toast.success("Excel file successfully imported!");
     } catch (error) {
       console.error(error);
-      alert("Failed to import Excel");
+      toast.error("Failed to import Excel. Please verify the template columns and date format.");
       setIsImporting(false);
     }
   };

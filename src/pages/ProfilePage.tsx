@@ -5,6 +5,7 @@ import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { updateProfile } from "firebase/auth";
 import { auth } from "../services/auth";
+import { toast } from "../store/toastStore";
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuthStore();
@@ -31,7 +32,7 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please upload a valid image file (JPG, PNG, GIF)");
+      toast.error("Please upload a valid image file (JPG, PNG, WebP)");
       return;
     }
 

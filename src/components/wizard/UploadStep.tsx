@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useWishStore } from "../../store/wishesStore";
 import { compressImage } from "../../services/imageCompression";
 import ImageEditorToolbar from "./ImageEditorToolbar";
+import { toast } from "../../store/toastStore";
 
 export default function UploadStep() {
   const { uploadedImage, setImage } = useWishStore();
@@ -12,7 +13,7 @@ export default function UploadStep() {
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file");
+      toast.error("Please upload an image file (JPEG, PNG, or WebP)");
       return;
     }
     
@@ -20,9 +21,10 @@ export default function UploadStep() {
     try {
       const base64 = await compressImage(file);
       setImage(base64);
+      toast.success("Image uploaded and processed");
     } catch (error) {
       console.error("Failed to process image", error);
-      alert("Failed to process image");
+      toast.error("Failed to process image. Please try another file.");
     } finally {
       setIsLoading(false);
     }

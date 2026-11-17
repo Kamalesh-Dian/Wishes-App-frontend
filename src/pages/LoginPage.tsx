@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link, Navigate } from "react-router-dom";
 import { Sparkle, Mail, Lock } from "lucide-react";
 import { loginUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "../store/toastStore";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -30,9 +31,10 @@ export default function LoginPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
+      toast.success("Welcome back!");
       navigate(from, { replace: true });
     } catch (error: any) {
-      alert("Login Failed: " + (error?.message || "Unknown error"));
+      toast.error(error?.message || "Failed to sign in. Please check your credentials.");
     }
   };
 
@@ -46,9 +48,10 @@ export default function LoginPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
+      toast.success("Signed in with Google");
       navigate(from, { replace: true });
     } catch (error: any) {
-      alert("Google Login Failed: " + (error?.message || "Unknown error"));
+      toast.error(error?.message || "Google sign-in failed");
     }
   };
 

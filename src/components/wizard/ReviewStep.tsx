@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWishStore } from "../../store/wishesStore";
 import { generateWish } from "../../services/generateWish";
+import { toast } from "../../store/toastStore";
 
 export default function ReviewStep() {
   const [isEditing, setIsEditing] = useState(false);
@@ -43,18 +44,20 @@ export default function ReviewStep() {
       
       if (response.success && response.imageURL) {
         setGeneratedImage(response.imageURL);
+        toast.success("Wish image generated successfully!");
       } else {
-        alert(response.error || "Failed to generate image.");
+        toast.error(response.error || "Failed to generate image.");
       }
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.error || "An error occurred while generating the image.");
+      toast.error(error.response?.data?.error || "An error occurred while generating the image.");
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleApprove = () => {
+    toast.success("Wish generated and approved!");
     resetWish();
     navigate("/dashboard");
   };
@@ -72,9 +75,10 @@ export default function ReviewStep() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      toast.success("Image downloaded");
     } catch (error) {
       console.error("Failed to download image", error);
-      alert("Failed to download image");
+      toast.error("Failed to download image");
     }
   };
 

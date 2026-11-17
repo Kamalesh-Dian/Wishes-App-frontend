@@ -2,6 +2,8 @@ import { Search, Filter, Cake, Heart, Cloud, FileSpreadsheet } from "lucide-reac
 import { useEventStore } from "../../store/eventStore";
 import { updateEvent as updateEventApi, deleteEvent as deleteEventApi } from "../../services/event";
 import { useMemo, useState } from "react";
+import { toast } from "../../store/toastStore";
+import { confirmDialog } from "../../store/confirmStore";
 
 export default function ImportedEventsTable() {
   const { manualEvents, oneDriveEvents } = useEventStore();
@@ -268,9 +270,10 @@ export default function ImportedEventsTable() {
                           try {
                             await updateEventApi(row._id, { Name: newName });
                             useEventStore.getState().updateEvent(row._id, { Name: newName });
+                            toast.success("Event updated successfully");
                           } catch (err) {
                             console.error(err);
-                            alert("Failed to modify event");
+                            toast.error("Failed to modify event");
                           }
                         }
                       }}
@@ -280,16 +283,23 @@ export default function ImportedEventsTable() {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                     </button>
                     <button 
-                      onClick={async () => {
-                        if (window.confirm(`Are you sure you want to delete ${row.Name}'s event?`)) {
-                          try {
-                            await deleteEventApi(row._id);
-                            useEventStore.getState().deleteEvent(row._id);
-                          } catch (err) {
-                            console.error(err);
-                            alert("Failed to delete event");
-                          }
-                        }
+                      onClick={() => {
+                        confirmDialog({
+                          title: "Delete Event",
+                          message: `Are you sure you want to delete ${row.Name}'s event? This action cannot be undone.`,
+                          confirmText: "Delete Event",
+                          isDestructive: true,
+                          onConfirm: async () => {
+                            try {
+                              await deleteEventApi(row._id);
+                              useEventStore.getState().deleteEvent(row._id);
+                              toast.success(`Event for ${row.Name} deleted`);
+                            } catch (err) {
+                              console.error(err);
+                              toast.error("Failed to delete event");
+                            }
+                          },
+                        });
                       }}
                       className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                       title="Delete Event"
