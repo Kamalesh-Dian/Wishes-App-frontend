@@ -2,6 +2,14 @@ import api from "./api";
 import { getAccessToken } from "./microsoftAuth";
 
 /**
+ * Get OneDrive Connection Status
+ */
+export const getOneDriveStatus = async () => {
+  const response = await api.get("/onedrive/status");
+  return response.data;
+};
+
+/**
  * List Excel files from OneDrive
  */
 export const getExcelFiles = async () => {

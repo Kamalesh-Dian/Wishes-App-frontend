@@ -1,15 +1,17 @@
 import { useEffect, useState, useRef } from "react";
-import { CheckCircle2, RefreshCw, Folder, FileSpreadsheet, UploadCloud } from "lucide-react";
+import { CheckCircle2, RefreshCw, Folder, FileSpreadsheet, UploadCloud, AlertTriangle } from "lucide-react";
 import { fetchEventsBySource } from "../../services/event";
 import { useEventStore } from "../../store/eventStore";
 import { getCurrentAccount, loginToOneDrive } from "../../services/microsoftAuth";
-import { getExcelFiles, importOneDriveExcel, syncOneDrive, previewOneDriveExcel } from "../../services/onedrive";
+import { getExcelFiles, importOneDriveExcel, syncOneDrive, previewOneDriveExcel, getOneDriveStatus } from "../../services/onedrive";
 import type { AccountInfo } from "@azure/msal-browser";
 
 export default function OneDriveSync() {
   const { setOneDriveEvents } = useEventStore();
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
+  const [reconnectReason, setReconnectReason] = useState<string | null>(null);
   
   const [files, setFiles] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<any | null>(null);
@@ -33,6 +35,16 @@ export default function OneDriveSync() {
           if (currentAccount) {
             loadFiles();
           }
+        }
+
+        try {
+          const status = await getOneDriveStatus();
+          if (mounted && status?.needsReconnect) {
+            setNeedsReconnect(true);
+            setReconnectReason(status.lastError || "Session expired");
+          }
+        } catch {
+          // Ignore backend status check failure if unauthenticated
         }
       } catch (error) {
         console.error(error);
@@ -79,7 +91,13 @@ export default function OneDriveSync() {
       let isSimulated = false;
       try {
         await importOneDriveExcel(selectedFile.id, selectedFile.name);
-      } catch (err) {
+      } catch (err: any) {
+        if (err.response?.status === 401 || err.response?.data?.needsReconnect) {
+          setNeedsReconnect(true);
+          setReconnectReason(err.response?.data?.message || "Microsoft session expired. Reconnect required.");
+          setIsImporting(false);
+          return;
+        }
         console.warn("Backend import failed, simulating import...", err);
         isSimulated = true;
       }
@@ -103,7 +121,11 @@ export default function OneDriveSync() {
       
       setImportSuccess(true);
       setIsImporting(false);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 401 || error.response?.data?.needsReconnect) {
+        setNeedsReconnect(true);
+        setReconnectReason(error.response?.data?.message || "Microsoft session expired. Reconnect required.");
+      }
       console.error(error);
       setIsImporting(false);
     }
@@ -118,7 +140,11 @@ export default function OneDriveSync() {
       const response = await fetchEventsBySource("onedrive");
       setOneDriveEvents(normalizeEvents(response.data));
       await loadFiles();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 401 || error.response?.data?.needsReconnect) {
+        setNeedsReconnect(true);
+        setReconnectReason(error.response?.data?.message || "Microsoft session expired. Reconnect required.");
+      }
       console.error("Sync failed", error);
     } finally {
       setIsSyncing(false);
@@ -130,6 +156,8 @@ export default function OneDriveSync() {
       await loginToOneDrive();
       const currentAccount = await getCurrentAccount();
       setAccount(currentAccount);
+      setNeedsReconnect(false);
+      setReconnectReason(null);
       loadFiles();
     } catch (error) {
       console.error("Login failed", error);
@@ -154,6 +182,28 @@ export default function OneDriveSync() {
 
   return (
     <div className="space-y-6">
+      {needsReconnect && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <h4 className="text-[13px] font-bold text-amber-800 dark:text-amber-400">Microsoft Connection Expired</h4>
+              <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                {reconnectReason || "Your Microsoft session has expired. Reconnect your account to resume OneDrive syncing."}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogin}
+            className="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors cursor-pointer shrink-0 shadow-sm"
+          >
+            Reconnect
+          </button>
+        </div>
+      )}
+
       <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-xl p-4 border border-white/60 dark:border-slate-800 shadow-sm flex items-center justify-between transition-colors">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
