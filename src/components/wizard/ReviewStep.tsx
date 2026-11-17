@@ -1,14 +1,23 @@
-import { Check, RefreshCw, Download, Edit2, Save, Sparkles, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Check, RefreshCw, Download, Edit2, Save, Sparkles, Wand2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWishStore } from "../../store/wishesStore";
 import { generateWish } from "../../services/generateWish";
 import { toast } from "../../store/toastStore";
 
+const GENERATION_STAGES = [
+  { threshold: 25, label: "Analyzing occasion and stylistic requirements..." },
+  { threshold: 60, label: "Synthesizing visual art with AI generative model..." },
+  { threshold: 85, label: "Enhancing details, lighting, and celebratory textures..." },
+  { threshold: 98, label: "Finalizing composition and optimizing image..." },
+];
+
 export default function ReviewStep() {
   const [isEditing, setIsEditing] = useState(false);
   const [wishText, setWishText] = useState("Happy birthday Maya! May your day be as radiant as the light you bring into every room. Wishing you a year of adventure, laughter, and quiet magic.");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const navigate = useNavigate();
   const { 
@@ -25,8 +34,34 @@ export default function ReviewStep() {
     additionalInformation
   } = useWishStore();
 
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current) {
+        clearInterval(progressTimerRef.current);
+      }
+    };
+  }, []);
+
+  const currentStageLabel = () => {
+    for (const stage of GENERATION_STAGES) {
+      if (progress <= stage.threshold) return stage.label;
+    }
+    return "Wrapping up render...";
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
+    setProgress(5);
+
+    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    progressTimerRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return prev;
+        const increment = prev < 50 ? 5 : prev < 80 ? 3 : 1;
+        return Math.min(95, prev + increment);
+      });
+    }, 400);
+
     try {
       const payload = {
         occasion,
@@ -43,15 +78,18 @@ export default function ReviewStep() {
       const response = await generateWish(payload);
       
       if (response.success && response.imageURL) {
+        setProgress(100);
         setGeneratedImage(response.imageURL);
         toast.success("Wish image generated successfully!");
       } else {
         toast.error(response.error || "Failed to generate image.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error(error.response?.data?.error || "An error occurred while generating the image.");
+      const errMessage = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(errMessage || "An error occurred while generating the image.");
     } finally {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
       setIsGenerating(false);
     }
   };
@@ -84,21 +122,38 @@ export default function ReviewStep() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-slate-900 mb-8">Review & generate</h2>
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Review & generate</h2>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-8">Review details and prompt your AI engine to synthesize the final design.</p>
       
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-3/5 aspect-[4/3] rounded-xl bg-slate-100 shadow-sm border border-slate-200 overflow-hidden flex items-center justify-center relative">
+        <div className="w-full md:w-3/5 aspect-[4/3] rounded-2xl bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/80 overflow-hidden flex items-center justify-center relative">
           {isGenerating ? (
-            <div className="flex flex-col items-center text-teal-600">
-              <Loader2 size={40} className="animate-spin mb-4" />
-              <p className="font-bold text-sm tracking-wide">Generating masterpiece...</p>
+            <div className="flex flex-col items-center justify-center p-8 text-center w-full max-w-md">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-4 shadow-sm border border-teal-200/50 dark:border-teal-800/50">
+                <Wand2 size={24} className="animate-pulse" />
+              </div>
+              <p className="font-bold text-sm text-slate-800 dark:text-slate-100 tracking-wide mb-1">
+                Synthesizing greeting art
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 min-h-[1.5rem] transition-all">
+                {currentStageLabel()}
+              </p>
+
+              {/* Progress bar */}
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden shadow-inner">
+                <div 
+                  className="bg-gradient-to-r from-teal-500 to-indigo-500 h-2 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-[11px] font-semibold text-slate-400 mt-2">{progress}% completed</span>
             </div>
           ) : generatedImage ? (
             <img src={generatedImage} alt="Generated wish" className="w-full h-full object-cover" />
           ) : uploadedImage ? (
-            <img src={uploadedImage} alt="Uploaded reference" className="w-full h-full object-cover opacity-50" />
+            <img src={uploadedImage} alt="Uploaded reference" className="w-full h-full object-cover opacity-60" />
           ) : (
-            <div className="text-center p-6 text-slate-400">
+            <div className="text-center p-6 text-slate-400 dark:text-slate-500">
               <p className="text-sm font-medium">No reference image provided</p>
               <p className="text-xs mt-1">Wishes AI will design entirely from scratch.</p>
             </div>
@@ -110,7 +165,7 @@ export default function ReviewStep() {
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Generated text</p>
             <button 
               onClick={() => setIsEditing(!isEditing)}
-              className="text-xs font-bold text-slate-500 flex items-center gap-1 hover:text-slate-900 transition-colors"
+              className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               {isEditing ? <><Save size={12} /> Save</> : <><Edit2 size={12} /> Edit</>}
             </button>
@@ -118,12 +173,12 @@ export default function ReviewStep() {
           
           {isEditing ? (
             <textarea 
-              className="text-sm font-medium text-slate-700 leading-relaxed bg-white p-6 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900 shadow-sm mb-8 w-full h-32 resize-none transition-colors"
+              className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-slate-900 dark:focus:border-white shadow-sm mb-6 w-full h-32 resize-none transition-colors"
               value={wishText}
               onChange={(e) => setWishText(e.target.value)}
             />
           ) : (
-            <p className="text-sm font-medium text-slate-700 leading-relaxed bg-slate-50 p-6 rounded-lg border border-slate-200 shadow-sm mb-8">
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm mb-6">
               "{wishText}"
             </p>
           )}
@@ -133,28 +188,28 @@ export default function ReviewStep() {
               <button 
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className={`flex items-center gap-2 px-4 py-2.5 text-white text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer ${isGenerating ? 'bg-slate-500' : 'bg-slate-900 hover:bg-slate-800'}`}
+                className={`flex items-center gap-2 px-4 py-2.5 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${isGenerating ? 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed' : 'bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900'}`}
               >
-                <Sparkles size={14} strokeWidth={3} /> {isGenerating ? 'Generating...' : 'Generate Image'}
+                <Sparkles size={14} strokeWidth={2.5} /> {isGenerating ? 'Synthesizing...' : 'Generate Image'}
               </button>
             ) : (
               <>
                 <button 
                   onClick={handleApprove}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <Check size={14} strokeWidth={3} /> Approve & Save
                 </button>
                 <button 
                   onClick={handleGenerate}
                   disabled={isGenerating}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <RefreshCw size={14} className={isGenerating ? "animate-spin" : ""} /> Regenerate
                 </button>
                 <button 
                   onClick={handleDownload}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <Download size={14} /> Download
                 </button>

@@ -14,7 +14,7 @@ const steps = [
 ];
 
 export default function ProgressBar() {
-  const { currentStep } = useWishStore();
+  const { currentStep, setCurrentStep } = useWishStore();
 
   return (
     <div className="w-full overflow-x-auto pb-8 scrollbar-hide -mb-8">
@@ -26,22 +26,27 @@ export default function ProgressBar() {
       ></div>
 
       {steps.map((step, index) => {
-        const isActive = currentStep === index + 1;
-        const isCompleted = currentStep > index + 1;
+        const stepNum = index + 1;
+        const isActive = currentStep === stepNum;
+        const isCompleted = currentStep > stepNum;
 
         return (
           <div key={step} className="flex flex-col items-center relative z-10">
-            <div
+            <button
+              type="button"
+              onClick={() => isCompleted && setCurrentStep(stepNum)}
+              disabled={!isCompleted}
+              aria-label={`Step ${stepNum}: ${step}`}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                 isCompleted
-                  ? "bg-teal-500 text-white shadow-sm"
+                  ? "bg-teal-500 text-white shadow-sm hover:ring-2 hover:ring-teal-400 cursor-pointer"
                   : isActive
                     ? "bg-teal-500 text-white ring-4 ring-teal-500/30 dark:ring-teal-500/20 shadow-sm"
-                    : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700"
+                    : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-default"
               }`}
             >
-              {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
-            </div>
+              {isCompleted ? <Check size={14} strokeWidth={3} /> : stepNum}
+            </button>
 
             <span className={`absolute top-10 text-[10px] sm:text-xs font-bold tracking-wide text-center whitespace-nowrap ${
               isActive || isCompleted

@@ -1,5 +1,29 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+const safeSessionStorage = {
+  getItem: (name: string): string | null => {
+    try {
+      return sessionStorage.getItem(name);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (name: string, value: string): void => {
+    try {
+      sessionStorage.setItem(name, value);
+    } catch {
+      // ignore in incognito or restricted storage
+    }
+  },
+  removeItem: (name: string): void => {
+    try {
+      sessionStorage.removeItem(name);
+    } catch {
+      // ignore
+    }
+  },
+};
 
 interface WishState {
   uploadedImage: string | null;
@@ -13,31 +37,22 @@ interface WishState {
   aiEngine: string;
   currentStep: number;
   generatedImage: string | null;
+  photoConsent: boolean;
 
   setAdditionalInformation: (info: string) => void;
-
   setGeneratedImage: (url: string) => void;
-
-  setImage: (img: string) => void;
-
+  setImage: (img: string | null) => void;
   setOccasion: (occasion: string) => void;
-
   setTheme: (theme: string) => void;
-
   setPeople: (people: string[]) => void;
-
   setDecorations: (decorations: string[]) => void;
-
   setCustomMessage: (message: string) => void;
-
   setAnimation: (state: boolean) => void;
-
   setAIEngine: (engine: string) => void;
-
+  setPhotoConsent: (consent: boolean) => void;
   setCurrentStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
-
   resetWish: () => void;
 }
 
@@ -45,26 +60,17 @@ export const useWishStore = create<WishState>()(
   persist(
     (set) => ({
       uploadedImage: null,
-
       occasion: "",
-
       theme: "",
-
       people: [],
-
       decorations: [],
-
       customMessage: "",
-
       additionalInformation: "",
-
       animationEnabled: false,
-
       aiEngine: "gemini",
-
       currentStep: 1,
-
       generatedImage: null,
+      photoConsent: false,
 
       setAdditionalInformation: (info) =>
         set({
@@ -111,6 +117,11 @@ export const useWishStore = create<WishState>()(
           aiEngine: engine,
         }),
 
+      setPhotoConsent: (consent) =>
+        set({
+          photoConsent: consent,
+        }),
+
       setCurrentStep: (step) =>
         set({
           currentStep: step,
@@ -144,10 +155,12 @@ export const useWishStore = create<WishState>()(
           currentStep: 1,
           generatedImage: null,
           aiEngine: "gemini",
+          photoConsent: false,
         }),
     }),
     {
-      name: "wish-storage",
+      name: "wish-draft-storage",
+      storage: createJSONStorage(() => safeSessionStorage),
     },
   ),
 );

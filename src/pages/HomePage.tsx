@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HeroSection from "../components/home/HeroSection";
 import WorkflowSection from "../components/home/WorkflowSection";
 import FeaturesSection from "../components/home/FeaturesSection";
