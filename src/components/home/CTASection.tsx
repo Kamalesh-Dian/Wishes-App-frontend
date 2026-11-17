@@ -6,21 +6,21 @@ export default function CTASection() {
     {
       name: "Starter",
       price: "$0",
-      features: ["100 AI generations", "1 cloud connection", "Community support"],
+      features: ["10 AI generations", "1 cloud connection", "Community support"],
       button: "Choose Starter",
       highlight: false
     },
     {
       name: "Pro",
-      price: "$29",
-      features: ["Unlimited generations", "Priority queue", "All integrations", "Approval workflow"],
+      price: "$5",
+      features: ["100 generations", "Priority queue", "All integrations", "Approval workflow"],
       button: "Choose Pro",
       highlight: true
     },
     {
       name: "Team",
-      price: "$99",
-      features: ["Seats & roles", "Shared history", "SAML SSO", "Audit logs"],
+      price: "$10",
+      features: ["100 generations", "Shared history", "SAML SSO", "Audit logs"],
       button: "Choose Team",
       highlight: false
     }
