@@ -1,24 +1,9 @@
-import {
-  PublicClientApplication,
-  BrowserCacheLocation,
-} from "@azure/msal-browser";
-
-export const msalInstance = new PublicClientApplication({
-  auth: {
-    clientId: import.meta.env.VITE_MS_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_MS_TENANT_ID}`,
-    redirectUri: "http://localhost:5173/events",
-  },
-
-  cache: {
-    cacheLocation: BrowserCacheLocation.LocalStorage,
-    storeAuthStateInCookie: true,
-  },
-} as any);
+import { msalInstance } from "../lib/msal";
+export { msalInstance };
 
 let initialized = false;
 
-export const initializeMicrosoftAuth = async () => {
+export const initializeMicrosoftAuth = async (): Promise<void> => {
   if (initialized) return;
 
   await msalInstance.initialize();
@@ -28,19 +13,18 @@ export const initializeMicrosoftAuth = async () => {
 
     if (response?.account) {
       msalInstance.setActiveAccount(response.account);
-      console.log("Microsoft Login Success");
     } else {
       const accounts = msalInstance.getAllAccounts();
       if (accounts.length > 0) {
         msalInstance.setActiveAccount(accounts[0]);
       }
     }
-  } catch (err: any) {
-    const isCacheError = err?.errorCode === "no_token_request_cache_error" || 
-                         (err?.message && err.message.includes("no_token_request_cache_error"));
-    if (isCacheError) {
-      console.log("MSAL: No active redirect flow request cache found (expected when logging in via popups).");
-    } else {
+  } catch (err: unknown) {
+    const errObj = err as { errorCode?: string; message?: string };
+    const isCacheError =
+      errObj?.errorCode === "no_token_request_cache_error" ||
+      (errObj?.message && errObj.message.includes("no_token_request_cache_error"));
+    if (!isCacheError) {
       console.error("Microsoft Auth initialization redirect handler error:", err);
     }
     // fallback check
@@ -70,7 +54,7 @@ export const initializeMicrosoftAuth = async () => {
   initialized = true;
 };
 
-export const loginToOneDrive = async () => {
+export const loginToOneDrive = async (): Promise<void> => {
   await initializeMicrosoftAuth();
 
   await msalInstance.loginRedirect({
@@ -84,7 +68,7 @@ export const getCurrentAccount = async () => {
   return msalInstance.getActiveAccount();
 };
 
-export const logoutFromOneDrive = async () => {
+export const logoutFromOneDrive = async (): Promise<void> => {
   await initializeMicrosoftAuth();
 
   await msalInstance.logoutRedirect({
@@ -92,7 +76,7 @@ export const logoutFromOneDrive = async () => {
   });
 };
 
-export const getAccessToken = async () => {
+export const getAccessToken = async (): Promise<string> => {
   await initializeMicrosoftAuth();
 
   const account = msalInstance.getActiveAccount();
