@@ -101,10 +101,10 @@ export default function Topbar() {
 
       {/* Right Actions */}
       <div className="flex items-center gap-1 sm:gap-3 pl-2 sm:pl-4 relative">
-        <Link to="/history" className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+        <Link to="/history" aria-label="View history" className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
           <History size={16} />
         </Link>
-        <Link to="/settings" className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+        <Link to="/settings" aria-label="View settings" className="md:hidden w-8 h-8 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500">
           <Settings size={16} />
         </Link>
 
@@ -112,7 +112,8 @@ export default function Topbar() {
         <div className="relative" ref={popoverRef}>
           <button 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer relative"
+            aria-label="Notifications"
+            className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
           >
             <Bell size={16} />
             {unreadCount > 0 && (

@@ -100,12 +100,16 @@ export default function SettingsPage() {
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Dark Mode</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Switch to a premium dark aesthetic.</p>
                   </div>
-                  <div 
+                  <button 
+                    type="button"
+                    role="switch"
+                    aria-checked={isDark}
+                    aria-label="Toggle dark mode"
                     onClick={toggleTheme}
-                    className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${isDark ? 'bg-teal-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                    className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${isDark ? 'bg-teal-500' : 'bg-slate-200 dark:bg-slate-700'}`}
                   >
                     <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${isDark ? 'left-5' : 'left-1'}`}></div>
-                  </div>
+                  </button>
                 </div>
                 
                 <hr className="border-slate-100 dark:border-slate-800" />

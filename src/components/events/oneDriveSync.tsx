@@ -239,33 +239,38 @@ export default function OneDriveSync() {
               <div className="p-8 text-center text-sm font-medium text-slate-500 dark:text-slate-400">No Excel files found in root directory.</div>
             ) : (
               files.map(file => (
-                <div key={file.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={async () => {
-                  setSelectedFile(file);
-                  setPreviewData([]);
-                  setIsPreviewing(true);
-                  try {
-                    const data = await previewOneDriveExcel(file.id);
-                    setPreviewData(data);
-                    setCurrentPage(1);
-                  } catch (err) {
-                    console.error("Failed to fetch preview", err);
-                  } finally {
-                    setIsPreviewing(false);
-                  }
-                }}>
+                <button
+                  type="button"
+                  key={file.id}
+                  className="w-full text-left p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                  onClick={async () => {
+                    setSelectedFile(file);
+                    setPreviewData([]);
+                    setIsPreviewing(true);
+                    try {
+                      const data = await previewOneDriveExcel(file.id);
+                      setPreviewData(data);
+                      setCurrentPage(1);
+                    } catch (err) {
+                      console.error("Failed to fetch preview", err);
+                    } finally {
+                      setIsPreviewing(false);
+                    }
+                  }}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/50 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform">
                       <FileSpreadsheet size={16} />
                     </div>
                     <div>
                       <h4 className="text-[13px] font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">{file.name}</h4>
-                      <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Last Modified: {new Date(file.lastModifiedDateTime).toLocaleDateString()}</p>
+                      <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Last Modified: {new Date(file.lastModifiedDateTime).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  <div className="text-xs font-bold text-teal-600 dark:text-teal-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                     Select <CheckCircle2 size={12} />
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>

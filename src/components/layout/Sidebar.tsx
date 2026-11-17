@@ -52,7 +52,8 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setIsOpen(!isOpen)} 
-            className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60 shadow-sm cursor-pointer"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
           >
             {isOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
           </button>

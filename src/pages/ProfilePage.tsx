@@ -153,37 +153,37 @@ export default function ProfilePage() {
         <form onSubmit={handleSave} className="space-y-8">
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">First Name</label>
-              <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" />
+              <label htmlFor="profile-first-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">First Name</label>
+              <input id="profile-first-name" type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Last Name</label>
-              <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" />
+              <label htmlFor="profile-last-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Last Name</label>
+              <input id="profile-last-name" type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" />
             </div>
           </div>
           
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
-            <input type="email" defaultValue={user?.email || "user@example.com"} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 cursor-not-allowed" />
+            <label htmlFor="profile-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
+            <input id="profile-email" type="email" defaultValue={user?.email || "user@example.com"} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 cursor-not-allowed" />
           </div>
 
           <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Application Preferences</h3>
             <div className="grid grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Job Title</label>
-                <input type="text" value={formData.jobTitle} onChange={e => setFormData({...formData, jobTitle: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" />
+                <label htmlFor="profile-job-title" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Job Title</label>
+                <input id="profile-job-title" type="text" value={formData.jobTitle} onChange={e => setFormData({...formData, jobTitle: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Company</label>
-                <input type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" />
+                <label htmlFor="profile-company" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Company</label>
+                <input id="profile-company" type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" />
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Preferred AI Model</label>
-            <select value={formData.aiModelPref} onChange={e => setFormData({...formData, aiModelPref: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all appearance-none cursor-pointer">
+            <label htmlFor="profile-ai-model" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Preferred AI Model</label>
+            <select id="profile-ai-model" value={formData.aiModelPref} onChange={e => setFormData({...formData, aiModelPref: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all appearance-none cursor-pointer">
               <option value="Gemini 1.5 Flash">Gemini 1.5 Flash (Fastest)</option>
               <option value="Gemini 1.5 Pro">Gemini 1.5 Pro (Best Quality)</option>
               <option value="Flux">Flux (Images Only)</option>
@@ -199,60 +199,66 @@ export default function ProfilePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Header Title Format</label>
+                <label htmlFor="profile-header-title" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Header Title Format</label>
                 <input 
+                  id="profile-header-title"
                   type="text" 
                   value={formData.emailHeaderTitle} 
                   onChange={e => setFormData({...formData, emailHeaderTitle: e.target.value})} 
                   placeholder="🎉 Happy {occasion} {name}!"
-                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" 
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" 
                 />
-                <p className="text-[10px] text-slate-400 mt-1 ml-1">Use {"{name}"} and {"{occasion}"} variables.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ml-1">Use {"{name}"} and {"{occasion}"} variables.</p>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Accent Theme Color</label>
+                <label htmlFor="profile-accent-color" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Accent Theme Color</label>
                 <div className="flex items-center gap-3">
                   <input 
                     type="color" 
+                    id="profile-accent-color-picker"
+                    aria-label="Color picker"
                     value={formData.emailAccentColor} 
                     onChange={e => setFormData({...formData, emailAccentColor: e.target.value})} 
-                    className="w-10 h-10 rounded-xl border border-slate-200 cursor-pointer p-1 bg-white" 
+                    className="w-10 h-10 rounded-xl border border-slate-200 cursor-pointer p-1 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500" 
                   />
                   <input 
+                    id="profile-accent-color"
                     type="text" 
                     value={formData.emailAccentColor} 
                     onChange={e => setFormData({...formData, emailAccentColor: e.target.value})} 
-                    className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" 
+                    className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" 
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Default Email Signature</label>
+              <label htmlFor="profile-signature" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Default Email Signature</label>
               <textarea 
+                id="profile-signature"
                 value={formData.defaultSignature} 
                 onChange={e => setFormData({...formData, defaultSignature: e.target.value})} 
                 rows={3} 
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all resize-none"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Company / Organization Footer</label>
+              <label htmlFor="profile-company-footer" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Company / Organization Footer</label>
               <input 
+                id="profile-company-footer"
                 type="text" 
                 value={formData.emailCompanyFooter} 
                 onChange={e => setFormData({...formData, emailCompanyFooter: e.target.value})} 
                 placeholder="DIAN Technology Solutions"
-                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 transition-all" 
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:border-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 transition-all" 
               />
             </div>
 
             {/* Live Template Preview */}
             <div className="pt-2">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">Live Email Card Preview</label>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 ml-1">Live Email Card Preview</label>
               <div className="p-6 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
                 <div 
                   className="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-md border"
