@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export default function WorkflowSection() {
   const testimonials = [
     {
-      quote: "Nova replaced three tools and a spreadsheet. My team ships greetings in minutes.",
+      quote: "Wishes AI replaced three tools and a spreadsheet. My team ships greetings in minutes.",
       author: "Priya S. — Ops Lead"
     },
     {

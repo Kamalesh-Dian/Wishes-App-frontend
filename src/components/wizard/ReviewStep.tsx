@@ -100,7 +100,7 @@ export default function ReviewStep() {
           ) : (
             <div className="text-center p-6 text-slate-400">
               <p className="text-sm font-medium">No reference image provided</p>
-              <p className="text-xs mt-1">Nova will design entirely from scratch.</p>
+              <p className="text-xs mt-1">Wishes AI will design entirely from scratch.</p>
             </div>
           )}
         </div>

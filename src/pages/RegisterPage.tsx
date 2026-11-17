@@ -4,6 +4,7 @@ import { Sparkle, Mail, Lock, User } from "lucide-react";
 import { registerUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "../store/toastStore";
+import GoogleIcon from "../components/icons/GoogleIcon";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export default function RegisterPage() {
             <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white shadow-sm">
               <Sparkle size={16} fill="white" />
             </div>
-            <span className="font-bold text-slate-800 dark:text-slate-200 tracking-tight">Nova</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200 tracking-tight">Wishes AI</span>
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white">Create account</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Start automating your wishes today.</p>
@@ -68,7 +69,7 @@ export default function RegisterPage() {
           onClick={handleGoogle}
           className="w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer mb-6"
         >
-          <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 grayscale opacity-70 dark:opacity-100" />
+          <GoogleIcon className="w-4 h-4" />
           Sign up with Google
         </button>
 

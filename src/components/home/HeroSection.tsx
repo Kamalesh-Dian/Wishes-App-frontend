@@ -59,7 +59,7 @@ export default function HeroSection() {
         </motion.h1>
         
         <motion.p variants={itemVariants} className="text-lg text-slate-500 font-medium mb-10 max-w-2xl mx-auto">
-          Nova connects your events, cloud storage, and generative AI into one silky workflow. Design, generate, approve, and send — all from one place.
+          Wishes AI connects your events, cloud storage, and generative AI into one silky workflow. Design, generate, approve, and send — all from one place.
         </motion.p>
         
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24 w-full sm:w-auto px-4 sm:px-0">
@@ -98,7 +98,7 @@ export default function HeroSection() {
             <motion.div whileHover={{ scale: 1.02 }} className="col-span-1 sm:col-span-3 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm mt-2 md:mt-4 text-left relative overflow-hidden transition-shadow hover:shadow-md">
               <div className="flex items-center gap-2 mb-6 md:mb-8 relative z-10">
                 <Settings size={14} className="text-slate-900 animate-spin-slow" />
-                <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Nova flow</span>
+                <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Wishes AI flow</span>
               </div>
               
               <div className="overflow-x-auto pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">

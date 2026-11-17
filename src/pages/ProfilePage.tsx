@@ -164,7 +164,7 @@ export default function ProfilePage() {
           
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
-            <input type="email" defaultValue={user?.email || "ava@nova.io"} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 cursor-not-allowed" />
+            <input type="email" defaultValue={user?.email || "user@example.com"} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-500 cursor-not-allowed" />
           </div>
 
           <div className="pt-6 border-t border-slate-100 dark:border-slate-800">

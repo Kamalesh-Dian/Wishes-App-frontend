@@ -15,9 +15,9 @@ interface ProfileState {
 export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
-      jobTitle: 'HR Manager',
-      company: 'Nova Corp',
-      defaultSignature: 'Best regards,\nAI Wishes Team',
+      jobTitle: 'People Operations Lead',
+      company: 'Enterprise Corp',
+      defaultSignature: 'Best regards,\nWishes AI Team',
       aiModelPref: 'Gemini 1.5 Flash',
       emailHeaderTitle: '🎉 Happy {occasion} {name}!',
       emailCompanyFooter: 'DIAN Technology Solutions',

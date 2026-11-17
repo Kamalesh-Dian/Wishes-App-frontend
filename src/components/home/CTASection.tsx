@@ -91,7 +91,7 @@ export default function CTASection() {
           </button>
         </div>
 
-        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider">© 2026 Nova Labs. Crafted with cosmic care.</p>
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide">© 2026 Wishes AI. All rights reserved.</p>
       </section>
     </div>
   );
