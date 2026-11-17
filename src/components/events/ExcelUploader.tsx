@@ -2,7 +2,6 @@ import { FileSpreadsheet, CheckCircle2, X, UploadCloud, RefreshCw } from "lucide
 import { useState } from "react";
 import { useEventStore } from "../../store/eventStore";
 import { uploadExcel, fetchEventsBySource } from "../../services/event";
-import { read, utils } from "xlsx";
 import { toast } from "../../store/toastStore";
 
 export default function ExcelUploader() {
@@ -24,6 +23,7 @@ export default function ExcelUploader() {
     if (file) {
       setSelectedFile(file);
       try {
+        const { read, utils } = await import("xlsx");
         const data = await file.arrayBuffer();
         const workbook = read(data);
         const firstSheetName = workbook.SheetNames[0];

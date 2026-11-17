@@ -10,8 +10,6 @@ import { useWishStore } from '../store/wishesStore';
 
 const GEMINI_LIMIT = 1500;
 const FLUX_LIMIT = 100;
-const USAGE_LIMIT = GEMINI_LIMIT + FLUX_LIMIT;
-const COLORS = ['#3B82F6', '#8B5CF6', '#F1F5F9']; // Gemini (Blue), Flux (Purple), Remaining (Gray)
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -63,7 +61,6 @@ export default function DashboardPage() {
   }, [fetchHistory, loadEvents, manualEvents.length, oneDriveEvents.length]);
 
   const historyCount = history.length;
-  const recentHistory = history.slice(0, 5);
 
   const allEvents = [...manualEvents, ...oneDriveEvents];
 

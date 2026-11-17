@@ -4,25 +4,31 @@ import HeroSection from "../components/home/HeroSection";
 import WorkflowSection from "../components/home/WorkflowSection";
 import FeaturesSection from "../components/home/FeaturesSection";
 import CTASection from "../components/home/CTASection";
-import WishesBackgroundAnimation from "../components/home/WishesBackgroundAnimation";
 import PageLoader from "../components/home/PageLoader";
 import AppShell from "../components/nova/AppShell";
 
 export default function HomePage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [showLoader, setShowLoader] = useState(false);
-
-  useEffect(() => {
-    const hasLoaded = sessionStorage.getItem("nova_home_loaded");
-    if (!hasLoaded) {
-      setShowLoader(true);
-    } else {
-      setIsLoaded(true);
+  const [isLoaded, setIsLoaded] = useState(() => {
+    try {
+      return Boolean(sessionStorage.getItem("nova_home_loaded"));
+    } catch {
+      return true;
     }
-  }, []);
+  });
+  const [showLoader, setShowLoader] = useState(() => {
+    try {
+      return !sessionStorage.getItem("nova_home_loaded");
+    } catch {
+      return false;
+    }
+  });
 
   const handleLoaderComplete = () => {
-    sessionStorage.setItem("nova_home_loaded", "true");
+    try {
+      sessionStorage.setItem("nova_home_loaded", "true");
+    } catch {
+      // ignore
+    }
     setIsLoaded(true);
     setTimeout(() => setShowLoader(false), 1000); // Allow fade out
   };
@@ -34,8 +40,6 @@ export default function HomePage() {
       {isLoaded && (
         <>
           <AppShell>
-          {/* <WishesBackgroundAnimation /> */}
-
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

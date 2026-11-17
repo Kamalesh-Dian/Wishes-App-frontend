@@ -1,93 +1,101 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Layout from "../components/layout/Layout";
 import DashboardLayout from "../components/layout/DashboardLayout";
-
-import HomePage from "../pages/HomePage";
-import CreateWishPage from "../pages/CreateWishPage";
-import PreviewPage from "../pages/PreviewPage";
-import HistoryPage from "../pages/HistoryPage";
-import ResultPage from "../pages/ResultPage";
-import EventDashboardPage from "../pages/EventDashboardPage"
-import LoginPage from "../pages/LoginPage";
-import RegisterPage from "../pages/RegisterPage";
-import DashboardPage from "../pages/DashboardPage";
-import ExcelImportPage from "../pages/ExcelImportPage";
-import OneDrivePage from "../pages/OneDrivePage";
-import ProfilePage from "../pages/ProfilePage";
-import SettingsPage from "../pages/SettingsPage";
-import NotFoundPage from "../pages/NotFoundPage";
-
 import ProtectedRoute from "../components/auth/ProtectedRoute";
+
+const HomePage = lazy(() => import("../pages/HomePage"));
+const CreateWishPage = lazy(() => import("../pages/CreateWishPage"));
+const PreviewPage = lazy(() => import("../pages/PreviewPage"));
+const HistoryPage = lazy(() => import("../pages/HistoryPage"));
+const ResultPage = lazy(() => import("../pages/ResultPage"));
+const EventDashboardPage = lazy(() => import("../pages/EventDashboardPage"));
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const RegisterPage = lazy(() => import("../pages/RegisterPage"));
+const DashboardPage = lazy(() => import("../pages/DashboardPage"));
+const ExcelImportPage = lazy(() => import("../pages/ExcelImportPage"));
+const OneDrivePage = lazy(() => import("../pages/OneDrivePage"));
+const ProfilePage = lazy(() => import("../pages/ProfilePage"));
+const SettingsPage = lazy(() => import("../pages/SettingsPage"));
+const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
+
+const PageLoader = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="w-8 h-8 rounded-full border-2 border-slate-200 dark:border-slate-800 border-t-teal-500 animate-spin"></div>
+  </div>
+);
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      {/* Public Routes with Standard Layout */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Route>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Public Routes with Standard Layout */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
 
-      {/* Protected Routes with Dashboard (Sidebar) Layout */}
-      <Route element={<DashboardLayout />}>
-        <Route
-          path="/create"
-          element={
-            <ProtectedRoute>
-              <CreateWishPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/preview"
-          element={
-            <ProtectedRoute>
-              <PreviewPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <HistoryPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/result"
-          element={
-            <ProtectedRoute>
-              <ResultPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/events"
-          element={
-            <ProtectedRoute>
-              <EventDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        
-        {/* Dashboard Hub */}
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        
-        {/* Cloud Sync & Excel Import */}
-        <Route path="/onedrive" element={<ProtectedRoute><OneDrivePage /></ProtectedRoute>} />
-        <Route path="/import" element={<ProtectedRoute><ExcelImportPage /></ProtectedRoute>} />
-        
-        {/* Temporary stubs for new sidebar navigation mapping to EventDashboardPage until built */}
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-      </Route>
+        {/* Protected Routes with Dashboard (Sidebar) Layout */}
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <CreateWishPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/preview"
+            element={
+              <ProtectedRoute>
+                <PreviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <HistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/result"
+            element={
+              <ProtectedRoute>
+                <ResultPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              <ProtectedRoute>
+                <EventDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Dashboard Hub */}
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          
+          {/* Cloud Sync & Excel Import */}
+          <Route path="/onedrive" element={<ProtectedRoute><OneDrivePage /></ProtectedRoute>} />
+          <Route path="/import" element={<ProtectedRoute><ExcelImportPage /></ProtectedRoute>} />
+          
+          {/* Profile & Settings */}
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+        </Route>
 
-      {/* Catch-all 404 Route */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        {/* Catch-all 404 Route */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
   );
 };
 

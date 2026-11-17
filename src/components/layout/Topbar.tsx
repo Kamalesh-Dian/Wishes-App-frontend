@@ -1,4 +1,4 @@
-import { Search, Bell, Command, History, Settings, CheckCheck, Sparkles, Mail, CheckCircle2 } from "lucide-react";
+import { Search, Bell, Command, History, Settings, CheckCheck, Sparkles, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -33,7 +33,7 @@ export default function Topbar() {
       notifs.push({
         id: `email-${e._id || i}`,
         title: "Automated Email Sent",
-        desc: `Wish sent to ${e.Name || e.email}`,
+        desc: `Wish sent to ${e.Name || e.Email}`,
         time: e.generatedAt ? new Date(e.generatedAt).toLocaleDateString() : 'Recently',
         icon: Mail,
         color: "text-teal-500 bg-teal-50 dark:bg-teal-950/40",
@@ -157,9 +157,7 @@ export default function Topbar() {
                       <div
                         key={item.id}
                         onClick={() => {
-                          setNotifications((prev) =>
-                            prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
-                          );
+                          setReadIds((prev) => new Set([...prev, item.id]));
                         }}
                         className={`p-3 flex items-start gap-3 rounded-xl transition-colors cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
                           !item.read ? "bg-teal-50/30 dark:bg-teal-950/20" : ""

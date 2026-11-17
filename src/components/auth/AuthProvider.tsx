@@ -23,7 +23,9 @@ export default function AuthProvider({
           useHistoryStore.setState({ history: [] });
           try {
             localStorage.removeItem("wishes-events");
-          } catch (e) {}
+          } catch {
+            // ignore storage failure
+          }
         }
 
         login({
@@ -43,7 +45,9 @@ export default function AuthProvider({
         useHistoryStore.setState({ history: [] });
         try {
           localStorage.removeItem("wishes-events");
-        } catch (e) {}
+        } catch {
+          // ignore storage failure
+        }
       }
       setAuthInitialized(true);
       setLoading(false);

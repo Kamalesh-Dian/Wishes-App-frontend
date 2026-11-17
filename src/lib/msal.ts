@@ -16,7 +16,6 @@ export const msalConfig: Configuration = {
   },
   cache: {
     cacheLocation: BrowserCacheLocation.SessionStorage,
-    storeAuthStateInCookie: true,
   },
 };
 

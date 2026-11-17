@@ -1,6 +1,5 @@
 import React from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { useLocation } from "react-router-dom";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -13,8 +12,6 @@ export default function AppShell({ children }: AppShellProps) {
     damping: 30,
     restDelta: 0.001,
   });
-
-  const location = useLocation();
 
   return (
     <div className="relative min-h-screen flex flex-col">

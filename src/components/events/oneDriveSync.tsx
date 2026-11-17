@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, RefreshCw, Folder, FileSpreadsheet, UploadCloud, AlertTriangle } from "lucide-react";
 import { fetchEventsBySource } from "../../services/event";
 import { useEventStore } from "../../store/eventStore";
