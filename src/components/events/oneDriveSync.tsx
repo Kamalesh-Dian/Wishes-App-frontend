@@ -25,6 +25,29 @@ export default function OneDriveSync() {
   const [importSuccess, setImportSuccess] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
+  const loadFiles = useCallback(async () => {
+    setIsLoadingFiles(true);
+    try {
+      const fetchedFiles = await getExcelFiles();
+      if (fetchedFiles && fetchedFiles.length > 0) {
+        setFiles(fetchedFiles);
+      } else {
+        setFiles([
+          { id: "1", name: "Q3-events.xlsx", lastModifiedDateTime: new Date().toISOString() },
+          { id: "2", name: "Birthdays_2026.xlsx", lastModifiedDateTime: new Date().toISOString() }
+        ]);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch from graph, using mock files", err);
+      setFiles([
+        { id: "1", name: "Q3-events.xlsx", lastModifiedDateTime: new Date().toISOString() },
+        { id: "2", name: "Birthdays_2026.xlsx", lastModifiedDateTime: new Date().toISOString() },
+      ]);
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     async function checkAuth() {
@@ -54,30 +77,7 @@ export default function OneDriveSync() {
     }
     checkAuth();
     return () => { mounted = false; };
-  }, []);
-
-  const loadFiles = async () => {
-    setIsLoadingFiles(true);
-    try {
-      const fetchedFiles = await getExcelFiles();
-      if (fetchedFiles && fetchedFiles.length > 0) {
-        setFiles(fetchedFiles);
-      } else {
-        setFiles([
-          { id: "1", name: "Q3-events.xlsx", lastModifiedDateTime: new Date().toISOString() },
-          { id: "2", name: "Birthdays_2026.xlsx", lastModifiedDateTime: new Date().toISOString() }
-        ]);
-      }
-    } catch (err) {
-      console.warn("Failed to fetch from graph, using mock files", err);
-      setFiles([
-        { id: "1", name: "Q3-events.xlsx", lastModifiedDateTime: new Date().toISOString() },
-        { id: "2", name: "Birthdays_2026.xlsx", lastModifiedDateTime: new Date().toISOString() },
-      ]);
-    } finally {
-      setIsLoadingFiles(false);
-    }
-  };
+  }, [loadFiles]);
 
   const normalizeEvents = (events: any[]) => events.map((event) => ({
     ...event, Name: event.name, Email: event.email, Department: event.department, EventType: event.occasion, EventDate: event.eventDate, photoUrl: event.photoUrl, customMessage: event.customMessage, generatedWishImage: event.generatedWishImage, generatedWishText: event.generatedWishText, status: event.status,

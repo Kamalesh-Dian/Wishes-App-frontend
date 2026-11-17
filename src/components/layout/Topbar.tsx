@@ -37,7 +37,7 @@ export default function Topbar() {
         time: e.generatedAt ? new Date(e.generatedAt).toLocaleDateString() : 'Recently',
         icon: Mail,
         color: "text-teal-500 bg-teal-50 dark:bg-teal-950/40",
-        date: new Date(e.generatedAt || e.EventDate || Date.now())
+        date: new Date(e.generatedAt || e.EventDate || 0)
       });
     });
 
@@ -50,7 +50,7 @@ export default function Topbar() {
         time: h.createdAt ? new Date(h.createdAt).toLocaleDateString() : 'Recently',
         icon: Sparkles,
         color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40",
-        date: new Date(h.createdAt || Date.now())
+        date: new Date(h.createdAt || 0)
       });
     });
 

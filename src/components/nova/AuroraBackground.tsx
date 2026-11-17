@@ -50,15 +50,59 @@ const WORD_CONFIGS: Record<string, string> = {
 
 // Deterministic seed generator for stable SSR/hydration rendering
 function seededRandom(seed: number) {
-  const x = Math.sin(seed++) * 10000;
+  const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
+}
+
+function generateFloaties(): SeededItem[] {
+  let seed = 42;
+  const items: SeededItem[] = [];
+
+  // Seeded floating icons (12 items)
+  for (let i = 0; i < 12; i++) {
+    const iconConfig = ICON_CONFIGS[Math.floor(seededRandom(seed++) * ICON_CONFIGS.length)];
+    items.push({
+      id: i,
+      type: "icon",
+      Icon: iconConfig.Icon,
+      colorClass: iconConfig.colorClass,
+      left: `${Math.floor(seededRandom(seed++) * 90 + 5)}%`,
+      dur: `${(seededRandom(seed++) * 12 + 18).toFixed(1)}s`,
+      delay: `-${(seededRandom(seed++) * 20).toFixed(1)}s`,
+      rot: `${Math.floor(seededRandom(seed++) * 60 - 30)}deg`,
+      drift: `${Math.floor(seededRandom(seed++) * 50 + 20)}deg`,
+      driftX: `${Math.floor(seededRandom(seed++) * 60 - 30)}px`,
+      size: Math.floor(seededRandom(seed++) * 16 + 22),
+    });
+  }
+
+  // Seeded floating words (8 items)
+  for (let i = 0; i < 8; i++) {
+    const word = WISH_WORDS[Math.floor(seededRandom(seed++) * WISH_WORDS.length)];
+    const colorClass = WORD_CONFIGS[word] || "border border-teal-400/40 text-teal-600 bg-teal-50/70";
+    items.push({
+      id: i + 100,
+      type: "word",
+      text: word,
+      colorClass,
+      left: `${Math.floor(seededRandom(seed++) * 85 + 5)}%`,
+      dur: `${(seededRandom(seed++) * 14 + 22).toFixed(1)}s`,
+      delay: `-${(seededRandom(seed++) * 25).toFixed(1)}s`,
+      rot: `${Math.floor(seededRandom(seed++) * 30 - 15)}deg`,
+      drift: `${Math.floor(seededRandom(seed++) * 40 + 10)}deg`,
+      driftX: `${Math.floor(seededRandom(seed++) * 40 - 20)}px`,
+      size: 13,
+    });
+  }
+
+  return items;
 }
 
 export default function AuroraBackground() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = useState(true);
   const [lazyMounted, setLazyMounted] = useState(false);
-  const [floaties, setFloaties] = useState<SeededItem[]>([]);
+  const [floaties] = useState<SeededItem[]>(generateFloaties);
 
   // Performance Guardrail 1: IntersectionObserver & VisibilityChange
   useEffect(() => {
@@ -89,50 +133,8 @@ export default function AuroraBackground() {
     };
   }, []);
 
-  // Performance Guardrail 2: Seeded items + Lazy mounting via requestIdleCallback
+  // Performance Guardrail 2: Lazy mounting via requestIdleCallback
   useEffect(() => {
-    let seed = 42;
-    const items: SeededItem[] = [];
-
-    // Seeded floating icons (12 items)
-    for (let i = 0; i < 12; i++) {
-      const iconConfig = ICON_CONFIGS[Math.floor(seededRandom(seed++) * ICON_CONFIGS.length)];
-      items.push({
-        id: i,
-        type: "icon",
-        Icon: iconConfig.Icon,
-        colorClass: iconConfig.colorClass,
-        left: `${Math.floor(seededRandom(seed++) * 90 + 5)}%`,
-        dur: `${(seededRandom(seed++) * 12 + 18).toFixed(1)}s`,
-        delay: `-${(seededRandom(seed++) * 20).toFixed(1)}s`,
-        rot: `${Math.floor(seededRandom(seed++) * 60 - 30)}deg`,
-        drift: `${Math.floor(seededRandom(seed++) * 50 + 20)}deg`,
-        driftX: `${Math.floor(seededRandom(seed++) * 60 - 30)}px`,
-        size: Math.floor(seededRandom(seed++) * 16 + 22),
-      });
-    }
-
-    // Seeded floating words (8 items)
-    for (let i = 0; i < 8; i++) {
-      const word = WISH_WORDS[Math.floor(seededRandom(seed++) * WISH_WORDS.length)];
-      const colorClass = WORD_CONFIGS[word] || "border border-teal-400/40 text-teal-600 bg-teal-50/70";
-      items.push({
-        id: i + 100,
-        type: "word",
-        text: word,
-        colorClass,
-        left: `${Math.floor(seededRandom(seed++) * 85 + 5)}%`,
-        dur: `${(seededRandom(seed++) * 14 + 22).toFixed(1)}s`,
-        delay: `-${(seededRandom(seed++) * 25).toFixed(1)}s`,
-        rot: `${Math.floor(seededRandom(seed++) * 30 - 15)}deg`,
-        drift: `${Math.floor(seededRandom(seed++) * 40 + 10)}deg`,
-        driftX: `${Math.floor(seededRandom(seed++) * 40 - 20)}px`,
-        size: 13,
-      });
-    }
-
-    setFloaties(items);
-
     if ("requestIdleCallback" in window) {
       const handle = (window as any).requestIdleCallback(() => setLazyMounted(true));
       return () => (window as any).cancelIdleCallback(handle);

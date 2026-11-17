@@ -18,7 +18,7 @@ export default function DashboardPage() {
   const resetWish = useWishStore(state => state.resetWish);
   const navigate = useNavigate();
   const [aiTab, setAiTab] = useState<'Gemini' | 'Flux'>('Gemini');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(manualEvents.length === 0 && oneDriveEvents.length === 0);
 
   const normalizeEvents = useCallback((events: any[]) =>
     events.map((event) => ({
@@ -55,8 +55,6 @@ export default function DashboardPage() {
     fetchHistory();
     if (manualEvents.length === 0 && oneDriveEvents.length === 0) {
       loadEvents();
-    } else {
-      setIsLoading(false);
     }
   }, [fetchHistory, loadEvents, manualEvents.length, oneDriveEvents.length]);
 

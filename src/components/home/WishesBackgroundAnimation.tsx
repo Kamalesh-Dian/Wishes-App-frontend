@@ -1,24 +1,25 @@
 import { motion } from "framer-motion";
 import { Gift, Heart, Sparkles, Star, Mail } from "lucide-react";
 
-export default function WishesBackgroundAnimation() {
-  const particleColors = [
-    "from-teal-500/20 to-cyan-500/30",
-    "from-amber-500/20 to-yellow-500/30",
-    "from-rose-500/20 to-pink-500/30",
-    "from-purple-500/20 to-indigo-500/30",
-    "from-sky-500/20 to-teal-500/30",
-  ];
+const particleColors = [
+  "from-teal-500/20 to-cyan-500/30",
+  "from-amber-500/20 to-yellow-500/30",
+  "from-rose-500/20 to-pink-500/30",
+  "from-purple-500/20 to-indigo-500/30",
+  "from-sky-500/20 to-teal-500/30",
+];
 
-  const particles = Array.from({ length: 25 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 6 + 3,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    duration: Math.random() * 25 + 20,
-    delay: Math.random() * -25,
-    color: particleColors[i % particleColors.length],
-  }));
+const particles = Array.from({ length: 25 }, (_, i) => ({
+  id: i,
+  size: ((i * 7) % 6) + 3,
+  x: (i * 17) % 100,
+  y: (i * 29) % 100,
+  duration: ((i * 13) % 25) + 20,
+  delay: -((i * 11) % 25),
+  color: particleColors[i % particleColors.length],
+}));
+
+export default function WishesBackgroundAnimation() {
 
   const floaters = [
     { Icon: Gift, size: 48, x: "8%", y: "15%", delay: 0, color: "text-amber-500/40 dark:text-amber-400/50" },
