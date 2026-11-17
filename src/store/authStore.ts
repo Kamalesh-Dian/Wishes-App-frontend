@@ -11,20 +11,24 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  authInitialized: boolean;
 
   login: (user: User) => void;
   updateUser: (updates: Partial<User>) => void;
   logout: () => void;
+  setAuthInitialized: (initialized: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      authInitialized: false,
 
       login: (user) =>
         set({
           user,
+          authInitialized: true,
         }),
 
       updateUser: (updates) =>
@@ -35,10 +39,17 @@ export const useAuthStore = create<AuthState>()(
       logout: () =>
         set({
           user: null,
+          authInitialized: true,
+        }),
+
+      setAuthInitialized: (initialized) =>
+        set({
+          authInitialized: initialized,
         }),
     }),
     {
       name: "auth-storage",
+      partialize: (state) => ({ user: state.user }),
     },
   ),
 );

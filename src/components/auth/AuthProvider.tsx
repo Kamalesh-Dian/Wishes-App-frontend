@@ -11,7 +11,7 @@ export default function AuthProvider({
   children: React.ReactNode;
 }) {
   const [loading, setLoading] = useState(true);
-  const { login, logout } = useAuthStore();
+  const { login, logout, setAuthInitialized } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -45,11 +45,12 @@ export default function AuthProvider({
           localStorage.removeItem("wishes-events");
         } catch (e) {}
       }
+      setAuthInitialized(true);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [login, logout]);
+  }, [login, logout, setAuthInitialized]);
 
   if (loading) {
     return (

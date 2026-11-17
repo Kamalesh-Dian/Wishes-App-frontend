@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useNavigate, useLocation, Link, Navigate } from "react-router-dom";
 import { Sparkle, Mail, Lock } from "lucide-react";
 import { loginUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || "/dashboard";
+
   const login = useAuthStore((s) => s.login);
   const currentUser = useAuthStore((s) => s.user);
 
@@ -13,7 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   if (currentUser) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +30,7 @@ export default function LoginPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
-      navigate("/dashboard");
+      navigate(from, { replace: true });
     } catch (error: any) {
       alert("Login Failed: " + (error?.message || "Unknown error"));
     }
@@ -43,7 +46,7 @@ export default function LoginPage() {
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
-      navigate("/dashboard");
+      navigate(from, { replace: true });
     } catch (error: any) {
       alert("Google Login Failed: " + (error?.message || "Unknown error"));
     }
