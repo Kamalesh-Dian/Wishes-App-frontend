@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Sparkle, Mail, Lock, User } from "lucide-react";
+import { Sparkles, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { registerUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "../store/toastStore";
@@ -13,22 +13,32 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!agreed) {
+      toast.error("Please agree to the Terms & Privacy Policy to continue.");
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const user = await registerUser(email, password);
       login({
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName,
+        displayName: name || user.displayName,
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
       });
       toast.success("Account created successfully!");
       navigate("/dashboard");
-    } catch (error: any) {
-      toast.error(error?.message || "Registration failed");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Registration failed";
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -44,110 +54,157 @@ export default function RegisterPage() {
       });
       toast.success("Signed up with Google!");
       navigate("/dashboard");
-    } catch (error: any) {
-      toast.error(error?.message || "Google sign-up failed");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Google sign-up failed";
+      toast.error(msg);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
-      <div className="w-full max-w-[360px] bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200/60 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-black/20">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-white shadow-sm">
-              <Sparkle size={16} fill="white" />
-            </div>
-            <span className="font-bold text-slate-800 dark:text-slate-200 tracking-tight">Wishes AI</span>
-          </div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">Create account</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Start automating your wishes today.</p>
+    <div className="w-full bg-[#121217]/90 backdrop-blur-2xl rounded-3xl p-7 sm:p-9 border border-white/10 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+      {/* Card Header */}
+      <div className="mb-7">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 mb-4">
+          <Sparkles size={12} className="text-[#2DD4BF]" />
+          <span className="text-[10px] font-mono tracking-widest uppercase text-[#2DD4BF] font-semibold">
+            Get Started
+          </span>
         </div>
+        <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F4F1EA] tracking-tight">
+          Create account
+        </h1>
+        <p className="text-xs text-[#8E8A82] mt-1.5 leading-relaxed">
+          Unlock personalized celebration rendering with true facial likeness.
+        </p>
+      </div>
 
-        {/* Google Auth */}
-        <button 
-          onClick={handleGoogle}
-          className="w-full py-2.5 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer mb-6"
-        >
-          <GoogleIcon className="w-4 h-4" />
-          Sign up with Google
-        </button>
+      {/* Google SSO Button */}
+      <button
+        type="button"
+        onClick={handleGoogle}
+        className="w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-xl flex items-center justify-center gap-2.5 text-xs font-semibold text-[#F4F1EA] transition-all cursor-pointer mb-5 shadow-sm"
+      >
+        <GoogleIcon className="w-4 h-4" />
+        <span>Sign up with Google</span>
+      </button>
 
-        <div className="relative flex items-center justify-center mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-100 dark:border-slate-800"></div>
-          </div>
-          <span className="relative px-2 bg-white dark:bg-slate-900 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500">or</span>
+      <div className="relative flex items-center justify-center mb-5">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/[0.08]"></div>
         </div>
+        <span className="relative px-3 bg-[#121217] text-[10px] uppercase font-mono tracking-widest text-[#8E8A82]">
+          or register with email
+        </span>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="register-name" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Full Name</label>
-            <div className="relative">
-              <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-              <input
-                id="register-name"
-                type="text"
-                placeholder="Ava Chen"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="register-email" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Email</label>
-            <div className="relative">
-              <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-              <input
-                id="register-email"
-                type="email"
-                placeholder="you@work.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="register-password" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 ml-1">Password</label>
-            <div className="relative">
-              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-              <input
-                id="register-password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
-                required
-                minLength={6}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 pt-2 cursor-pointer group">
-            <input type="checkbox" required className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-teal-600 focus:ring-teal-500 accent-teal-600 cursor-pointer bg-slate-50 dark:bg-slate-800" />
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">I agree to the Terms & Privacy Policy</span>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 mt-6 bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold rounded-xl transition-colors shadow-sm shadow-teal-500/20 flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            htmlFor="register-name"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
           >
-            Create account &rarr;
-          </button>
-        </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-            Already have an account? <Link to="/login" className="text-teal-600 dark:text-teal-400 font-bold hover:text-teal-700 dark:hover:text-teal-300">Sign in</Link>
-          </p>
+            Full Name
+          </label>
+          <div className="relative">
+            <User
+              size={14}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+            />
+            <input
+              id="register-name"
+              type="text"
+              required
+              placeholder="Maya Chen"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+            />
+          </div>
         </div>
+
+        <div>
+          <label
+            htmlFor="register-email"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
+          >
+            Email Address
+          </label>
+          <div className="relative">
+            <Mail
+              size={14}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+            />
+            <input
+              id="register-email"
+              type="email"
+              required
+              placeholder="maya@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="register-password"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
+          >
+            Password (min 6 characters)
+          </label>
+          <div className="relative">
+            <Lock
+              size={14}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+            />
+            <input
+              id="register-password"
+              type="password"
+              required
+              minLength={6}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 pt-1 cursor-pointer">
+          <input
+            id="register-terms"
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#F5B24A] focus:ring-[#F5B24A] accent-[#F5B24A] cursor-pointer"
+          />
+          <label htmlFor="register-terms" className="text-xs text-[#8E8A82] cursor-pointer select-none">
+            I agree to the Terms of Service & Privacy Policy
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full py-3 mt-2 bg-gradient-to-r from-[#F5B24A] to-[#E08B28] text-[#0A0A0C] text-xs font-bold rounded-xl transition-all shadow-[0_0_24px_rgba(245,178,74,0.3)] hover:shadow-[0_0_32px_rgba(245,178,74,0.5)] hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          <span>{isSubmitting ? "Creating account..." : "Create Account & Start"}</span>
+          <ArrowRight size={14} />
+        </button>
+      </form>
+
+      <div className="mt-6 text-center pt-4 border-t border-white/[0.06]">
+        <p className="text-xs text-[#8E8A82]">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-[#F5B24A] font-semibold hover:underline"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
