@@ -1,158 +1,300 @@
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Sparkle, Cloud, Command, Settings } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
+import { ArrowRight, Sparkles, Wand2, ShieldCheck } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const TOTAL_FRAMES = 40;
+const PRELOAD_COUNT = 10;
 
 export default function HeroSection() {
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const currentFrameRef = useRef<number>(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
-  };
+  // Helper to format frame path
+  const getFramePath = useCallback((index: number) => {
+    const frameNum = String(index + 1).padStart(4, "0");
+    return `/hero/frame_${frameNum}.webp`;
+  }, []);
 
-  const floatingVariants: Variants = {
-    animate: {
-      y: [0, -20, 0],
-      transition: {
-        duration: 5,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
+  // Draw current frame onto canvas with 'cover' aspect ratio
+  const renderFrame = useCallback((index: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const img = imagesRef.current[index];
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const imgW = img.naturalWidth;
+    const imgH = img.naturalHeight;
+
+    const scale = Math.max(w / imgW, h / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+    const offsetX = (w - renderW) / 2;
+    const offsetY = (h - renderH) / 2;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+  }, []);
+
+  // Resize canvas according to device pixel ratio
+  const handleResize = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    renderFrame(currentFrameRef.current);
+  }, [renderFrame]);
+
+  useEffect(() => {
+    // Check mobile and reduced motion
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    const checkReducedMotion = () => {
+      setPrefersReducedMotion(
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      );
+    };
+
+    checkMobile();
+    checkReducedMotion();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Initialize canvas & frame preloader
+  useEffect(() => {
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    // Initialize image cache array
+    imagesRef.current = new Array(TOTAL_FRAMES);
+
+    // 1. Eagerly preload first 10 frames
+    let loadedCount = 0;
+    for (let i = 0; i < PRELOAD_COUNT; i++) {
+      const img = new Image();
+      img.src = getFramePath(i);
+      img.onload = () => {
+        loadedCount++;
+        if (i === 0) {
+          setFirstFrameLoaded(true);
+          renderFrame(0);
+        }
+        if (loadedCount === PRELOAD_COUNT) {
+          // 2. Progressively load remaining frames in idle time
+          loadRemainingFrames();
+        }
+      };
+      imagesRef.current[i] = img;
+    }
+
+    function loadRemainingFrames() {
+      for (let i = PRELOAD_COUNT; i < TOTAL_FRAMES; i++) {
+        const img = new Image();
+        img.src = getFramePath(i);
+        imagesRef.current[i] = img;
+      }
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [getFramePath, handleResize, renderFrame]);
+
+  // Setup GSAP ScrollTrigger for pinned canvas scrub
+  useEffect(() => {
+    if (isMobile || prefersReducedMotion) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: container,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.6,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          setScrollProgress(progress);
+
+          const targetFrame = Math.min(
+            TOTAL_FRAMES - 1,
+            Math.floor(progress * TOTAL_FRAMES)
+          );
+
+          if (targetFrame !== currentFrameRef.current) {
+            currentFrameRef.current = targetFrame;
+            renderFrame(targetFrame);
+          }
+        },
+      });
+    }, container);
+
+    return () => ctx.revert();
+  }, [isMobile, prefersReducedMotion, renderFrame]);
 
   return (
-    <section className="relative pt-24 pb-16 px-4 overflow-hidden min-h-[90vh] flex flex-col justify-center">
-      
-      {/* Floating Background Elements */}
-      <motion.div 
-        variants={floatingVariants} animate="animate"
-        className="absolute top-20 left-10 w-64 h-64 bg-teal-300/20 rounded-full blur-3xl pointer-events-none" 
-      />
-      <motion.div 
-        variants={floatingVariants} animate="animate" style={{ animationDelay: "2s" }}
-        className="absolute bottom-40 right-10 w-80 h-80 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" 
-      />
-
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="max-w-4xl mx-auto text-center relative z-10"
-      >
-        <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-[10px] font-bold text-white uppercase tracking-wider mb-8 shadow-sm">
-          <Sparkle size={12} className="text-white" /> Now with Gemini & FLUX providers
-        </motion.div>
-        
-        <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
-          The automation center for <br className="hidden md:block" /> 
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-indigo-500">AI-powered celebration</span>
-        </motion.h1>
-        
-        <motion.p variants={itemVariants} className="text-lg text-slate-500 font-medium mb-10 max-w-2xl mx-auto">
-          Wishes AI connects your events, cloud storage, and generative AI into one silky workflow. Design, generate, approve, and send — all from one place.
-        </motion.p>
-        
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24 w-full sm:w-auto px-4 sm:px-0">
-          <Link to="/register" className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 text-center">
-            Start free &rarr;
-          </Link>
-          <button className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-bold transition-all shadow-sm hover:shadow-md hover:-translate-y-1 text-center">
-            Live demo &rarr;
-          </button>
-        </motion.div>
-
-        {/* Dashboard Mockup Graphic */}
-        <motion.div 
-          variants={itemVariants}
-          className="relative mx-auto w-full max-w-5xl rounded-2xl bg-white/60 backdrop-blur-xl border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden mb-24"
-        >
-          <div className="h-10 bg-white/50 border-b border-white/40 flex items-center px-4 gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-400"></div>
-            <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
+    <section
+      ref={containerRef}
+      className={`relative w-full ${
+        isMobile || prefersReducedMotion ? "min-h-screen py-24 sm:py-32" : "h-[280vh]"
+      } bg-[#0A0A0C] text-[#F4F1EA]`}
+    >
+      {/* Pinned Viewport */}
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+        {/* Scrubbed Canvas (Desktop) */}
+        {!isMobile && !prefersReducedMotion ? (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700"
+            style={{ opacity: firstFrameLoaded ? 1 : 0 }}
+          />
+        ) : (
+          /* Mobile / Reduced-Motion Fallback Image */
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+            <img
+              src="/hero/frame_0040.webp"
+              alt="Celebration scene"
+              className="w-full h-full object-cover opacity-60 scale-105 animate-pulse duration-[12s]"
+            />
           </div>
-          <div className="p-4 md:p-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 bg-slate-50/30">
-            <motion.div whileHover={{ scale: 1.05 }} className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm text-center sm:text-left transition-shadow hover:shadow-md cursor-default">
-               <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">EVENTS SYNCED</h4>
-               <p className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 md:mt-2 tracking-tight">128</p>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm text-center sm:text-left transition-shadow hover:shadow-md cursor-default">
-               <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">WISHES GENERATED</h4>
-               <p className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 md:mt-2 tracking-tight">512</p>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm text-center sm:text-left transition-shadow hover:shadow-md cursor-default">
-               <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">EMAILS DELIVERED</h4>
-               <p className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1 md:mt-2 tracking-tight">892</p>
-            </motion.div>
-            
-            <motion.div whileHover={{ scale: 1.02 }} className="col-span-1 sm:col-span-3 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm mt-2 md:mt-4 text-left relative overflow-hidden transition-shadow hover:shadow-md">
-              <div className="flex items-center gap-2 mb-6 md:mb-8 relative z-10">
-                <Settings size={14} className="text-slate-900 animate-spin-slow" />
-                <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Wishes AI flow</span>
+        )}
+
+        {/* Cinematic Vignette & Atmospheric Gradients */}
+        <div className="absolute inset-0 bg-radial-[ellipse_80%_80%_at_50%_50%] from-transparent via-[#0A0A0C]/40 to-[#0A0A0C] pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#0A0A0C] via-[#0A0A0C]/60 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0A0A0C] via-[#0A0A0C]/60 to-transparent pointer-events-none" />
+
+        {/* Ambient Teal & Gold Glow Lights */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2DD4BF]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#F5B24A]/15 rounded-full blur-[160px] pointer-events-none" />
+
+        {/* Content Container */}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
+          {/* Top Pill Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6 shadow-[0_0_20px_rgba(245,178,74,0.15)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F5B24A] animate-ping" />
+            <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-[#F4F1EA]/80 flex items-center gap-1.5">
+              <ShieldCheck size={12} className="text-[#2DD4BF]" />
+              True Identity Preservation Core
+            </span>
+          </div>
+
+          {/* Dynamic Staged Headline: Smooth Transition between scroll progress */}
+          <div className="min-h-[220px] sm:min-h-[260px] flex flex-col items-center justify-center">
+            {/* Stage 1: (0% - 35%) */}
+            <div
+              className={`transition-all duration-700 ${
+                scrollProgress < 0.35 || isMobile
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 -translate-y-8 pointer-events-none absolute"
+              }`}
+            >
+              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.05]">
+                A single portrait becomes a{" "}
+                <span className="italic text-[#F5B24A]">celebration.</span>
+              </h1>
+              <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#8E8A82] font-normal leading-relaxed">
+                Upload one photograph. Wishes AI synthesizes an authentic, cinematic
+                celebration scene — keeping their true smile, spirit, and likeness intact.
+              </p>
+            </div>
+
+            {/* Stage 2: (35% - 70%) */}
+            {!isMobile && (
+              <div
+                className={`transition-all duration-700 ${
+                  scrollProgress >= 0.35 && scrollProgress < 0.7
+                    ? "opacity-100 translate-y-0 scale-100"
+                    : "opacity-0 translate-y-8 pointer-events-none absolute"
+                }`}
+              >
+                <h2 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.05]">
+                  Authentic emotion.{" "}
+                  <span className="italic text-[#2DD4BF]">Cinematic light.</span>
+                </h2>
+                <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#8E8A82] font-normal leading-relaxed">
+                  Diwali twilight with glowing diyas, candlelit milestone birthdays,
+                  or royal wedding floral arches. Zero generic AI distortion.
+                </p>
               </div>
-              
-              <div className="overflow-x-auto pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-                <div className="flex items-center justify-between min-w-[600px] md:min-w-0 relative z-10">
-                  {[
-                    { step: 1, label: "Detect event", active: true },
-                    { step: 2, label: "Pick template", active: false },
-                    { step: 3, label: "Generate wish", active: false },
-                    { step: 4, label: "Render image", active: false },
-                    { step: 5, label: "Approve", active: false },
-                    { step: 6, label: "Send", active: false }
-                  ].map((item, index, arr) => (
-                    <div key={item.step} className="flex items-center w-full">
-                      <div className="flex flex-col items-center gap-2 md:gap-3 shrink-0">
-                        <motion.div 
-                          whileHover={{ scale: 1.2 }}
-                          className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-colors text-sm md:text-base ${
-                            item.active ? "bg-teal-500 text-white" : "bg-white border border-slate-200 text-slate-400 hover:border-teal-300"
-                          }`}
-                        >
-                          {item.step}
-                        </motion.div>
-                        <span className={`text-[10px] md:text-xs font-bold ${item.active ? "text-slate-900" : "text-slate-500"}`}>{item.label}</span>
-                      </div>
-                      {index < arr.length - 1 && (
-                        <div className="flex-1 h-px bg-slate-200 mx-2 md:mx-4 relative overflow-hidden">
-                          <motion.div 
-                            className="absolute inset-0 bg-teal-500 origin-left"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: item.active ? 1 : 0 }}
-                            transition={{ duration: 1, delay: 0.5 }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+            )}
+
+            {/* Stage 3: (70% - 100%) Final Call-to-Action */}
+            <div
+              className={`transition-all duration-700 ${
+                scrollProgress >= 0.7 || isMobile
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-8 pointer-events-none absolute"
+              }`}
+            >
+              <h2 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.05]">
+                Wishes that linger{" "}
+                <span className="italic text-[#F5B24A]">forever.</span>
+              </h2>
+              <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#8E8A82] font-normal leading-relaxed">
+                Handcrafted for personal milestones or scheduled across your entire company.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  to="/create"
+                  className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#F5B24A] via-[#EAB308] to-[#F59E0B] text-[#0A0A0C] font-semibold text-sm sm:text-base shadow-[0_0_35px_rgba(245,178,74,0.4)] hover:shadow-[0_0_50px_rgba(245,178,74,0.65)] transition-all hover:scale-[1.03]"
+                >
+                  <Sparkles size={18} className="text-[#0A0A0C]" />
+                  <span>Create Your Celebration Wish</span>
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </Link>
+
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/10 bg-white/[0.02] text-[#F4F1EA] text-sm font-medium hover:border-white/30 hover:bg-white/[0.05] transition-all backdrop-blur-md"
+                >
+                  <Wand2 size={15} className="text-[#F5B24A]" />
+                  <span>See How It Works</span>
+                </a>
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
 
-        {/* Trusted By */}
-        <motion.div variants={itemVariants}>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-8">TRUSTED BY TEAMS SHIPPING FAST</p>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-50 grayscale transition-all hover:grayscale-0 hover:opacity-100 duration-500">
-            <motion.div whileHover={{ y: -5 }} className="flex items-center gap-2 cursor-pointer text-black"><Cloud size={24} className="text-sky-500" /><span className="font-bold text-xl">Stratos</span></motion.div>
-            <motion.div whileHover={{ y: -5 }} className="flex items-center gap-2 cursor-pointer text-black"><Sparkle size={24} className="text-amber-500" /><span className="font-bold text-xl">Lumina</span></motion.div>
-            <motion.div whileHover={{ y: -5 }} className="flex items-center gap-2 cursor-pointer text-black"><Command size={24} className="text-slate-900" /><span className="font-bold text-xl">Vercel</span></motion.div>
-            <motion.div whileHover={{ y: -5 }} className="flex items-center gap-2 cursor-pointer text-black"><Settings size={24} className="text-indigo-500" /><span className="font-bold text-xl">Acme Corp</span></motion.div>
+          {/* Bottom Scroll Indicator hint */}
+          <div
+            className={`absolute -bottom-28 transition-opacity duration-500 flex flex-col items-center gap-2 text-[#8E8A82] ${
+              scrollProgress > 0.85 ? "opacity-0 pointer-events-none" : "opacity-75"
+            }`}
+          >
+            <span className="text-[10px] tracking-[0.25em] uppercase font-semibold">
+              Scroll To Experience
+            </span>
+            <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1">
+              <div className="w-1 h-2 rounded-full bg-[#F5B24A] animate-bounce" />
+            </div>
           </div>
-        </motion.div>
-
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

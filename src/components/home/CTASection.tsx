@@ -1,98 +1,168 @@
+import { Sparkles, ArrowRight, ArrowUp, Shield, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Check, ChevronDown } from "lucide-react";
 
 export default function CTASection() {
-  const pricing = [
-    {
-      name: "Starter",
-      price: "$0",
-      features: ["10 AI generations", "1 cloud connection", "Community support"],
-      button: "Choose Starter",
-      highlight: false
-    },
-    {
-      name: "Pro",
-      price: "$5",
-      features: ["100 generations", "Priority queue", "All integrations", "Approval workflow"],
-      button: "Choose Pro",
-      highlight: true
-    },
-    {
-      name: "Team",
-      price: "$10",
-      features: ["100 generations", "Shared history", "SAML SSO", "Audit logs"],
-      button: "Choose Team",
-      highlight: false
-    }
-  ];
-
-  const faqs = [
-    "Which AI providers do you support?",
-    "Do you store my images?",
-    "Can I invite my team?",
-    "Is there an API?"
-  ];
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
-    <div className="bg-transparent">
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-4 max-w-5xl mx-auto">
-        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white text-center mb-16">Simple, generous pricing</h2>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          {pricing.map((tier, i) => (
-            <div key={i} className={`p-8 rounded-3xl border ${tier.highlight ? 'border-teal-500 dark:border-teal-400 shadow-xl shadow-teal-500/10 relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-md' : 'border-slate-200/60 dark:border-slate-800 shadow-sm bg-white/60 dark:bg-slate-900/60 backdrop-blur-md'} flex flex-col`}>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">{tier.name}</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-extrabold text-slate-900 dark:text-white">{tier.price}</span>
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500">/mo</span>
-              </div>
-              
-              <ul className="space-y-4 mb-8 flex-1">
-                {tier.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-300">
-                    <Check size={14} className="text-teal-500 dark:text-teal-400" /> {f}
-                  </li>
-                ))}
-              </ul>
+    <footer className="relative w-full bg-[#0A0A0C] text-[#F4F1EA] pt-28 sm:pt-36 pb-12 overflow-hidden border-t border-white/[0.06]">
+      {/* Background Radial Flare */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-[#F5B24A]/10 to-transparent blur-[140px] pointer-events-none" />
 
-              <button className={`w-full py-3 rounded-full text-xs font-bold transition-colors cursor-pointer ${tier.highlight ? 'bg-teal-500 hover:bg-teal-600 text-white shadow-sm' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'}`}>
-                {tier.button}
-              </button>
+      <div className="relative z-10 max-w-6xl mx-auto px-6">
+        {/* Main CTA Hero Banner */}
+        <div className="text-center max-w-4xl mx-auto mb-28 sm:mb-36">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-8 shadow-[0_0_24px_rgba(245,178,74,0.15)]">
+            <Sparkles size={13} className="text-[#F5B24A]" />
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[#F5B24A]">
+              Start In Seconds
+            </span>
+          </div>
+
+          <h2 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.05] mb-6">
+            Give them a celebration they will{" "}
+            <span className="italic text-[#F5B24A]">remember forever.</span>
+          </h2>
+
+          <p className="max-w-xl mx-auto text-sm sm:text-base text-[#8E8A82] leading-relaxed mb-10">
+            One candid photo is all it takes to craft an atmospheric, deeply personal
+            keepsake. Zero design experience needed.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/create"
+              className="group relative inline-flex items-center gap-3 px-9 py-4.5 rounded-full bg-gradient-to-r from-[#F5B24A] via-[#EAB308] to-[#F59E0B] text-[#0A0A0C] font-bold text-sm sm:text-base shadow-[0_0_40px_rgba(245,178,74,0.4)] hover:shadow-[0_0_60px_rgba(245,178,74,0.65)] transition-all hover:scale-[1.03]"
+            >
+              <Sparkles size={18} className="text-[#0A0A0C]" />
+              <span>Create Your Celebration Wish</span>
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </Link>
+
+            <Link
+              to="/onedrive"
+              className="inline-flex items-center gap-2 px-7 py-4.5 rounded-full border border-white/15 bg-white/[0.03] text-[#F4F1EA] text-sm font-semibold hover:border-white/30 hover:bg-white/[0.06] transition-all backdrop-blur-md"
+            >
+              <span>Automate For Teams</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Divider with Center Badge */}
+        <div className="relative my-12 border-t border-white/[0.08] flex items-center justify-center">
+          <span className="absolute bg-[#0A0A0C] px-4 text-[10px] font-mono tracking-[0.25em] uppercase text-[#8E8A82]">
+            CINEMATIC GENERATIVE ARTISTRY
+          </span>
+        </div>
+
+        {/* Giant Luxury Wordmark */}
+        <div className="select-none text-center my-10 sm:my-14 overflow-hidden">
+          <span className="font-serif text-[clamp(3.5rem,15vw,13rem)] font-normal tracking-[0.18em] uppercase text-transparent bg-clip-text bg-gradient-to-b from-white/20 via-white/5 to-transparent block leading-none">
+            WISHES AI
+          </span>
+        </div>
+
+        {/* Footer Navigation & Metadata */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-10 border-t border-white/[0.06] text-xs">
+          <div>
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-[#F5B24A] mb-3">
+              Platform
+            </h4>
+            <ul className="space-y-2 text-[#8E8A82]">
+              <li>
+                <Link to="/create" className="hover:text-[#F4F1EA] transition-colors">
+                  AI Studio
+                </Link>
+              </li>
+              <li>
+                <Link to="/events" className="hover:text-[#F4F1EA] transition-colors">
+                  Event Calendar
+                </Link>
+              </li>
+              <li>
+                <Link to="/onedrive" className="hover:text-[#F4F1EA] transition-colors">
+                  OneDrive Automation
+                </Link>
+              </li>
+              <li>
+                <Link to="/history" className="hover:text-[#F4F1EA] transition-colors">
+                  Generation History
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-[#F5B24A] mb-3">
+              Occasions
+            </h4>
+            <ul className="space-y-2 text-[#8E8A82]">
+              <li>
+                <a href="#gallery" className="hover:text-[#F4F1EA] transition-colors">
+                  Diwali Celebrations
+                </a>
+              </li>
+              <li>
+                <a href="#gallery" className="hover:text-[#F4F1EA] transition-colors">
+                  Milestone Birthdays
+                </a>
+              </li>
+              <li>
+                <a href="#gallery" className="hover:text-[#F4F1EA] transition-colors">
+                  Weddings & Sangeet
+                </a>
+              </li>
+              <li>
+                <a href="#gallery" className="hover:text-[#F4F1EA] transition-colors">
+                  Work Anniversaries
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-mono text-[11px] uppercase tracking-wider text-[#F5B24A] mb-3">
+              Security & Trust
+            </h4>
+            <ul className="space-y-2 text-[#8E8A82]">
+              <li className="flex items-center gap-1.5">
+                <Shield size={12} className="text-[#2DD4BF]" />
+                <span>Identity Protection Guaranteed</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                <Globe size={12} className="text-[#2DD4BF]" />
+                <span>Encrypted at Rest (AES-256)</span>
+              </li>
+              <li>
+                <span className="text-[#8E8A82]">Zero Data Training Consent</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col justify-between items-start md:items-end">
+            <button
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 text-xs font-semibold text-[#8E8A82] hover:text-[#F4F1EA] hover:border-white/30 transition-all cursor-pointer"
+            >
+              <span>Back to Top</span>
+              <ArrowUp size={13} />
+            </button>
+
+            <div className="mt-6 md:mt-0 text-[11px] text-[#8E8A82] text-left md:text-right">
+              <span className="inline-flex items-center gap-1.5 text-[#2DD4BF] font-mono mb-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF] animate-pulse" />
+                4K Diffusion Pipeline Online
+              </span>
+              <p>© {new Date().getFullYear()} Wishes AI. All rights reserved.</p>
             </div>
-          ))}
+          </div>
         </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section id="faq" className="py-16 px-4 max-w-3xl mx-auto border-t border-slate-200/60 dark:border-slate-800">
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white text-center mb-12">Questions & answers</h2>
-        <div className="space-y-4">
-          {faqs.map((q, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md flex items-center justify-between cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors">
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{q}</span>
-              <ChevronDown size={16} className="text-slate-400 dark:text-slate-500" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer CTA */}
-      <section className="py-32 px-4 max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Ready to automate what matters?</h2>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-10">Start free. Upgrade when you're ready.</p>
-        
-        <div className="flex items-center justify-center gap-4 mb-32">
-          <Link to="/register" className="px-6 py-3 rounded-full bg-teal-500 hover:bg-teal-600 text-white font-bold transition-colors shadow-sm">
-            Create account
-          </Link>
-          <button className="px-6 py-3 rounded-full bg-white/80 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold transition-colors cursor-pointer">
-            Open demo
-          </button>
-        </div>
-
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide">© 2026 Wishes AI. All rights reserved.</p>
-      </section>
-    </div>
+      </div>
+    </footer>
   );
 }
