@@ -9,6 +9,7 @@ import HeroSection from "../components/home/HeroSection";
 import HowItWorksSection from "../components/home/HowItWorksSection";
 import GallerySection from "../components/home/GallerySection";
 import FeaturesSection from "../components/home/FeaturesSection";
+import PricingSection from "../components/home/PricingSection";
 import CorporateWishesSection from "../components/home/CorporateWishesSection";
 import CTASection from "../components/home/CTASection";
 
@@ -83,6 +84,7 @@ export default function HomePage() {
         <HowItWorksSection />
         <GallerySection />
         <FeaturesSection />
+        <PricingSection />
         <CorporateWishesSection />
         <CTASection />
       </main>

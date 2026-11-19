@@ -68,9 +68,14 @@ export default function CTASection() {
         {/* Brand Display with Official Uploaded Logo */}
         <div className="select-none flex items-center justify-center my-8 sm:my-12">
           <img
-            src="/wishes-logo.png"
+            src="/wishes-logo-light.png"
             alt="Wishes AI Wordmark"
-            className="max-h-20 sm:max-h-24 w-auto object-contain opacity-90 drop-shadow-[0_0_20px_rgba(0,191,166,0.25)]"
+            className="max-h-16 sm:max-h-20 w-auto object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,191,166,0.25)] dark:hidden"
+          />
+          <img
+            src="/wishes-logo-dark.png"
+            alt="Wishes AI Wordmark"
+            className="max-h-16 sm:max-h-20 w-auto object-contain opacity-95 drop-shadow-[0_0_20px_rgba(0,191,166,0.35)] hidden dark:block"
           />
         </div>
 

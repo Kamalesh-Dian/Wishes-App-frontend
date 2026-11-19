@@ -42,20 +42,22 @@ export default function CinematicNavbar() {
             : "bg-[#d9faf4]/70 dark:bg-[#0f2a2a]/70 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
         }`}
       >
-        {/* Brand Logo with Uploaded Mark */}
+        {/* Brand Logo with Full Uploaded Logo (Light & Dark Variants) */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/wishes-icon.png"
-            alt="Wishes AI Logo"
-            className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.4)]"
+            src="/wishes-logo-light.png"
+            alt="Wishes AI"
+            className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.25)] dark:hidden"
           />
-          <span className="font-serif text-lg tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] font-normal hidden xs:inline-block">
-            Wishes <span className="italic text-[#00bfa6] font-semibold">AI</span>
-          </span>
+          <img
+            src="/wishes-logo-dark.png"
+            alt="Wishes AI"
+            className="h-7 sm:h-8 md:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.35)] hidden dark:block"
+          />
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-7 text-[12px] uppercase tracking-[0.16em] font-medium text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-7 text-[12px] uppercase tracking-[0.16em] font-medium text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">
           <button
             onClick={() => scrollToSection("how-it-works")}
             className="hover:text-[#00bfa6] dark:hover:text-[#00bfa6] transition-colors cursor-pointer"
@@ -73,6 +75,12 @@ export default function CinematicNavbar() {
             className="hover:text-[#00bfa6] dark:hover:text-[#00bfa6] transition-colors cursor-pointer"
           >
             Technology
+          </button>
+          <button
+            onClick={() => scrollToSection("pricing")}
+            className="hover:text-[#00bfa6] dark:hover:text-[#00bfa6] transition-colors cursor-pointer"
+          >
+            Pricing
           </button>
           <button
             onClick={() => scrollToSection("corporate")}
@@ -150,6 +158,12 @@ export default function CinematicNavbar() {
             className="py-2 text-sm text-[#0f2a2a] dark:text-[#d9faf4] tracking-wider uppercase font-semibold"
           >
             Technology
+          </button>
+          <button
+            onClick={() => scrollToSection("pricing")}
+            className="py-2 text-sm text-[#0f2a2a] dark:text-[#d9faf4] tracking-wider uppercase font-semibold"
+          >
+            Pricing
           </button>
           <button
             onClick={() => scrollToSection("corporate")}

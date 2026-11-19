@@ -21,13 +21,15 @@ export default function AuthLayout() {
       <header className="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/wishes-icon.png"
-            alt="Wishes AI Logo"
-            className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.3)]"
+            src="/wishes-logo-light.png"
+            alt="Wishes AI"
+            className="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.25)] dark:hidden"
           />
-          <span className="font-serif text-lg tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] font-normal">
-            Wishes <span className="italic text-[#00bfa6] font-semibold">AI</span>
-          </span>
+          <img
+            src="/wishes-logo-dark.png"
+            alt="Wishes AI"
+            className="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.35)] hidden dark:block"
+          />
         </Link>
 
         <Link

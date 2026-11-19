@@ -43,13 +43,15 @@ export default function Sidebar() {
         {isOpen ? (
           <div className="flex items-center gap-2.5">
             <img
-              src="/wishes-icon.png"
+              src="/wishes-logo-light.png"
               alt="Wishes AI"
-              className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(0,191,166,0.3)]"
+              className="h-8 w-auto object-contain dark:hidden"
             />
-            <span className="font-serif text-lg font-normal text-slate-900 dark:text-white leading-tight tracking-tight whitespace-nowrap">
-              Wishes <span className="italic text-[#00bfa6] font-semibold">AI</span>
-            </span>
+            <img
+              src="/wishes-logo-dark.png"
+              alt="Wishes AI"
+              className="h-8 w-auto object-contain hidden dark:block"
+            />
           </div>
         ) : (
           <img

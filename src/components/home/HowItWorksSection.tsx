@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sparkles, Camera, Palette, Gift, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const STEPS = [
   {
@@ -55,6 +59,29 @@ const STEPS = [
 
 export default function HowItWorksSection() {
   const [activeStep, setActiveStep] = useState(0);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const triggers: ScrollTrigger[] = [];
+
+    stepRefs.current.forEach((el, index) => {
+      if (!el) return;
+
+      const trigger = ScrollTrigger.create({
+        trigger: el,
+        start: "top center+=80",
+        end: "bottom center-=80",
+        onEnter: () => setActiveStep(index),
+        onEnterBack: () => setActiveStep(index),
+      });
+
+      triggers.push(trigger);
+    });
+
+    return () => {
+      triggers.forEach((t) => t.kill());
+    };
+  }, []);
 
   return (
     <section
@@ -93,6 +120,9 @@ export default function HowItWorksSection() {
               return (
                 <div
                   key={step.number}
+                  ref={(el) => {
+                    stepRefs.current[idx] = el;
+                  }}
                   onClick={() => setActiveStep(idx)}
                   className={`p-6 sm:p-8 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive
