@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Wand2, ShieldCheck, Layers } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -300,70 +300,6 @@ export default function HeroSection() {
               <Wand2 size={15} className="text-[#FF5A52]" />
               <span>Explore Process</span>
             </button>
-          </div>
-
-          {/* Layered Celebration Preview Cards Strip */}
-          <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-5 max-w-3xl w-full">
-            {[
-              {
-                title: "Diwali Night Market",
-                tag: "FESTIVE LANTERNS",
-                img: "/showcase/diwali.webp",
-                accent: "border-[#FF5A52]/50",
-              },
-              {
-                title: "30th Milestone Soirée",
-                tag: "CANDLELIT BOKEH",
-                img: "/showcase/birthday.webp",
-                accent: "border-[#00bfa6]/60",
-              },
-              {
-                title: "Royal Palace Sangeet",
-                tag: "HERITAGE ARCHES",
-                img: "/showcase/wedding.webp",
-                accent: "border-[#FF5A52]/50",
-              },
-            ].map((card, idx) => (
-              <div
-                key={card.title}
-                className={`group relative rounded-2xl overflow-hidden border ${card.accent} bg-white/80 dark:bg-[#143838]/80 backdrop-blur-xl shadow-lg transition-all duration-300 hover:-translate-y-1 ${
-                  activeStage === idx ? "ring-2 ring-[#00bfa6] scale-[1.02]" : "opacity-90"
-                }`}
-              >
-                <div className="h-20 sm:h-28 w-full overflow-hidden">
-                  <img
-                    src={card.img}
-                    alt={card.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-2.5 sm:p-3 text-left">
-                  <span className="block font-mono text-[9px] tracking-widest uppercase text-[#FF5A52] font-bold">
-                    {card.tag}
-                  </span>
-                  <p className="text-xs sm:text-sm font-bold text-[#0f2a2a] dark:text-[#d9faf4] truncate">
-                    {card.title}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Stage Progress Indicator Pills */}
-          <div className="mt-5 flex items-center gap-2" aria-label="Hero sequence stage">
-            {[0, 1, 2].map((stageIdx) => (
-              <span
-                key={stageIdx}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  activeStage === stageIdx
-                    ? "w-8 bg-[#FF5A52]"
-                    : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20"
-                }`}
-              />
-            ))}
-            <span className="ml-2 text-[10px] font-mono uppercase tracking-widest text-[#0f2a2a]/60 dark:text-[#d9faf4]/60 flex items-center gap-1">
-              <Layers size={11} className="text-[#00bfa6]" /> Scroll to scrub scene
-            </span>
           </div>
         </div>
       </div>
