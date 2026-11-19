@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Wand2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, ShieldCheck, Layers } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -19,13 +19,11 @@ export default function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
 
-  // Helper to format frame path
   const getFramePath = useCallback((index: number) => {
     const frameNum = String(index + 1).padStart(4, "0");
     return `/hero/frame_${frameNum}.webp`;
   }, []);
 
-  // Draw current frame onto canvas with 'cover' aspect ratio
   const renderFrame = useCallback((index: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -37,7 +35,6 @@ export default function HeroSection() {
 
     const w = canvas.width;
     const h = canvas.height;
-
     const imgW = img.naturalWidth;
     const imgH = img.naturalHeight;
 
@@ -51,7 +48,6 @@ export default function HeroSection() {
     ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
   }, []);
 
-  // Handle high-DPI resize
   const handleResize = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -66,7 +62,6 @@ export default function HeroSection() {
   }, [renderFrame]);
 
   useEffect(() => {
-    // Check mobile and reduced motion
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -83,15 +78,12 @@ export default function HeroSection() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Initialize canvas & frame preloader
   useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    // Initialize image cache array
     imagesRef.current = new Array(TOTAL_FRAMES);
 
-    // 1. Eagerly preload first 10 frames
     let loadedCount = 0;
     for (let i = 0; i < PRELOAD_COUNT; i++) {
       const img = new Image();
@@ -103,7 +95,6 @@ export default function HeroSection() {
           renderFrame(0);
         }
         if (loadedCount === PRELOAD_COUNT) {
-          // 2. Progressively load remaining frames in idle time
           loadRemainingFrames();
         }
       };
@@ -123,7 +114,6 @@ export default function HeroSection() {
     };
   }, [getFramePath, handleResize, renderFrame]);
 
-  // Setup GSAP ScrollTrigger for pinned canvas scrub
   useEffect(() => {
     if (isMobile || prefersReducedMotion) return;
 
@@ -167,132 +157,213 @@ export default function HeroSection() {
     }
   };
 
+  const activeStage = isMobile || prefersReducedMotion
+    ? 0
+    : scrollProgress < 0.35
+      ? 0
+      : scrollProgress < 0.7
+        ? 1
+        : 2;
+
   return (
     <section
       ref={containerRef}
+      aria-label="Wishes AI Hero"
       className={`relative w-full ${
-        isMobile || prefersReducedMotion ? "min-h-screen py-24 sm:py-32" : "h-[220vh]"
+        isMobile || prefersReducedMotion ? "min-h-screen py-24 sm:py-28" : "h-[230vh]"
       } bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] transition-colors duration-300`}
     >
       {/* Pinned Viewport */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* Scrubbed Canvas (Desktop) */}
-        {!isMobile && !prefersReducedMotion ? (
+        {/* Cohesive Visual Fallback Layer (Never Empty) */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+          <img
+            src="/hero/frame_0020.webp"
+            alt="Atmospheric night-market celebration backdrop"
+            className="w-full h-full object-cover opacity-35 dark:opacity-55 scale-105"
+          />
+        </div>
+
+        {/* Scrubbed 40-Frame Canvas (Desktop) */}
+        {!isMobile && !prefersReducedMotion && (
           <canvas
             ref={canvasRef}
+            aria-label="Interactive celebration frame sequence"
             className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700"
-            style={{ opacity: firstFrameLoaded ? 0.9 : 0 }}
+            style={{ opacity: firstFrameLoaded ? 0.85 : 0 }}
           />
-        ) : (
-          /* Mobile / Reduced-Motion Fallback Image */
-          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-            <img
-              src="/hero/frame_0040.webp"
-              alt="Celebration scene"
-              className="w-full h-full object-cover opacity-50 scale-105"
-            />
-          </div>
         )}
 
-        {/* Soft Vignettes & Theme Gradients */}
-        <div className="absolute inset-0 bg-radial-[ellipse_80%_80%_at_50%_50%] from-transparent via-[#d9faf4]/50 dark:via-[#0f2a2a]/60 to-[#d9faf4] dark:to-[#0f2a2a] pointer-events-none" />
+        {/* Editorial Vignettes & Night-Market Coral/Teal Glows */}
+        <div className="absolute inset-0 bg-radial-[ellipse_80%_80%_at_50%_50%] from-transparent via-[#d9faf4]/55 dark:via-[#0f2a2a]/65 to-[#d9faf4] dark:to-[#0f2a2a] pointer-events-none" />
         <div className="absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-[#d9faf4] dark:from-[#0f2a2a] via-[#d9faf4]/80 dark:via-[#0f2a2a]/80 to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#d9faf4] dark:from-[#0f2a2a] via-[#d9faf4]/80 dark:via-[#0f2a2a]/80 to-transparent pointer-events-none" />
 
-        {/* Ambient Teal Glow Lights */}
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#00bfa6]/15 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#00bfa6]/20 rounded-full blur-[160px] pointer-events-none" />
+        {/* Restrained Coral-Red & Teal Ambient Lantern Glows */}
+        <div className="absolute top-1/4 -left-16 w-96 h-96 bg-[#FF5A52]/15 dark:bg-[#FF5A52]/20 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-16 w-96 h-96 bg-[#00bfa6]/20 rounded-full blur-[160px] pointer-events-none" />
 
         {/* Content Container */}
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center">
-          {/* Top Pill Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/[0.05] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#00bfa6] animate-ping" />
-            <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#0f2a2a]/80 dark:text-[#d9faf4]/90 flex items-center gap-1.5">
+        <div className="relative z-10 max-w-6xl w-full mx-auto px-6 pt-16 flex flex-col items-center text-center">
+          {/* Small Uppercase Editorial Label */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/75 dark:bg-white/[0.06] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-6 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#FF5A52] animate-pulse" />
+            <span className="text-[11px] font-mono font-bold tracking-[0.22em] uppercase text-[#0f2a2a]/85 dark:text-[#d9faf4]/90 flex items-center gap-1.5">
               <ShieldCheck size={13} className="text-[#00bfa6]" />
-              True Identity Preservation Core
+              Identity-Preserving Celebration Studio
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A52]/15 text-[#FF5A52] font-bold">
+              FRAME {String(Math.min(TOTAL_FRAMES, Math.floor(scrollProgress * TOTAL_FRAMES) + 1)).padStart(2, "0")}/40
             </span>
           </div>
 
-          {/* Dynamic Staged Headline */}
-          <div className="min-h-[220px] sm:min-h-[260px] flex flex-col items-center justify-center">
-            {/* Stage 1: (0% - 35%) */}
+          {/* Three Staged Headlines */}
+          <div className="relative min-h-[170px] sm:min-h-[195px] w-full max-w-4xl flex flex-col items-center justify-center">
+            {/* Stage 1 (0% - 35%) */}
             <div
-              className={`transition-all duration-700 ${
-                scrollProgress < 0.35 || isMobile
+              className={`transition-all duration-500 ${
+                activeStage === 0
                   ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 -translate-y-8 pointer-events-none absolute"
+                  : "opacity-0 -translate-y-6 pointer-events-none absolute inset-0"
               }`}
             >
-              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.05]">
-                A single portrait becomes a{" "}
-                <span className="italic text-[#00bfa6] font-semibold">celebration.</span>
+              <h1 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
+                Turn one candid portrait into a{" "}
+                <span className="text-[#00bfa6]">celebration</span>{" "}
+                <span className="underline decoration-[#FF5A52]/70 decoration-wavy underline-offset-8">
+                  scene.
+                </span>
               </h1>
-              <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 font-normal leading-relaxed">
-                Upload one photograph. Wishes AI synthesizes an authentic, cinematic
-                celebration scene — keeping their true smile, spirit, and likeness intact.
+              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
+                Upload a single photograph. Wishes AI stages festive night-market lanterns, royal arches,
+                and candlelit soirées while preserving 100% of their true facial identity.
               </p>
             </div>
 
-            {/* Stage 2: (35% - 70%) */}
-            {!isMobile && (
+            {/* Stage 2 (35% - 70%) */}
+            <div
+              className={`transition-all duration-500 ${
+                activeStage === 1
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-6 pointer-events-none absolute inset-0"
+              }`}
+            >
+              <h2 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
+                Editorial warmth.{" "}
+                <span className="text-[#FF5A52]">Festival light.</span>{" "}
+                <span className="text-[#00bfa6]">Zero distortion.</span>
+              </h2>
+              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
+                From glowing Diwali diyas and milestone birthdays to palace wedding sangeets—ray-traced
+                illumbering harmonizes naturally with skin tones and silk attire.
+              </p>
+            </div>
+
+            {/* Stage 3 (70% - 100%) */}
+            <div
+              className={`transition-all duration-500 ${
+                activeStage === 2
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-6 pointer-events-none absolute inset-0"
+              }`}
+            >
+              <h2 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
+                Keepsakes that linger{" "}
+                <span className="text-[#00bfa6]">forever</span>{" "}
+                <span className="text-[#FF5A52]">in 4K.</span>
+              </h2>
+              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
+                Crafted in 60 seconds for personal milestones or dispatched automatically across your
+                organization via OneDrive roster sync.
+              </p>
+            </div>
+          </div>
+
+          {/* Primary Actions (Always Accessible) */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              to="/create"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#00bfa6] text-[#0f2a2a] font-bold text-sm sm:text-base shadow-[0_10px_30px_rgba(0,191,166,0.38)] hover:shadow-[0_12px_42px_rgba(0,191,166,0.6)] transition-all hover:scale-[1.03]"
+            >
+              <Sparkles size={17} className="text-[#0f2a2a]" />
+              <span>Create Wish</span>
+              <ArrowRight
+                size={16}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </Link>
+
+            <button
+              onClick={handleLearnMore}
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 bg-white/75 dark:bg-white/[0.06] text-[#0f2a2a] dark:text-[#d9faf4] text-sm font-semibold hover:border-[#FF5A52] hover:text-[#FF5A52] transition-all backdrop-blur-md cursor-pointer"
+            >
+              <Wand2 size={15} className="text-[#FF5A52]" />
+              <span>Explore Process</span>
+            </button>
+          </div>
+
+          {/* Layered Celebration Preview Cards Strip */}
+          <div className="mt-8 sm:mt-10 grid grid-cols-3 gap-3 sm:gap-5 max-w-3xl w-full">
+            {[
+              {
+                title: "Diwali Night Market",
+                tag: "FESTIVE LANTERNS",
+                img: "/showcase/diwali.webp",
+                accent: "border-[#FF5A52]/50",
+              },
+              {
+                title: "30th Milestone Soirée",
+                tag: "CANDLELIT BOKEH",
+                img: "/showcase/birthday.webp",
+                accent: "border-[#00bfa6]/60",
+              },
+              {
+                title: "Royal Palace Sangeet",
+                tag: "HERITAGE ARCHES",
+                img: "/showcase/wedding.webp",
+                accent: "border-[#FF5A52]/50",
+              },
+            ].map((card, idx) => (
               <div
-                className={`transition-all duration-700 ${
-                  scrollProgress >= 0.35 && scrollProgress < 0.7
-                    ? "opacity-100 translate-y-0 scale-100"
-                    : "opacity-0 translate-y-8 pointer-events-none absolute"
+                key={card.title}
+                className={`group relative rounded-2xl overflow-hidden border ${card.accent} bg-white/80 dark:bg-[#143838]/80 backdrop-blur-xl shadow-lg transition-all duration-300 hover:-translate-y-1 ${
+                  activeStage === idx ? "ring-2 ring-[#00bfa6] scale-[1.02]" : "opacity-90"
                 }`}
               >
-                <h2 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.05]">
-                  Authentic emotion.{" "}
-                  <span className="italic text-[#00bfa6] font-semibold">Cinematic light.</span>
-                </h2>
-                <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 font-normal leading-relaxed">
-                  Diwali twilight with glowing diyas, candlelit milestone birthdays,
-                  or royal wedding floral arches. Zero generic AI distortion.
-                </p>
-              </div>
-            )}
-
-            {/* Stage 3: (70% - 100%) Final Call-to-Action */}
-            <div
-              className={`transition-all duration-700 ${
-                scrollProgress >= 0.7 || isMobile
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-8 pointer-events-none absolute"
-              }`}
-            >
-              <h2 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.05]">
-                Wishes that linger{" "}
-                <span className="italic text-[#00bfa6] font-semibold">forever.</span>
-              </h2>
-              <p className="mt-4 max-w-xl mx-auto text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 font-normal leading-relaxed">
-                Handcrafted for personal milestones or scheduled across your entire company.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  to="/create"
-                  className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#00bfa6] text-[#0f2a2a] font-bold text-sm sm:text-base shadow-[0_0_30px_rgba(0,191,166,0.4)] hover:shadow-[0_0_45px_rgba(0,191,166,0.65)] transition-all hover:scale-[1.03]"
-                >
-                  <Sparkles size={18} className="text-[#0f2a2a]" />
-                  <span>Create Your Celebration Wish</span>
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform group-hover:translate-x-1"
+                <div className="h-20 sm:h-28 w-full overflow-hidden">
+                  <img
+                    src={card.img}
+                    alt={card.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                </Link>
-
-                <button
-                  onClick={handleLearnMore}
-                  className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 bg-white/60 dark:bg-white/[0.04] text-[#0f2a2a] dark:text-[#d9faf4] text-sm font-semibold hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all backdrop-blur-md cursor-pointer"
-                >
-                  <Wand2 size={15} className="text-[#00bfa6]" />
-                  <span>See How It Works</span>
-                </button>
+                </div>
+                <div className="p-2.5 sm:p-3 text-left">
+                  <span className="block font-mono text-[9px] tracking-widest uppercase text-[#FF5A52] font-bold">
+                    {card.tag}
+                  </span>
+                  <p className="text-xs sm:text-sm font-bold text-[#0f2a2a] dark:text-[#d9faf4] truncate">
+                    {card.title}
+                  </p>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+
+          {/* Stage Progress Indicator Pills */}
+          <div className="mt-5 flex items-center gap-2" aria-label="Hero sequence stage">
+            {[0, 1, 2].map((stageIdx) => (
+              <span
+                key={stageIdx}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeStage === stageIdx
+                    ? "w-8 bg-[#FF5A52]"
+                    : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20"
+                }`}
+              />
+            ))}
+            <span className="ml-2 text-[10px] font-mono uppercase tracking-widest text-[#0f2a2a]/60 dark:text-[#d9faf4]/60 flex items-center gap-1">
+              <Layers size={11} className="text-[#00bfa6]" /> Scroll to scrub scene
+            </span>
           </div>
         </div>
       </div>

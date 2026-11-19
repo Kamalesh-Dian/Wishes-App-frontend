@@ -149,13 +149,13 @@ export default function FeaturesSection() {
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="max-w-3xl mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
-            <Sparkles size={13} className="text-[#00bfa6]" />
+          <div className="inline-flex items-center gap-2 text-[11px] font-mono font-bold tracking-[0.25em] uppercase text-[#FF5A52] mb-3">
+            <Sparkles size={13} className="text-[#FF5A52]" />
             <span>Under The Hood</span>
           </div>
-          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
+          <h2 className="font-sans text-[clamp(2.1rem,4.6vw,3.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
             Engineered for genuine likeness,{" "}
-            <span className="italic text-[#00bfa6] font-semibold">not generic faces.</span>
+            <span className="text-[#00bfa6]">not generic faces.</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed">
             Most generative tools hallucinate an unrecognizable stranger. Wishes AI separates facial

@@ -79,15 +79,15 @@ export default function PricingSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.05] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-4 shadow-sm">
-            <Sparkles size={12} className="text-[#00bfa6]" />
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#00bfa6]">
+            <Sparkles size={12} className="text-[#FF5A52]" />
+            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#FF5A52]">
               Simple & Transparent
             </span>
           </div>
 
-          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
+          <h2 className="font-sans text-[clamp(2.1rem,4.6vw,3.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
             Plans designed to celebrate{" "}
-            <span className="italic text-[#00bfa6] font-semibold">everyone.</span>
+            <span className="text-[#00bfa6]">everyone.</span>
           </h2>
 
           <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed max-w-xl mx-auto">
