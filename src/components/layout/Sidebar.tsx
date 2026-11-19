@@ -8,7 +8,6 @@ import {
   History, 
   User, 
   Settings,
-  Sparkle,
   PanelLeftClose,
   PanelLeftOpen,
   Zap
@@ -41,13 +40,23 @@ export default function Sidebar() {
     `}>
       {/* Logo & Toggle - Hidden on mobile */}
       <div className={`hidden md:flex p-6 items-center ${isOpen ? 'justify-between' : 'justify-center flex-col'} gap-3`}>
-        {isOpen && (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-slate-900 shadow-md shadow-teal-500/10">
-              <Sparkle size={16} className="fill-white dark:fill-slate-900" />
-            </div>
-            <h1 className="font-bold text-slate-900 dark:text-white text-base leading-tight tracking-tight whitespace-nowrap">Wishes AI</h1>
+        {isOpen ? (
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/wishes-icon.png"
+              alt="Wishes AI"
+              className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(0,191,166,0.3)]"
+            />
+            <span className="font-serif text-lg font-normal text-slate-900 dark:text-white leading-tight tracking-tight whitespace-nowrap">
+              Wishes <span className="italic text-[#00bfa6] font-semibold">AI</span>
+            </span>
           </div>
+        ) : (
+          <img
+            src="/wishes-icon.png"
+            alt="Wishes AI"
+            className="w-8 h-8 object-contain mb-2 drop-shadow-[0_0_10px_rgba(0,191,166,0.3)]"
+          />
         )}
         <div className="flex items-center gap-2">
           <button 

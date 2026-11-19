@@ -1,38 +1,38 @@
 import { Outlet, Link } from "react-router-dom";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AuthLayout() {
   return (
-    <div className="relative min-h-screen bg-[#0A0A0C] text-[#F4F1EA] flex flex-col justify-between overflow-hidden antialiased">
+    <div className="relative min-h-screen bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] flex flex-col justify-between overflow-hidden antialiased transition-colors duration-300">
       {/* Background Film Grain */}
       <div
-        className="fixed inset-0 pointer-events-none z-0 film-grain opacity-25 mix-blend-screen"
+        className="fixed inset-0 pointer-events-none z-0 film-grain opacity-25 mix-blend-multiply dark:mix-blend-screen"
         aria-hidden="true"
       />
 
       {/* Ambient Radial Glows */}
       <div
-        className="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-[#F5B24A]/10 via-[#2DD4BF]/5 to-transparent blur-[140px] pointer-events-none -z-10"
+        className="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-b from-[#00bfa6]/15 via-[#00bfa6]/5 to-transparent blur-[140px] pointer-events-none -z-10"
         aria-hidden="true"
       />
 
       {/* Top Header */}
       <header className="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#F5B24A] to-[#2DD4BF] p-[1px] shadow-[0_0_16px_rgba(245,178,74,0.3)] transition-transform duration-300 group-hover:scale-105">
-            <div className="w-full h-full bg-[#0A0A0C] rounded-full flex items-center justify-center">
-              <Sparkles size={14} className="text-[#F5B24A]" />
-            </div>
-          </div>
-          <span className="font-serif text-lg tracking-tight text-[#F4F1EA] font-normal">
-            Wishes <span className="italic text-[#F5B24A]">AI</span>
+        <Link to="/" className="flex items-center gap-3 group">
+          <img
+            src="/wishes-icon.png"
+            alt="Wishes AI Logo"
+            className="w-8 h-8 object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_0_12px_rgba(0,191,166,0.3)]"
+          />
+          <span className="font-serif text-lg tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] font-normal">
+            Wishes <span className="italic text-[#00bfa6] font-semibold">AI</span>
           </span>
         </Link>
 
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#8E8A82] hover:text-[#F4F1EA] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 hover:text-[#00bfa6] dark:hover:text-[#00bfa6] transition-colors"
         >
           <ArrowLeft size={14} />
           <span>Back to home</span>
@@ -52,7 +52,7 @@ export default function AuthLayout() {
       </main>
 
       {/* Bottom Footer Note */}
-      <footer className="relative z-10 w-full py-6 text-center text-[11px] text-[#8E8A82]/70 font-mono">
+      <footer className="relative z-10 w-full py-6 text-center text-[11px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60 font-mono">
         © {new Date().getFullYear()} Wishes AI • Identity-Preserving Neural Celebrations
       </footer>
     </div>

@@ -1,10 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Sparkles, Camera, Palette, Gift, CheckCircle2, ArrowRight } from "lucide-react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link } from "react-router-dom";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const STEPS = [
   {
@@ -29,24 +25,25 @@ const STEPS = [
     title: "Choose the celebration mood.",
     subtitle: "From Diwali twilight to royal weddings.",
     description:
-      "Select from authentic cultural ceremonies and celebratory occasions. Whether it is oil diyas in a courtyard, a candlelit milestone birthday, or golden champagne sparklers — the environment is dynamically composed around their likeness.",
+      "Select an occasion, custom festive theme, and emotional tone. The AI designs bespoke surroundings, realistic cultural attire, warm festive lighting, and cinematic bokeh that harmonizes naturally with the subject.",
     icon: Palette,
-    previewBadge: "ATMOSPHERE ENGINE: RAYTRACED LIGHTING",
+    previewBadge: "100+ CURATED FESTIVE PRESETS",
     visual: {
-      type: "mood",
-      title: "Lighting & Setting Synthesis",
-      themes: ["Diwali Diya Glow", "Milestone 30th Soirée", "Royal Palace Courtyard", "Silver Anniversary"],
+      type: "theme",
+      title: "Atmospheric Synthesis",
+      activeTheme: "Diwali Twilight & Golden Marigolds",
+      options: ["Diwali Glow", "Milestone 30th", "Royal Sangeet", "Silver Anniversary"],
     },
   },
   {
     number: "03",
     tag: "STEP THREE • MASTERPIECE",
-    title: "A cinematic celebration is born.",
-    subtitle: "Ready to gift, share, or automate.",
+    title: "Download 4K keepsake.",
+    subtitle: "Or automate schedule delivery.",
     description:
-      "In seconds, your custom celebration scene is synthesized in pristine 4K resolution. Typography, personalized messages, and warm reflections blend seamlessly. Delivered instantly via email or scheduled for future delivery.",
+      "Within 60 seconds, your high-resolution portrait is synthesized with studio illumination. Download for prints, send directly via email, or sync with OneDrive for automatic employee birthdays and work anniversaries.",
     icon: Gift,
-    previewBadge: "OUTPUT: 4K HIGH DYNAMIC RANGE",
+    previewBadge: "ULTRA HD 4K EXPORT",
     visual: {
       type: "result",
       title: "Final Festive Masterpiece",
@@ -57,60 +54,37 @@ const STEPS = [
 ];
 
 export default function HowItWorksSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const ctx = gsap.context(() => {
-      // Pinned ScrollTrigger for How It Works
-      ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: "+=220%",
-        pin: true,
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const stepIndex = Math.min(
-            STEPS.length - 1,
-            Math.floor(self.progress * STEPS.length)
-          );
-          setActiveStep(stepIndex);
-        },
-      });
-    }, container);
-
-    return () => ctx.revert();
-  }, []);
 
   return (
     <section
       id="how-it-works"
-      ref={containerRef}
-      className="relative w-full min-h-screen bg-[#0A0A0C] text-[#F4F1EA] flex items-center justify-center py-20 px-6 overflow-hidden border-t border-white/[0.06]"
+      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300"
     >
       {/* Background Decorative Radial Glows */}
-      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-[#F5B24A]/5 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-[#2DD4BF]/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/4 left-10 w-[500px] h-[500px] bg-[#00bfa6]/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-[#00bfa6]/10 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl w-full mx-auto">
         {/* Section Header */}
-        <div className="mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#F5B24A] mb-3">
-            <Sparkles size={13} className="text-[#F5B24A]" />
+        <div className="mb-14 sm:mb-20 max-w-3xl">
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
+            <Sparkles size={13} className="text-[#00bfa6]" />
             <span>The Creative Process</span>
           </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.1]">
+          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
             How a photograph transforms into{" "}
-            <span className="italic text-[#F5B24A]">art.</span>
+            <span className="italic text-[#00bfa6] font-semibold">art.</span>
           </h2>
+          <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed max-w-2xl">
+            From an everyday smartphone photo to an extraordinary, atmospheric celebration scene.
+            No complex prompts required.
+          </p>
         </div>
 
         {/* 2-Column Split: Left Side Step Details, Right Side Interactive Frame */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
-          {/* Left Column: Staggered Steps */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
+          {/* Left Column: Natural Flowing Steps */}
           <div className="lg:col-span-6 space-y-6">
             {STEPS.map((step, idx) => {
               const isActive = activeStep === idx;
@@ -120,143 +94,187 @@ export default function HowItWorksSection() {
                 <div
                   key={step.number}
                   onClick={() => setActiveStep(idx)}
-                  className={`p-6 sm:p-7 rounded-2xl border transition-all duration-500 cursor-pointer ${
+                  className={`p-6 sm:p-8 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? "bg-white/[0.04] border-[#F5B24A]/40 shadow-[0_0_30px_rgba(245,178,74,0.08)]"
-                      : "bg-transparent border-white/[0.05] opacity-40 hover:opacity-75"
+                      ? "bg-white dark:bg-[#143838] border-[#00bfa6] shadow-[0_12px_35px_rgba(0,191,166,0.18)] scale-[1.01]"
+                      : "bg-white/50 dark:bg-[#143838]/40 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50 hover:bg-white/80 dark:hover:bg-[#143838]/70"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <span
-                      className={`text-[11px] font-bold tracking-[0.2em] uppercase transition-colors ${
-                        isActive ? "text-[#F5B24A]" : "text-[#8E8A82]"
-                      }`}
-                    >
+                    <span className="font-mono text-xs tracking-widest text-[#00bfa6] font-bold">
                       {step.tag}
                     </span>
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        isActive
-                          ? "bg-[#F5B24A] text-[#0A0A0C]"
-                          : "bg-white/5 text-[#8E8A82]"
-                      }`}
-                    >
-                      <Icon size={15} />
-                    </div>
+                    <span className="font-serif text-2xl text-[#00bfa6]/40 dark:text-[#00bfa6]/60">
+                      {step.number}
+                    </span>
                   </div>
 
-                  <h3 className="font-serif text-2xl sm:text-3xl text-[#F4F1EA] mb-2 font-normal">
+                  <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#0f2a2a] dark:text-[#d9faf4]">
                     {step.title}
                   </h3>
-
-                  <p
-                    className={`text-xs sm:text-sm leading-relaxed text-[#8E8A82] transition-all duration-300 ${
-                      isActive ? "block" : "hidden sm:block sm:line-clamp-2"
-                    }`}
-                  >
+                  <p className="text-xs font-semibold text-[#00bfa6] mt-0.5 mb-3">
+                    {step.subtitle}
+                  </p>
+                  <p className="text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed font-normal">
                     {step.description}
                   </p>
+
+                  <div className="mt-4 pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 flex items-center justify-between text-xs">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold text-[#00bfa6]">
+                      <CheckCircle2 size={12} className="text-[#00bfa6]" />
+                      {step.previewBadge}
+                    </span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                      isActive ? "bg-[#00bfa6] text-[#0f2a2a]" : "bg-[#0f2a2a]/5 dark:bg-[#d9faf4]/10 text-[#0f2a2a] dark:text-[#d9faf4]"
+                    }`}>
+                      <Icon size={14} />
+                    </div>
+                  </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Right Column: Visual Stage Cards with Smooth Cross-fades */}
-          <div className="lg:col-span-6">
-            <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-2xl bg-[#121217] border border-white/10 p-6 sm:p-8 flex flex-col justify-between overflow-hidden shadow-2xl">
-              {/* Top Meta Bar */}
-              <div className="flex items-center justify-between text-xs pb-4 border-b border-white/[0.07] relative z-10">
-                <span className="text-[11px] font-mono tracking-wider text-[#8E8A82] uppercase">
-                  {STEPS[activeStep].previewBadge}
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#F5B24A]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5B24A] animate-ping" />
-                  PHASE {STEPS[activeStep].number} OF 03
+          {/* Right Column: Sticky Interactive Frame Container */}
+          <div className="lg:col-span-6 lg:sticky lg:top-28">
+            <div className="relative rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#143838] border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 shadow-2xl overflow-hidden min-h-[460px] flex flex-col justify-between">
+              {/* Soft Ambient Inner Glow */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#00bfa6]/10 rounded-full blur-[80px] pointer-events-none" />
+
+              {/* Top Bar of the Card */}
+              <div className="flex items-center justify-between pb-4 border-b border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#00bfa6] animate-pulse" />
+                  <span className="font-mono text-xs uppercase tracking-wider text-[#0f2a2a]/80 dark:text-[#d9faf4]/80 font-bold">
+                    Pipeline Simulation
+                  </span>
+                </div>
+                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-[#00bfa6]/15 text-[#00bfa6] font-bold">
+                  STEP 0{activeStep + 1} / 03
                 </span>
               </div>
 
-              {/* Step 1 Visual: Upload & Face Scan */}
-              {activeStep === 0 && (
-                <div className="relative z-10 my-auto flex flex-col items-center text-center">
-                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-2xl border-2 border-dashed border-[#F5B24A]/60 flex items-center justify-center bg-white/[0.02] shadow-[0_0_40px_rgba(245,178,74,0.15)] mb-4 overflow-hidden">
-                    {/* Face Scan Line Animation */}
-                    <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-[#F5B24A] to-transparent animate-[pulse_2s_ease-in-out_infinite]" />
-                    <div className="w-20 h-24 rounded-xl border border-white/20 bg-white/5 flex flex-col items-center justify-center">
-                      <div className="w-8 h-8 rounded-full border border-[#F5B24A] bg-[#F5B24A]/10 mb-2" />
-                      <div className="w-12 h-6 rounded-t-lg bg-white/10" />
-                    </div>
-                  </div>
-                  <h4 className="font-serif text-xl text-[#F4F1EA]">
-                    {STEPS[0].visual.subject}
-                  </h4>
-                  <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-                    {STEPS[0].visual.features?.map((f) => (
-                      <span
-                        key={f}
-                        className="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/10 text-[#2DD4BF]"
-                      >
-                        ✓ {f}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2 Visual: Celebration Atmosphere Theme Picker */}
-              {activeStep === 1 && (
-                <div className="relative z-10 my-auto grid grid-cols-2 gap-3.5">
-                  {STEPS[1].visual.themes?.map((th, i) => (
-                    <div
-                      key={th}
-                      className={`p-4 rounded-xl border transition-all text-left flex flex-col justify-between min-h-[90px] ${
-                        i === 0
-                          ? "bg-gradient-to-br from-[#F5B24A]/20 to-transparent border-[#F5B24A] shadow-[0_0_20px_rgba(245,178,74,0.2)]"
-                          : "bg-white/[0.02] border-white/10 hover:border-white/20"
-                      }`}
-                    >
-                      <span className="text-[10px] tracking-widest text-[#8E8A82] uppercase">
-                        THEME 0{i + 1}
-                      </span>
-                      <p className="font-serif text-sm sm:text-base text-[#F4F1EA] font-normal">
-                        {th}
+              {/* Dynamic Interactive Body based on Active Step */}
+              <div className="my-6">
+                {activeStep === 0 && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="p-4 rounded-xl bg-[#d9faf4]/60 dark:bg-[#0f2a2a]/60 border border-[#00bfa6]/30">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Camera size={18} className="text-[#00bfa6]" />
+                        <span className="font-bold text-sm text-[#0f2a2a] dark:text-[#d9faf4]">
+                          Face Contours & Expression Lock
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed">
+                        Identified key landmark points across eyes, jawline, and natural smile.
+                        Subject identity mapped into neural latent vectors.
                       </p>
                     </div>
-                  ))}
-                </div>
-              )}
 
-              {/* Step 3 Visual: Rendered 4K Masterpiece */}
-              {activeStep === 2 && (
-                <div className="relative z-10 my-auto text-center flex flex-col items-center">
-                  <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-[#F5B24A]/50 bg-gradient-to-tr from-[#1A1813] via-[#0A0A0C] to-[#0F1716] p-5 shadow-[0_0_40px_rgba(245,178,74,0.2)]">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] bg-[#2DD4BF]/10 text-[#2DD4BF] font-mono mb-2">
-                      <CheckCircle2 size={11} /> RENDER COMPLETE
-                    </span>
-                    <h4 className="font-serif text-2xl text-[#F4F1EA] mb-1">
-                      Happy 30th Birthday Maya!
-                    </h4>
-                    <p className="text-xs text-[#8E8A82] italic font-serif">
-                      "May your new decade glow with the warmth and radiance you give everyone around you."
-                    </p>
+                    <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-mono">
+                      <div className="p-2.5 rounded-lg bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/40 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+                        <span className="block text-[#00bfa6] font-bold text-xs">99.8%</span>
+                        <span className="text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">Fidelity</span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/40 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+                        <span className="block text-[#00bfa6] font-bold text-xs">68 Pts</span>
+                        <span className="text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">Geometry</span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/40 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+                        <span className="block text-[#00bfa6] font-bold text-xs">100%</span>
+                        <span className="text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">Skin Lock</span>
+                      </div>
+                    </div>
                   </div>
-                  <Link
-                    to="/create"
-                    className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-[#F5B24A] hover:underline"
-                  >
-                    <span>Generate this style now</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
-              )}
+                )}
 
-              {/* Bottom Subtle Bar */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/[0.07] text-[11px] text-[#8E8A82] relative z-10">
-                <span>Identity Preservation Core</span>
-                <span className="text-[#F5B24A]">Wishes AI Engine 3.1</span>
+                {activeStep === 1 && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="p-4 rounded-xl bg-[#d9faf4]/60 dark:bg-[#0f2a2a]/60 border border-[#00bfa6]/30">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Palette size={18} className="text-[#00bfa6]" />
+                        <span className="font-bold text-sm text-[#0f2a2a] dark:text-[#d9faf4]">
+                          Atmospheric Lighting & Festive Styling
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed">
+                        Synthesizing warm oil diya candlelights, floral marigold garlands, and evening twilight bokeh.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      {["Diwali Twilight Splendor", "30th Birthday Candlelight", "Royal Palace Wedding"].map((theme, i) => (
+                        <div
+                          key={theme}
+                          className={`p-3 rounded-lg border text-xs font-semibold flex items-center justify-between ${
+                            i === 0
+                              ? "bg-[#00bfa6]/15 border-[#00bfa6] text-[#00bfa6]"
+                              : "bg-[#d9faf4]/30 dark:bg-[#0f2a2a]/30 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 text-[#0f2a2a]/70 dark:text-[#d9faf4]/70"
+                          }`}
+                        >
+                          <span>{theme}</span>
+                          <span className="font-mono text-[10px] uppercase">{i === 0 ? "Selected" : "Ready"}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeStep === 2 && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="p-4 rounded-xl bg-[#d9faf4]/60 dark:bg-[#0f2a2a]/60 border border-[#00bfa6]/30">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Gift size={18} className="text-[#00bfa6]" />
+                        <span className="font-bold text-sm text-[#0f2a2a] dark:text-[#d9faf4]">
+                          Studio 4K Export Ready
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed">
+                        Rendered with authentic likeness, silk attire textures, and cinematic depth.
+                        Dispatched in high-resolution JPG & WebP formats.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-gradient-to-r from-[#00bfa6]/15 to-[#00bfa6]/5 border border-[#00bfa6]/30 flex items-center justify-between">
+                      <div>
+                        <span className="font-serif text-lg font-bold text-[#0f2a2a] dark:text-[#d9faf4] block">
+                          Happy Birthday Maya!
+                        </span>
+                        <span className="text-[11px] font-mono text-[#00bfa6]">4096 × 2160 • 300 DPI</span>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold shadow-sm">
+                        Ready
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Corner Watermark */}
-              <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-[#F5B24A]/5 rounded-full blur-2xl pointer-events-none" />
+              {/* Bottom Quick Action */}
+              <div className="pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 flex items-center justify-between">
+                <div className="flex gap-1.5">
+                  {[0, 1, 2].map((idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveStep(idx)}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
+                        activeStep === idx
+                          ? "w-8 bg-[#00bfa6]"
+                          : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20 hover:bg-[#00bfa6]/50"
+                      }`}
+                      aria-label={`Jump to step ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <Link
+                  to="/create"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00bfa6] hover:underline"
+                >
+                  <span>Experience AI Studio</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

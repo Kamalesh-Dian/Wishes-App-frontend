@@ -1,10 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, ArrowUpRight, Flame, Heart, Crown, Cake, Star } from "lucide-react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { Sparkles, ArrowRight, Flame, Heart, Crown, Cake, Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 const SHOWCASE_ITEMS = [
   {
@@ -13,10 +9,10 @@ const SHOWCASE_ITEMS = [
     occasion: "Diwali • Festival of Lights",
     tag: "FESTIVE LIGHTING",
     icon: Flame,
-    accent: "#F5B24A",
+    accent: "#00bfa6",
     description: "Brass oil lamps, glowing marigold garlands, and soft twilight reflections. Real smile, zero distortion.",
     quote: "“The diyas cast a natural golden glow that looked like a high-budget film production.”",
-    bgGradient: "from-[#F5B24A]/20 via-[#1A1813] to-[#0A0A0C]",
+    bgGradient: "from-[#00bfa6]/25 via-[#133838] to-[#0f2a2a]",
     specs: ["Warm Candlelit Bokeh", "Silk Texture Fidelity", "Authentic Cultural Decor"],
   },
   {
@@ -25,34 +21,34 @@ const SHOWCASE_ITEMS = [
     occasion: "Milestone Birthday",
     tag: "COCKTAIL & CANDLELIGHT",
     icon: Cake,
-    accent: "#2DD4BF",
+    accent: "#00bfa6",
     description: "Midnight champagne reflections, floating helium balloons, and sparkling candle glow around the subject.",
     quote: "“Captured Maya’s genuine laughter in a setting more magical than any photoshoot could manage.”",
-    bgGradient: "from-[#2DD4BF]/20 via-[#0F1716] to-[#0A0A0C]",
-    specs: ["Subtle Lens Flare", "True Smile Preservation", "Fine Metallic Sparkles"],
+    bgGradient: "from-[#00bfa6]/25 via-[#122e2e] to-[#0f2a2a]",
+    specs: ["Champagne Glass Reflections", "Festive Sparkler Trails", "Candid Facial Expression"],
   },
   {
     id: "wedding",
-    title: "Royal Courtyard Wedding",
-    occasion: "Wedding & Sangeet",
-    tag: "PALATIAL CEREMONY",
+    title: "Royal Palace Sangeet",
+    occasion: "Wedding & Celebrations",
+    tag: "MAJESTIC HERITAGE",
     icon: Crown,
-    accent: "#F59E0B",
-    description: "Historic Rajasthani stone arches, fairy lights cascading from banyan branches, and embroidered festive elegance.",
-    quote: "“We gifted this to my sister for her wedding countdown. It brought the entire family to tears.”",
-    bgGradient: "from-[#F59E0B]/20 via-[#1C160F] to-[#0A0A0C]",
-    specs: ["Palatial Architectural Depth", "Gold Thread Sheen", "Sunset Vignette"],
+    accent: "#00bfa6",
+    description: "Intricately embroidered festive attire, historic sandstone arches, and cascading jasmine garlands.",
+    quote: "“Preserved every subtle nuance of my parents’ portraits with majestic historical architecture.”",
+    bgGradient: "from-[#00bfa6]/25 via-[#143838] to-[#0f2a2a]",
+    specs: ["Handcrafted Zari Embroidery", "Grand Archway Depth", "Authentic Royal Lighting"],
   },
   {
     id: "anniversary",
-    title: "Silver Solstice Anniversary",
-    occasion: "25th Silver Anniversary",
+    title: "Silver Jubilee Reverie",
+    occasion: "25th Anniversary",
     tag: "LANTERN REFLECTIONS",
     icon: Heart,
-    accent: "#E2E8F0",
+    accent: "#00bfa6",
     description: "Floating water lanterns drifting across a calm lake beneath a star-filled velvet sky with warm ambient intimacy.",
     quote: "“A poetic, timeless keepsake that looks like an oil painting brought to life.”",
-    bgGradient: "from-[#94A3B8]/20 via-[#141820] to-[#0A0A0C]",
+    bgGradient: "from-[#00bfa6]/25 via-[#133838] to-[#0f2a2a]",
     specs: ["Water Ripple Reflections", "Bioluminescent Lantern Glow", "Intimate Dual Portrait"],
   },
   {
@@ -61,167 +57,188 @@ const SHOWCASE_ITEMS = [
     occasion: "Corporate Achievement",
     tag: "COMPANY-WIDE GREETING",
     icon: Star,
-    accent: "#38BDF8",
+    accent: "#00bfa6",
     description: "Contemporary glass atrium adorned with champagne gold streamers and personalized team appreciation accolades.",
     quote: "“Sent automatically via OneDrive on our VP's 5th work anniversary. Clean, respectful, and premium.”",
-    bgGradient: "from-[#38BDF8]/20 via-[#0C1A24] to-[#0A0A0C]",
+    bgGradient: "from-[#00bfa6]/25 via-[#122e2e] to-[#0f2a2a]",
     specs: ["OneDrive Automated Sync", "Vector Logo Incorporation", "Instant Email Dispatch"],
   },
 ];
 
 export default function GallerySection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) return;
-
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track) return;
-
-    const ctx = gsap.context(() => {
-      const totalScroll = track.scrollWidth - window.innerWidth + 80;
-
-      gsap.to(track, {
-        x: -totalScroll,
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${totalScroll}`,
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
+  const scrollToIndex = (index: number) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const cards = container.querySelectorAll(".showcase-card");
+    if (cards[index]) {
+      const card = cards[index] as HTMLElement;
+      container.scrollTo({
+        left: card.offsetLeft - 24,
+        behavior: "smooth",
       });
-    }, section);
+      setActiveIndex(index);
+    }
+  };
 
-    return () => ctx.revert();
-  }, [isMobile]);
+  const handlePrev = () => {
+    const nextIdx = Math.max(0, activeIndex - 1);
+    scrollToIndex(nextIdx);
+  };
+
+  const handleNext = () => {
+    const nextIdx = Math.min(SHOWCASE_ITEMS.length - 1, activeIndex + 1);
+    scrollToIndex(nextIdx);
+  };
 
   return (
     <section
       id="gallery"
-      ref={sectionRef}
-      className="relative w-full bg-[#0A0A0C] text-[#F4F1EA] py-24 overflow-hidden border-t border-white/[0.06]"
+      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 overflow-hidden border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300"
     >
-      {/* Top Header */}
-      <div className="max-w-6xl mx-auto px-6 mb-12 sm:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* Background Radial Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#00bfa6]/10 rounded-full blur-[160px] pointer-events-none" />
+
+      {/* Header Container */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 mb-12 sm:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#F5B24A] mb-3">
-            <Sparkles size={13} className="text-[#F5B24A]" />
-            <span>Curated Showcase</span>
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
+            <Sparkles size={13} className="text-[#00bfa6]" />
+            <span>Masterpiece Gallery</span>
           </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.1]">
-            Celebrations born from{" "}
-            <span className="italic text-[#F5B24A]">real memories.</span>
+          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
+            Curated celebratory <span className="italic text-[#00bfa6] font-semibold">atmospheres.</span>
           </h2>
+          <p className="mt-3 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl">
+            Each scene is dynamically illuminated to match the cultural, sentimental, or milestone
+            relevance of your celebration.
+          </p>
         </div>
 
-        <p className="max-w-md text-xs sm:text-sm text-[#8E8A82] leading-relaxed">
-          Explore how everyday snapshots turn into atmospheric keepsakes across birthdays,
-          Diwali, weddings, and milestones.
-        </p>
+        {/* Carousel Navigation Controls */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePrev}
+            disabled={activeIndex === 0}
+            aria-label="Previous showcase card"
+            className="w-11 h-11 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/70 dark:bg-[#143838]/70 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={activeIndex === SHOWCASE_ITEMS.length - 1}
+            aria-label="Next showcase card"
+            className="w-11 h-11 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/70 dark:bg-[#143838]/70 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
 
-      {/* Horizontal Scroll Track */}
-      <div className="w-full overflow-hidden">
-        <div
-          ref={trackRef}
-          className={`flex gap-6 sm:gap-8 px-6 sm:px-12 ${
-            isMobile ? "overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" : "w-max"
-          }`}
-        >
-          {SHOWCASE_ITEMS.map((item, idx) => {
-            const Icon = item.icon;
+      {/* Horizontal Carousel Track */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={(e) => {
+          const container = e.currentTarget;
+          const scrollLeft = container.scrollLeft;
+          const cardWidth = 380;
+          const newIndex = Math.round(scrollLeft / cardWidth);
+          if (newIndex !== activeIndex && newIndex >= 0 && newIndex < SHOWCASE_ITEMS.length) {
+            setActiveIndex(newIndex);
+          }
+        }}
+        className="relative z-10 w-full overflow-x-auto scrollbar-hide px-6 sm:px-12 flex gap-6 pb-6 cursor-grab active:cursor-grabbing"
+      >
+        {SHOWCASE_ITEMS.map((item, index) => {
+          const Icon = item.icon;
+          const isCurrent = activeIndex === index;
 
-            return (
-              <div
-                key={item.id}
-                className={`relative w-[85vw] sm:w-[460px] lg:w-[500px] h-[580px] rounded-2xl p-8 flex flex-col justify-between border border-white/10 bg-gradient-to-b ${item.bgGradient} shadow-2xl transition-all duration-300 hover:border-white/20 group shrink-0 ${
-                  isMobile ? "snap-center" : ""
-                }`}
-              >
-                {/* Header Tag & Icon */}
-                <div className="flex items-start justify-between relative z-10">
-                  <div>
-                    <span className="inline-block text-[10px] font-mono tracking-[0.2em] uppercase text-[#8E8A82] mb-1">
-                      SERIES 0{idx + 1} • {item.tag}
-                    </span>
-                    <h3 className="font-serif text-2xl sm:text-3xl text-[#F4F1EA] font-normal leading-tight">
-                      {item.title}
-                    </h3>
-                  </div>
-
-                  <div className="w-10 h-10 rounded-full border border-white/15 bg-white/[0.05] flex items-center justify-center text-[#F4F1EA] shadow-inner">
-                    <Icon size={18} style={{ color: item.accent }} />
+          return (
+            <div
+              key={item.id}
+              onClick={() => scrollToIndex(index)}
+              className={`showcase-card shrink-0 w-[320px] sm:w-[380px] lg:w-[420px] rounded-3xl p-7 sm:p-8 border transition-all duration-300 flex flex-col justify-between min-h-[500px] shadow-xl ${
+                isCurrent
+                  ? "bg-white dark:bg-[#143838] border-[#00bfa6] shadow-[0_16px_40px_rgba(0,191,166,0.2)] scale-[1.01]"
+                  : "bg-white/60 dark:bg-[#143838]/60 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50"
+              }`}
+            >
+              <div>
+                {/* Top Badge & Icon */}
+                <div className="flex items-center justify-between mb-6">
+                  <span className="font-mono text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
+                    {item.tag}
+                  </span>
+                  <div className="w-9 h-9 rounded-full bg-[#00bfa6]/10 flex items-center justify-center text-[#00bfa6]">
+                    <Icon size={16} />
                   </div>
                 </div>
 
-                {/* Center Atmospheric Frame Simulation */}
-                <div className="my-auto relative rounded-xl overflow-hidden border border-white/10 p-5 bg-black/40 backdrop-blur-md">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: item.accent }}
-                    />
-                    <span className="text-[11px] font-bold text-[#F4F1EA] tracking-wide">
-                      {item.occasion}
-                    </span>
-                  </div>
+                {/* Title & Occasion */}
+                <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#0f2a2a] dark:text-[#d9faf4] mb-1">
+                  {item.title}
+                </h3>
+                <p className="text-xs font-semibold text-[#00bfa6] mb-4">
+                  {item.occasion}
+                </p>
 
-                  <p className="text-xs text-[#F4F1EA]/90 leading-relaxed font-serif italic mb-4">
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed mb-6">
+                  {item.description}
+                </p>
+
+                {/* Specification Tags */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {item.specs.map((spec) => (
+                    <span
+                      key={spec}
+                      className="text-[10px] font-mono font-medium px-2.5 py-1 rounded-lg bg-[#d9faf4]/80 dark:bg-[#0f2a2a]/80 text-[#0f2a2a]/80 dark:text-[#d9faf4]/80 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
+                    >
+                      {spec}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                {/* Quote Box */}
+                <div className="p-4 rounded-2xl bg-[#d9faf4]/50 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 mb-6">
+                  <p className="font-serif italic text-xs text-[#0f2a2a]/90 dark:text-[#d9faf4]/90 leading-relaxed">
                     {item.quote}
                   </p>
-
-                  <div className="space-y-1.5 pt-3 border-t border-white/[0.07]">
-                    {item.specs.map((spec) => (
-                      <div
-                        key={spec}
-                        className="flex items-center gap-2 text-[11px] text-[#8E8A82]"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-[#F5B24A]" />
-                        <span>{spec}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Footer Action */}
-                <div className="pt-4 border-t border-white/[0.07] flex items-center justify-between relative z-10">
-                  <span className="text-xs text-[#8E8A82] font-mono">
-                    Identity Accuracy: 100%
-                  </span>
-
-                  <Link
-                    to="/create"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F5B24A] hover:underline transition-all group-hover:translate-x-1"
-                  >
-                    <span>Create in this style</span>
-                    <ArrowUpRight size={14} />
-                  </Link>
-                </div>
-
-                {/* Ambient Corner Glow */}
-                <div
-                  className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[90px] opacity-25 pointer-events-none"
-                  style={{ backgroundColor: item.accent }}
-                />
+                {/* Card Action */}
+                <Link
+                  to="/create"
+                  className="w-full py-3 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_24px_rgba(0,191,166,0.5)] transition-all"
+                >
+                  <span>Synthesize Similar Scene</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Indicator Dots */}
+      <div className="relative z-10 flex justify-center items-center gap-2 mt-8">
+        {SHOWCASE_ITEMS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => scrollToIndex(i)}
+            aria-label={`Jump to showcase ${i + 1}`}
+            className={`h-2 rounded-full transition-all cursor-pointer ${
+              activeIndex === i
+                ? "w-8 bg-[#00bfa6]"
+                : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20 hover:bg-[#00bfa6]/60"
+            }`}
+          />
+        ))}
       </div>
     </section>
   );

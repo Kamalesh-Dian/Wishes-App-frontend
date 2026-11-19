@@ -56,9 +56,9 @@ export default function CustomCursor() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[999] overflow-hidden transition-opacity duration-300">
-      {/* Central crisp dot */}
+      {/* Central crisp teal laser dot */}
       <motion.div
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#F5B24A] shadow-[0_0_8px_#F5B24A]"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-[#00bfa6] shadow-[0_0_10px_#00bfa6]"
         style={{
           x: cursorX,
           y: cursorY,
@@ -67,9 +67,9 @@ export default function CustomCursor() {
         }}
       />
 
-      {/* Trailing golden aura ring */}
+      {/* Trailing teal aura ring */}
       <motion.div
-        className="fixed top-0 left-0 rounded-full border border-[#F5B24A]/40 bg-[#F5B24A]/5 transition-[width,height,background-color] duration-200"
+        className="fixed top-0 left-0 rounded-full border border-[#00bfa6]/40 bg-[#00bfa6]/5 transition-[width,height,background-color] duration-200"
         style={{
           x: ringX,
           y: ringY,
@@ -77,8 +77,8 @@ export default function CustomCursor() {
           translateY: "-50%",
           width: isHovered ? 48 : 28,
           height: isHovered ? 48 : 28,
-          backgroundColor: isHovered ? "rgba(245, 178, 74, 0.12)" : "rgba(245, 178, 74, 0.03)",
-          borderColor: isHovered ? "rgba(245, 178, 74, 0.8)" : "rgba(245, 178, 74, 0.35)",
+          backgroundColor: isHovered ? "rgba(0, 191, 166, 0.16)" : "rgba(0, 191, 166, 0.04)",
+          borderColor: isHovered ? "rgba(0, 191, 166, 0.85)" : "rgba(0, 191, 166, 0.4)",
         }}
       />
     </div>

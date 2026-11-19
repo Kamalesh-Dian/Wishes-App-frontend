@@ -61,19 +61,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full bg-[#121217]/90 backdrop-blur-2xl rounded-3xl p-7 sm:p-9 border border-white/10 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+    <div className="w-full bg-white/85 dark:bg-[#143838]/85 backdrop-blur-2xl rounded-3xl p-7 sm:p-9 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 shadow-[0_20px_50px_rgba(15,42,42,0.15)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.6)] transition-colors duration-300">
       {/* Card Header */}
       <div className="mb-7">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 mb-4">
-          <Sparkles size={12} className="text-[#2DD4BF]" />
-          <span className="text-[10px] font-mono tracking-widest uppercase text-[#2DD4BF] font-semibold">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00bfa6]/15 border border-[#00bfa6]/30 mb-4">
+          <Sparkles size={12} className="text-[#00bfa6]" />
+          <span className="text-[10px] font-mono tracking-widest uppercase text-[#00bfa6] font-bold">
             Get Started
           </span>
         </div>
-        <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F4F1EA] tracking-tight">
+        <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#0f2a2a] dark:text-[#d9faf4] tracking-tight">
           Create account
         </h1>
-        <p className="text-xs text-[#8E8A82] mt-1.5 leading-relaxed">
+        <p className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 mt-1.5 leading-relaxed">
           Unlock personalized celebration rendering with true facial likeness.
         </p>
       </div>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
       <button
         type="button"
         onClick={handleGoogle}
-        className="w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 rounded-xl flex items-center justify-center gap-2.5 text-xs font-semibold text-[#F4F1EA] transition-all cursor-pointer mb-5 shadow-sm"
+        className="w-full py-2.5 px-4 bg-white/70 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.08] border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 hover:border-[#00bfa6] rounded-xl flex items-center justify-center gap-2.5 text-xs font-semibold text-[#0f2a2a] dark:text-[#d9faf4] transition-all cursor-pointer mb-5 shadow-sm"
       >
         <GoogleIcon className="w-4 h-4" />
         <span>Sign up with Google</span>
@@ -90,9 +90,9 @@ export default function RegisterPage() {
 
       <div className="relative flex items-center justify-center mb-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/[0.08]"></div>
+          <div className="w-full border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"></div>
         </div>
-        <span className="relative px-3 bg-[#121217] text-[10px] uppercase font-mono tracking-widest text-[#8E8A82]">
+        <span className="relative px-3 bg-white dark:bg-[#143838] text-[10px] uppercase font-mono tracking-widest text-[#0f2a2a]/60 dark:text-[#d9faf4]/60 font-semibold">
           or register with email
         </span>
       </div>
@@ -102,14 +102,14 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="register-name"
-            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 mb-1.5 font-bold"
           >
             Full Name
           </label>
           <div className="relative">
             <User
               size={14}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0f2a2a]/50 dark:text-[#d9faf4]/50"
             />
             <input
               id="register-name"
@@ -118,7 +118,7 @@ export default function RegisterPage() {
               placeholder="Maya Chen"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 focus:border-[#00bfa6] rounded-xl text-xs font-medium text-[#0f2a2a] dark:text-[#d9faf4] placeholder-[#0f2a2a]/40 dark:placeholder-[#d9faf4]/40 focus:outline-none focus:ring-1 focus:ring-[#00bfa6] transition-all"
             />
           </div>
         </div>
@@ -126,14 +126,14 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="register-email"
-            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 mb-1.5 font-bold"
           >
             Email Address
           </label>
           <div className="relative">
             <Mail
               size={14}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0f2a2a]/50 dark:text-[#d9faf4]/50"
             />
             <input
               id="register-email"
@@ -142,7 +142,7 @@ export default function RegisterPage() {
               placeholder="maya@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 focus:border-[#00bfa6] rounded-xl text-xs font-medium text-[#0f2a2a] dark:text-[#d9faf4] placeholder-[#0f2a2a]/40 dark:placeholder-[#d9faf4]/40 focus:outline-none focus:ring-1 focus:ring-[#00bfa6] transition-all"
             />
           </div>
         </div>
@@ -150,14 +150,14 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="register-password"
-            className="block text-[11px] font-mono uppercase tracking-wider text-[#8E8A82] mb-1.5"
+            className="block text-[11px] font-mono uppercase tracking-wider text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 mb-1.5 font-bold"
           >
             Password (min 6 characters)
           </label>
           <div className="relative">
             <Lock
               size={14}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8E8A82]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0f2a2a]/50 dark:text-[#d9faf4]/50"
             />
             <input
               id="register-password"
@@ -167,7 +167,7 @@ export default function RegisterPage() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white/[0.03] border border-white/10 focus:border-[#F5B24A]/60 rounded-xl text-xs font-medium text-[#F4F1EA] placeholder-[#8E8A82]/50 focus:outline-none focus:ring-1 focus:ring-[#F5B24A]/60 transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 focus:border-[#00bfa6] rounded-xl text-xs font-medium text-[#0f2a2a] dark:text-[#d9faf4] placeholder-[#0f2a2a]/40 dark:placeholder-[#d9faf4]/40 focus:outline-none focus:ring-1 focus:ring-[#00bfa6] transition-all"
             />
           </div>
         </div>
@@ -178,9 +178,9 @@ export default function RegisterPage() {
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="w-4 h-4 rounded border-white/20 bg-white/5 text-[#F5B24A] focus:ring-[#F5B24A] accent-[#F5B24A] cursor-pointer"
+            className="w-4 h-4 rounded border-[#0f2a2a]/20 dark:border-[#d9faf4]/20 bg-white/5 text-[#00bfa6] focus:ring-[#00bfa6] accent-[#00bfa6] cursor-pointer"
           />
-          <label htmlFor="register-terms" className="text-xs text-[#8E8A82] cursor-pointer select-none">
+          <label htmlFor="register-terms" className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 cursor-pointer select-none">
             I agree to the Terms of Service & Privacy Policy
           </label>
         </div>
@@ -188,19 +188,19 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 mt-2 bg-gradient-to-r from-[#F5B24A] to-[#E08B28] text-[#0A0A0C] text-xs font-bold rounded-xl transition-all shadow-[0_0_24px_rgba(245,178,74,0.3)] hover:shadow-[0_0_32px_rgba(245,178,74,0.5)] hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full py-3 mt-2 bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold rounded-xl transition-all shadow-[0_0_24px_rgba(0,191,166,0.35)] hover:shadow-[0_0_32px_rgba(0,191,166,0.6)] hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           <span>{isSubmitting ? "Creating account..." : "Create Account & Start"}</span>
           <ArrowRight size={14} />
         </button>
       </form>
 
-      <div className="mt-6 text-center pt-4 border-t border-white/[0.06]">
-        <p className="text-xs text-[#8E8A82]">
+      <div className="mt-6 text-center pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+        <p className="text-xs text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-[#F5B24A] font-semibold hover:underline"
+            className="text-[#00bfa6] font-bold hover:underline"
           >
             Sign in
           </Link>

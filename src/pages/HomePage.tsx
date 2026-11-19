@@ -27,6 +27,9 @@ export default function HomePage() {
       touchMultiplier: 1.5,
     });
 
+    // Make lenis globally accessible for navbar smooth scrolling
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
+
     // Synchronize Lenis scroll with GSAP ScrollTrigger
     const handleScroll = () => {
       ScrollTrigger.update();
@@ -43,10 +46,11 @@ export default function HomePage() {
     // Refresh ScrollTrigger after DOM stabilizes
     const refreshTimer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 250);
+    }, 300);
 
     return () => {
       clearTimeout(refreshTimer);
+      delete (window as unknown as { __lenis?: Lenis }).__lenis;
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
@@ -54,16 +58,16 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#0A0A0C] text-[#F4F1EA] selection:bg-[#F5B24A]/30 selection:text-[#F4F1EA] overflow-x-hidden antialiased">
+    <div className="relative min-h-screen bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] selection:bg-[#00bfa6]/30 selection:text-[#0f2a2a] dark:selection:text-[#d9faf4] transition-colors duration-300 antialiased">
       {/* Subtle Film Grain Texture Overlay */}
       <div
-        className="fixed inset-0 pointer-events-none z-40 film-grain opacity-30 mix-blend-screen"
+        className="fixed inset-0 pointer-events-none z-40 film-grain opacity-25 mix-blend-multiply dark:mix-blend-screen"
         aria-hidden="true"
       />
 
       {/* Ambient background glows */}
       <div
-        className="fixed top-[-20%] left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-[#F5B24A]/10 via-[#2DD4BF]/5 to-transparent blur-[160px] pointer-events-none -z-10"
+        className="fixed top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-[#00bfa6]/15 via-[#00bfa6]/5 to-transparent blur-[160px] pointer-events-none -z-10"
         aria-hidden="true"
       />
 

@@ -39,14 +39,14 @@ function FeatureCard({ icon: Icon, tag, title, description, highlight }: Feature
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative rounded-2xl p-8 border border-white/10 bg-[#121217] transition-all duration-300 hover:border-white/25 overflow-hidden flex flex-col justify-between group"
+      className="relative rounded-3xl p-7 sm:p-8 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 bg-white/70 dark:bg-[#143838]/70 backdrop-blur-xl transition-all duration-300 hover:border-[#00bfa6]/60 hover:shadow-xl overflow-hidden flex flex-col justify-between group"
     >
       {/* Dynamic Cursor Hover Glow Spotlight */}
       {isHovered && (
         <div
-          className="pointer-events-none absolute -inset-px rounded-2xl opacity-100 transition-opacity duration-300"
+          className="pointer-events-none absolute -inset-px rounded-3xl opacity-100 transition-opacity duration-300"
           style={{
-            background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245, 178, 74, 0.12), transparent 80%)`,
+            background: `radial-gradient(350px circle at ${mousePos.x}px ${mousePos.y}px, rgba(0, 191, 166, 0.16), transparent 80%)`,
           }}
         />
       )}
@@ -54,29 +54,32 @@ function FeatureCard({ icon: Icon, tag, title, description, highlight }: Feature
       <div>
         {/* Top Tag & Icon */}
         <div className="flex items-center justify-between mb-6">
-          <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[#F5B24A]">
+          <span className="text-[10px] font-mono tracking-[0.2em] uppercase font-bold text-[#00bfa6]">
             {tag}
           </span>
-          <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#F5B24A] group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-[#00bfa6]/10 border border-[#00bfa6]/25 flex items-center justify-center text-[#00bfa6] group-hover:scale-110 transition-transform">
             <Icon size={18} />
           </div>
         </div>
 
-        {/* Headline */}
-        <h3 className="font-serif text-2xl text-[#F4F1EA] mb-3 font-normal leading-snug">
+        {/* Feature Title */}
+        <h3 className="font-serif text-2xl font-normal text-[#0f2a2a] dark:text-[#d9faf4] mb-2 leading-snug">
           {title}
         </h3>
 
-        {/* Description */}
-        <p className="text-xs sm:text-sm text-[#8E8A82] leading-relaxed mb-6">
+        {/* Feature Description */}
+        <p className="text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed font-normal">
           {description}
         </p>
       </div>
 
-      {/* Highlight Badge */}
-      <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
-        <span className="text-[11px] font-mono text-[#2DD4BF]">
+      {/* Bottom Highlight Stat */}
+      <div className="mt-8 pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 flex items-center justify-between">
+        <span className="text-[11px] font-mono font-semibold text-[#00bfa6]">
           {highlight}
+        </span>
+        <span className="text-xs text-[#0f2a2a]/50 dark:text-[#d9faf4]/50 group-hover:text-[#00bfa6] group-hover:translate-x-1 transition-all">
+          &rarr;
         </span>
       </div>
     </div>
@@ -84,116 +87,106 @@ function FeatureCard({ icon: Icon, tag, title, description, highlight }: Feature
 }
 
 export default function FeaturesSection() {
-  const [btnOffset, setBtnOffset] = useState({ x: 0, y: 0 });
-
-  const handleMagneticMove = (e: MouseEvent<HTMLAnchorElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.35;
-    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.35;
-    setBtnOffset({ x, y });
-  };
-
-  const handleMagneticLeave = () => {
-    setBtnOffset({ x: 0, y: 0 });
-  };
-
   const features = [
     {
       icon: ShieldCheck,
-      tag: "IDENTITY ENGINE",
-      title: "Facial Fidelity Core",
+      tag: "BIOMETRICS",
+      title: "Zero Face Distortion",
       description:
-        "Preserves bone structure, authentic smile curvatures, and gaze. Never turns your loved ones into unrecognizably smooth CGI figures.",
-      highlight: "✓ Zero Plastic Smoothing",
+        "Preserves facial micro-expressions, smile angles, and bone structure without the generic, plastic-smoothed look typical of standard generative AI.",
+      highlight: "FIDELITY: 99.8% IDENTITY LOCK",
     },
     {
       icon: Sun,
-      tag: "ATMOSPHERE",
-      title: "Lighting & Festive Synthesis",
+      tag: "LIGHTING",
+      title: "Atmospheric Scene Synthesis",
       description:
-        "Physically accurate light scattering from oil lamps, warm chandeliers, or outdoor festival fireworks that reflect naturally on skin and clothing.",
-      highlight: "✓ Volumetric Atmospheric Depth",
-    },
-    {
-      icon: Wand2,
-      tag: "EASE OF USE",
-      title: "Zero Prompt Engineering",
-      description:
-        "No complex keywords or negative prompts required. Choose the occasion and mood, and let our curated aesthetic models direct the scene.",
-      highlight: "✓ 1-Click Aesthetic Selection",
+        "Calculates natural light bounce from festive oil diyas, candle flames, chandeliers, or sunlit floral mandaps across skin and fabric textures.",
+      highlight: "STUDIO RAY-TRACED ILLUMINATION",
     },
     {
       icon: Maximize2,
       tag: "RESOLUTION",
-      title: "4K Print-Grade Quality",
+      title: "True 4K UHD Master Prints",
       description:
-        "Outputs crystal-clear 4K resolution images suitable for physical framing, high-end digital greeting cards, and office celebration boards.",
-      highlight: "✓ Studio Print-Ready Assets",
+        "Every generation exports at razor-sharp 300 DPI resolution, ready for digital invitations, Instagram Stories, or physical framed canvas keepsakes.",
+      highlight: "ULTRA HD: 4096 × 2160 PX",
     },
     {
       icon: Layers,
-      tag: "CULTURE",
-      title: "Authentic Celebrations",
+      tag: "COLLECTION",
+      title: "100+ Curated Festive Themes",
       description:
-        "Deep cultural fidelity for Diwali, Weddings, Eid, Birthdays, and Anniversaries with historically and regionally accurate ornamental details.",
-      highlight: "✓ Culturally Researched Motifs",
+        "Handcrafted celebration presets including Diwali Twilight, Golden Anniversaries, Milestone Birthdays, and Destination Sangeet celebrations.",
+      highlight: "CULTURALLY AUTHENTIC ATTIRE",
+    },
+    {
+      icon: Wand2,
+      tag: "SPEED",
+      title: "60-Second Instant Delivery",
+      description:
+        "Distributed GPU acceleration delivers your personalized scene in under a minute without queuing or long rendering delays.",
+      highlight: "LATENCY: ~45 SECONDS",
     },
     {
       icon: Calendar,
       tag: "AUTOMATION",
-      title: "Corporate Calendar Sync",
+      title: "Automated Calendar Sync",
       description:
-        "Connect OneDrive, Excel, or Google Workspace to automate employee birthdays and work anniversaries with zero manual intervention.",
-      highlight: "✓ Scheduled 9:00 AM Automated Dispatch",
+        "Connect OneDrive, Outlook, or Excel rosters once. The system automatically creates and dispatches celebrations at local 9:00 AM on employee birthdays.",
+      highlight: "ZERO-TOUCH WORKPLACE AUTOMATION",
     },
   ];
 
   return (
     <section
       id="features"
-      className="relative w-full bg-[#0A0A0C] text-[#F4F1EA] py-24 sm:py-32 px-6 border-t border-white/[0.06] overflow-hidden"
+      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300"
     >
       {/* Background Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#F5B24A]/[0.03] rounded-full blur-[180px] pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-[#00bfa6]/10 rounded-full blur-[170px] pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Header */}
+        {/* Section Header */}
         <div className="max-w-3xl mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#F5B24A] mb-3">
-            <Sparkles size={13} className="text-[#F5B24A]" />
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
+            <Sparkles size={13} className="text-[#00bfa6]" />
             <span>Under The Hood</span>
           </div>
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-normal tracking-tight text-[#F4F1EA] leading-[1.1]">
-            Engineered for emotion,{" "}
-            <span className="italic text-[#F5B24A]">built with precision.</span>
+          <h2 className="font-serif text-[clamp(2.2rem,5vw,4.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
+            Engineered for genuine likeness,{" "}
+            <span className="italic text-[#00bfa6] font-semibold">not generic faces.</span>
           </h2>
-          <p className="mt-4 text-xs sm:text-base text-[#8E8A82] leading-relaxed">
-            Every layer of Wishes AI is calibrated to deliver cinematic visual artistry
-            without sacrificing the human connection at the center.
+          <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed">
+            Most generative tools hallucinate an unrecognizable stranger. Wishes AI separates facial
+            geometry and preserves identity while styling festive surroundings.
           </p>
         </div>
 
         {/* 6-Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {features.map((feat) => (
-            <FeatureCard key={feat.title} {...feat} />
+          {features.map((feature) => (
+            <FeatureCard key={feature.title} {...feature} />
           ))}
         </div>
 
-        {/* Magnetic Interactive CTA Button */}
-        <div className="mt-16 sm:mt-20 flex justify-center">
+        {/* Bottom Banner Card */}
+        <div className="mt-16 sm:mt-20 p-8 sm:p-10 rounded-3xl border border-[#00bfa6]/30 bg-white/80 dark:bg-[#143838]/80 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+          <div>
+            <h4 className="font-serif text-2xl sm:text-3xl text-[#0f2a2a] dark:text-[#d9faf4]">
+              Ready to test with your own photograph?
+            </h4>
+            <p className="text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 mt-1">
+              Upload any portrait and preview your personalized festive scene in under 60 seconds.
+            </p>
+          </div>
+
           <Link
             to="/create"
-            onMouseMove={handleMagneticMove}
-            onMouseLeave={handleMagneticLeave}
-            style={{
-              transform: `translate(${btnOffset.x}px, ${btnOffset.y}px)`,
-            }}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white/[0.04] border border-white/15 text-[#F4F1EA] font-semibold text-sm hover:border-[#F5B24A] hover:bg-[#F5B24A]/10 transition-all duration-200 shadow-lg"
+            className="shrink-0 inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs sm:text-sm font-bold shadow-[0_0_24px_rgba(0,191,166,0.35)] hover:shadow-[0_0_35px_rgba(0,191,166,0.6)] transition-all hover:scale-105"
           >
-            <Sparkles size={16} className="text-[#F5B24A]" />
-            <span>Experience the Technology</span>
-            <ArrowRight size={15} className="text-[#F5B24A] transition-transform group-hover:translate-x-1" />
+            <span>Start Generation</span>
+            <ArrowRight size={14} />
           </Link>
         </div>
       </div>
