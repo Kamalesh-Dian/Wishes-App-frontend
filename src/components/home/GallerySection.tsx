@@ -72,6 +72,7 @@ const SHOWCASE_ITEMS = [
 export default function GallerySection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<ScrollTrigger | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -87,32 +88,55 @@ export default function GallerySection() {
       const getScrollAmount = () => {
         const trackWidth = track.scrollWidth;
         const visibleWidth = window.innerWidth;
-        const offset = visibleWidth < 640 ? 32 : 96;
-        return -Math.max(0, trackWidth - visibleWidth + offset);
+        return -(trackWidth - visibleWidth);
       };
 
-      // Natural scroll-driven horizontal translation without pinning
-      // Starts as the section enters view, glides smoothly across as you scroll through,
-      // and cleanly finishes as the section completes, with zero blocking of next section
-      gsap.to(track, {
-        x: getScrollAmount,
-        ease: "none",
+      // Create a pinned timeline with lead-in pause for Card 1 and lead-out pause for Card 5
+      // 1. Lead-in (0% to 15%): Card 1 stays completely stationary so the user sees Card 1 in full view upon arrival
+      // 2. Horizontal glide (15% to 85%): Cards glide smoothly through Card 2, 3, 4 to Card 5
+      // 3. Lead-out (85% to 100%): Card 5 stays completely stationary so the user sees Card 5 in full view before unpinning
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: "top 75%",
-          end: "bottom 25%",
+          start: "top top",
+          end: () => `+=${Math.max(window.innerHeight * 2.5, track.scrollWidth)}`,
+          pin: true,
           scrub: 1,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const progress = self.progress;
+            const p = self.progress;
+            let normalized = 0;
+            if (p <= 0.15) {
+              normalized = 0;
+            } else if (p >= 0.85) {
+              normalized = 1;
+            } else {
+              normalized = (p - 0.15) / 0.7;
+            }
             const idx = Math.min(
               SHOWCASE_ITEMS.length - 1,
-              Math.max(0, Math.round(progress * (SHOWCASE_ITEMS.length - 1)))
+              Math.max(0, Math.round(normalized * (SHOWCASE_ITEMS.length - 1)))
             );
             setActiveIndex(idx);
           },
         },
       });
+
+      // Lead-in resting pause: Card 1 stationary
+      tl.to({}, { duration: 0.15 });
+
+      // Horizontal translation from Card 1 to Card 5
+      tl.to(track, {
+        x: getScrollAmount,
+        ease: "none",
+        duration: 0.7,
+      });
+
+      // Lead-out resting pause: Card 5 stationary
+      tl.to({}, { duration: 0.15 });
+
+      triggerRef.current = tl.scrollTrigger || null;
     }, sectionRef);
 
     const timer = setTimeout(() => {
@@ -126,20 +150,26 @@ export default function GallerySection() {
   }, []);
 
   const scrollToIndex = (index: number) => {
-    const section = sectionRef.current;
-    if (!section) return;
+    const trigger = triggerRef.current;
+    if (!trigger) {
+      setActiveIndex(index);
+      return;
+    }
 
     const totalSteps = SHOWCASE_ITEMS.length - 1;
-    const progress = Math.max(0, Math.min(1, index / totalSteps));
+    const normalized = index / totalSteps;
 
-    const rect = section.getBoundingClientRect();
-    const currentScroll = window.scrollY;
-    const sectionTop = currentScroll + rect.top;
-    const sectionHeight = section.offsetHeight;
+    // Map index into timeline scroll progress
+    let targetProgress = 0;
+    if (index === 0) {
+      targetProgress = 0.05;
+    } else if (index === totalSteps) {
+      targetProgress = 0.95;
+    } else {
+      targetProgress = 0.15 + normalized * 0.7;
+    }
 
-    const startScroll = sectionTop - window.innerHeight * 0.35;
-    const endScroll = sectionTop + sectionHeight - window.innerHeight * 0.65;
-    const targetScroll = startScroll + progress * (endScroll - startScroll);
+    const targetScroll = trigger.start + targetProgress * (trigger.end - trigger.start);
 
     const lenis = (window as unknown as { __lenis?: { scrollTo: (pos: number, opts: { duration: number }) => void } }).__lenis;
     if (lenis) {
@@ -164,23 +194,24 @@ export default function GallerySection() {
     <section
       id="gallery"
       ref={sectionRef}
-      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-36 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 overflow-hidden"
+      className="relative z-20 w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 overflow-hidden"
     >
       {/* Background Radial Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-[#00bfa6]/10 rounded-full blur-[180px] pointer-events-none" />
 
-      <div className="relative z-10 w-full flex flex-col justify-between">
+      {/* Viewport Pinned Frame: sized to fit 100% within the viewport height without clipping */}
+      <div className="h-screen max-h-screen w-full flex flex-col justify-between py-6 sm:py-8 lg:py-10">
         {/* Header Container */}
-        <div className="max-w-6xl w-full mx-auto px-6 mb-10 sm:mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="max-w-6xl w-full mx-auto px-6 flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
           <div>
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
+            <div className="inline-flex items-center gap-2 text-[10px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-2">
               <Sparkles size={13} className="text-[#00bfa6]" />
               <span>Masterpiece Gallery</span>
             </div>
-            <h2 className="font-serif text-[clamp(2.2rem,4.5vw,3.8rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
+            <h2 className="font-serif text-[clamp(1.9rem,3.8vw,3.2rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
               Curated celebratory <span className="italic text-[#00bfa6] font-semibold">atmospheres.</span>
             </h2>
-            <p className="mt-3 text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl leading-relaxed">
+            <p className="mt-1.5 text-xs sm:text-[13px] text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl">
               Scroll down to glide through each festive environment, lighting style, and cultural attire.
             </p>
           </div>
@@ -195,26 +226,26 @@ export default function GallerySection() {
               onClick={handlePrev}
               disabled={activeIndex === 0}
               aria-label="Previous showcase card"
-              className="w-10 h-10 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
+              className="w-9 h-9 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={16} />
             </button>
             <button
               onClick={handleNext}
               disabled={activeIndex === SHOWCASE_ITEMS.length - 1}
               aria-label="Next showcase card"
-              className="w-10 h-10 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
+              className="w-9 h-9 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>
 
         {/* Scroll-Driven Horizontal Card Track */}
-        <div className="w-full overflow-hidden py-4">
+        <div className="w-full overflow-hidden my-auto py-2">
           <div
             ref={trackRef}
-            className="flex gap-6 sm:gap-8 pl-6 sm:pl-16 lg:pl-24 pr-16 sm:pr-28 lg:pr-36 w-max will-change-transform"
+            className="flex gap-6 sm:gap-8 pl-6 sm:pl-16 lg:pl-24 pr-6 sm:pr-16 lg:pr-24 w-max will-change-transform"
           >
             {SHOWCASE_ITEMS.map((item, index) => {
               const Icon = item.icon;
@@ -224,7 +255,7 @@ export default function GallerySection() {
                 <div
                   key={item.id}
                   onClick={() => scrollToIndex(index)}
-                  className={`showcase-card shrink-0 w-[300px] sm:w-[380px] lg:w-[420px] rounded-3xl p-6 sm:p-8 border transition-all duration-300 flex flex-col justify-between min-h-[480px] sm:min-h-[500px] shadow-xl cursor-pointer ${
+                  className={`showcase-card shrink-0 w-[300px] sm:w-[360px] lg:w-[410px] rounded-3xl p-5 sm:p-7 border transition-all duration-300 flex flex-col justify-between shadow-xl cursor-pointer ${
                     isCurrent
                       ? "bg-white dark:bg-[#143838] border-[#00bfa6] shadow-[0_16px_40px_rgba(0,191,166,0.22)] scale-[1.01]"
                       : "bg-white/75 dark:bg-[#143838]/60 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50 hover:bg-white/90 dark:hover:bg-[#143838]/80"
@@ -232,40 +263,40 @@ export default function GallerySection() {
                 >
                   <div>
                     {/* Top Badge & Icon */}
-                    <div className="flex items-center justify-between mb-5 sm:mb-6">
-                      <span className="font-mono text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <span className="font-mono text-[10px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
                         {item.tag}
                       </span>
                       <div
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                           isCurrent
                             ? "bg-[#00bfa6] text-[#0f2a2a]"
                             : "bg-[#00bfa6]/10 text-[#00bfa6]"
                         }`}
                       >
-                        <Icon size={16} />
+                        <Icon size={15} />
                       </div>
                     </div>
 
                     {/* Title & Occasion */}
-                    <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#0f2a2a] dark:text-[#d9faf4] mb-1">
+                    <h3 className="font-serif text-xl sm:text-2xl font-normal text-[#0f2a2a] dark:text-[#d9faf4] mb-0.5">
                       {item.title}
                     </h3>
-                    <p className="text-xs font-semibold text-[#00bfa6] mb-3 sm:mb-4">
+                    <p className="text-xs font-semibold text-[#00bfa6] mb-2 sm:mb-3">
                       {item.occasion}
                     </p>
 
                     {/* Description */}
-                    <p className="text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed mb-4 sm:mb-6 font-normal">
+                    <p className="text-xs sm:text-[13px] text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed mb-3 sm:mb-4 font-normal">
                       {item.description}
                     </p>
 
                     {/* Specification Tags */}
-                    <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
+                    <div className="flex flex-wrap gap-1.5 mb-3 sm:mb-4">
                       {item.specs.map((spec) => (
                         <span
                           key={spec}
-                          className="text-[10px] font-mono font-medium px-2.5 py-1 rounded-lg bg-[#d9faf4]/80 dark:bg-[#0f2a2a]/80 text-[#0f2a2a]/80 dark:text-[#d9faf4]/80 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
+                          className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-lg bg-[#d9faf4]/80 dark:bg-[#0f2a2a]/80 text-[#0f2a2a]/80 dark:text-[#d9faf4]/80 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
                         >
                           {spec}
                         </span>
@@ -275,7 +306,7 @@ export default function GallerySection() {
 
                   <div>
                     {/* Quote Box */}
-                    <div className="p-4 rounded-2xl bg-[#d9faf4]/50 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 mb-5">
+                    <div className="p-3.5 rounded-2xl bg-[#d9faf4]/50 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 mb-4">
                       <p className="font-serif italic text-xs text-[#0f2a2a]/90 dark:text-[#d9faf4]/90 leading-relaxed">
                         {item.quote}
                       </p>
@@ -284,7 +315,7 @@ export default function GallerySection() {
                     {/* Card Action */}
                     <Link
                       to="/create"
-                      className="w-full py-3 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_24px_rgba(0,191,166,0.5)] transition-all hover:scale-[1.01]"
+                      className="w-full py-2.5 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_24px_rgba(0,191,166,0.5)] transition-all hover:scale-[1.01]"
                     >
                       <span>Synthesize Similar Scene</span>
                       <ArrowRight size={13} />
@@ -297,7 +328,7 @@ export default function GallerySection() {
         </div>
 
         {/* Footer: Indicator Dots & Scroll Progress Hint */}
-        <div className="max-w-6xl w-full mx-auto px-6 mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
             {SHOWCASE_ITEMS.map((item, i) => (
               <button
