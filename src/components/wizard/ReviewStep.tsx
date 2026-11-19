@@ -14,24 +14,25 @@ const GENERATION_STAGES = [
 
 export default function ReviewStep() {
   const [isEditing, setIsEditing] = useState(false);
-  const [wishText, setWishText] = useState("Happy birthday Maya! May your day be as radiant as the light you bring into every room. Wishing you a year of adventure, laughter, and quiet magic.");
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  
+
   const navigate = useNavigate();
-  const { 
-    resetWish, 
-    uploadedImage, 
-    generatedImage, 
+  const {
+    resetWish,
+    uploadedImage,
+    generatedImage,
     setGeneratedImage,
     occasion,
     theme,
     people,
     decorations,
+    customMessage,
+    setCustomMessage,
     animationEnabled,
     aiEngine,
-    additionalInformation
+    additionalInformation,
   } = useWishStore();
 
   useEffect(() => {
@@ -63,20 +64,21 @@ export default function ReviewStep() {
     }, 400);
 
     try {
+      const trimmedMessage = customMessage.trim();
       const payload = {
         occasion,
         theme,
         people,
         decorations,
-        customMessage: wishText,
+        customMessage: trimmedMessage,
         animationEnabled,
         aiEngine,
         uploadedImage,
-        additionalInformation
+        additionalInformation,
       };
-      
+
       const response = await generateWish(payload);
-      
+
       if (response.success && response.imageURL) {
         setProgress(100);
         setGeneratedImage(response.imageURL);
@@ -106,7 +108,7 @@ export default function ReviewStep() {
       const response = await fetch(generatedImage);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `wishes-ai-${Date.now()}.png`;
       document.body.appendChild(a);
@@ -120,11 +122,15 @@ export default function ReviewStep() {
     }
   };
 
+  const hasCustomPrompt = customMessage.trim().length > 0;
+
   return (
     <div>
       <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Review & generate</h2>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mb-8">Review details and prompt your AI engine to synthesize the final design.</p>
-      
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-8">
+        Review details and prompt your AI engine to synthesize the final design.
+      </p>
+
       <div className="flex flex-col md:flex-row gap-8">
         <div className="w-full md:w-3/5 aspect-[4/3] rounded-2xl bg-slate-100 dark:bg-slate-800/80 shadow-sm border border-slate-200 dark:border-slate-700/80 overflow-hidden flex items-center justify-center relative">
           {isGenerating ? (
@@ -141,17 +147,23 @@ export default function ReviewStep() {
 
               {/* Progress bar */}
               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden shadow-inner">
-                <div 
+                <div
                   className="bg-gradient-to-r from-teal-500 to-indigo-500 h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <span className="text-[11px] font-semibold text-slate-400 mt-2">{progress}% completed</span>
+              <span className="text-[11px] font-semibold text-slate-400 mt-2">
+                {progress}% completed
+              </span>
             </div>
           ) : generatedImage ? (
             <img src={generatedImage} alt="Generated wish" className="w-full h-full object-cover" />
           ) : uploadedImage ? (
-            <img src={uploadedImage} alt="Uploaded reference" className="w-full h-full object-cover opacity-60" />
+            <img
+              src={uploadedImage}
+              alt="Uploaded reference"
+              className="w-full h-full object-cover opacity-60"
+            />
           ) : (
             <div className="text-center p-6 text-slate-400 dark:text-slate-500">
               <p className="text-sm font-medium">No reference image provided</p>
@@ -159,61 +171,86 @@ export default function ReviewStep() {
             </div>
           )}
         </div>
-        
+
         <div className="w-full md:w-2/5 flex flex-col justify-center">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Generated text</p>
-            <button 
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Custom Prompt / Greeting Text
+            </p>
+            <button
               onClick={() => setIsEditing(!isEditing)}
               className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
-              {isEditing ? <><Save size={12} /> Save</> : <><Edit2 size={12} /> Edit</>}
+              {isEditing ? (
+                <>
+                  <Save size={12} /> Save
+                </>
+              ) : (
+                <>
+                  <Edit2 size={12} /> Edit
+                </>
+              )}
             </button>
           </div>
-          
+
           {isEditing ? (
-            <textarea 
-              className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-slate-900 dark:focus:border-white shadow-sm mb-6 w-full h-32 resize-none transition-colors"
-              value={wishText}
-              onChange={(e) => setWishText(e.target.value)}
+            <textarea
+              placeholder="Write a custom greeting message or scene prompt (optional)..."
+              className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-teal-500 dark:focus:border-teal-400 shadow-sm mb-6 w-full h-32 resize-none transition-colors"
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
             />
           ) : (
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm mb-6">
-              "{wishText}"
-            </p>
+            <div
+              onClick={() => setIsEditing(true)}
+              className="text-sm font-medium leading-relaxed bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-sm mb-6 cursor-pointer hover:border-teal-500/40 transition-colors min-h-[4.5rem] flex items-center"
+            >
+              {hasCustomPrompt ? (
+                <p className="text-slate-700 dark:text-slate-200">{customMessage.trim()}</p>
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 text-xs italic">
+                  No custom prompt added. Click Edit to add a custom greeting or instructions.
+                </p>
+              )}
+            </div>
           )}
-          
+
           <div className="flex flex-wrap items-center gap-3">
             {!generatedImage ? (
-              <button 
+              <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className={`flex items-center gap-2 px-4 py-2.5 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${isGenerating ? 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed' : 'bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900'}`}
+                className={`flex items-center gap-2 px-4 py-2.5 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer ${
+                  isGenerating
+                    ? "bg-slate-400 dark:bg-slate-700 cursor-not-allowed"
+                    : "bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900"
+                }`}
               >
-                <Sparkles size={14} strokeWidth={2.5} /> {isGenerating ? 'Synthesizing...' : 'Generate Image'}
+                <Sparkles size={14} strokeWidth={2.5} />{" "}
+                {isGenerating ? "Synthesizing..." : "Generate Image"}
               </button>
             ) : (
               <>
-                <button 
+                <button
                   onClick={handleApprove}
                   className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <Check size={14} strokeWidth={3} /> Approve & Save
                 </button>
-                <button 
+                <button
                   onClick={handleGenerate}
                   disabled={isGenerating}
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <RefreshCw size={14} className={isGenerating ? "animate-spin" : ""} /> Regenerate
                 </button>
-                <button 
+                <button
                   onClick={handleDownload}
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <Download size={14} /> Download
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     resetWish();
                     navigate("/create");
