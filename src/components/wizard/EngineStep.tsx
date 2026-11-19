@@ -40,7 +40,7 @@ export default function EngineStep() {
           </p>
         </div>
 
-        {/* FLUX.2-dev Option */}
+        {/* FLUX.1-Kontext-dev Option */}
         <div 
           onClick={() => setAIEngine("flux")}
           className={`border-2 rounded-2xl p-6 cursor-pointer transition-all shadow-sm relative overflow-hidden ${
@@ -53,7 +53,7 @@ export default function EngineStep() {
             <div className="flex items-center gap-2">
               <Cpu size={16} className="text-[#00bfa6]" />
               <h3 className={`font-bold text-sm ${aiEngine === "flux" ? "text-teal-900 dark:text-white" : "text-slate-800 dark:text-slate-200"}`}>
-                FLUX.2-dev
+                FLUX.1-Kontext-dev
               </h3>
             </div>
             <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
@@ -61,7 +61,7 @@ export default function EngineStep() {
             </span>
           </div>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
-            Black Forest Labs FLUX.2-dev open weights model for artistic, painterly celebration aesthetics.
+            Black Forest Labs FLUX.1-Kontext-dev model for context-aware portrait editing and festive scene transformation.
           </p>
         </div>
       </div>
