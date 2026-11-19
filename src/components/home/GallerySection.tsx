@@ -72,7 +72,6 @@ const SHOWCASE_ITEMS = [
 export default function GallerySection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<ScrollTrigger | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -80,27 +79,29 @@ export default function GallerySection() {
     const track = trackRef.current;
     if (!section || !track) return;
 
-    // Check prefers-reduced-motion
+    // Respect user's motion preference
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
       const getScrollAmount = () => {
         const trackWidth = track.scrollWidth;
-        const offset = window.innerWidth < 640 ? 40 : 120;
-        return -Math.max(0, trackWidth - window.innerWidth + offset);
+        const visibleWidth = window.innerWidth;
+        const offset = visibleWidth < 640 ? 32 : 96;
+        return -Math.max(0, trackWidth - visibleWidth + offset);
       };
 
-      const tween = gsap.to(track, {
+      // Natural scroll-driven horizontal translation without pinning
+      // Starts as the section enters view, glides smoothly across as you scroll through,
+      // and cleanly finishes as the section completes, with zero blocking of next section
+      gsap.to(track, {
         x: getScrollAmount,
         ease: "none",
         scrollTrigger: {
           trigger: section,
-          start: "top top",
-          end: () => `+=${Math.max(window.innerHeight * 1.5, track.scrollWidth - window.innerWidth + 400)}`,
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
+          start: "top 75%",
+          end: "bottom 25%",
+          scrub: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const progress = self.progress;
@@ -112,14 +113,11 @@ export default function GallerySection() {
           },
         },
       });
-
-      triggerRef.current = tween.scrollTrigger || null;
     }, sectionRef);
 
-    // Refresh ScrollTrigger after slight delay to ensure layout is measured accurately
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 200);
+    }, 250);
 
     return () => {
       clearTimeout(timer);
@@ -128,23 +126,28 @@ export default function GallerySection() {
   }, []);
 
   const scrollToIndex = (index: number) => {
-    const trigger = triggerRef.current;
-    if (!trigger) {
-      // Fallback if not pinned
-      setActiveIndex(index);
-      return;
-    }
+    const section = sectionRef.current;
+    if (!section) return;
 
     const totalSteps = SHOWCASE_ITEMS.length - 1;
-    const targetProgress = Math.max(0, Math.min(1, index / totalSteps));
-    const targetScroll = trigger.start + targetProgress * (trigger.end - trigger.start);
+    const progress = Math.max(0, Math.min(1, index / totalSteps));
+
+    const rect = section.getBoundingClientRect();
+    const currentScroll = window.scrollY;
+    const sectionTop = currentScroll + rect.top;
+    const sectionHeight = section.offsetHeight;
+
+    const startScroll = sectionTop - window.innerHeight * 0.35;
+    const endScroll = sectionTop + sectionHeight - window.innerHeight * 0.65;
+    const targetScroll = startScroll + progress * (endScroll - startScroll);
 
     const lenis = (window as unknown as { __lenis?: { scrollTo: (pos: number, opts: { duration: number }) => void } }).__lenis;
     if (lenis) {
-      lenis.scrollTo(targetScroll, { duration: 1.0 });
+      lenis.scrollTo(targetScroll, { duration: 0.9 });
     } else {
       window.scrollTo({ top: targetScroll, behavior: "smooth" });
     }
+    setActiveIndex(index);
   };
 
   const handlePrev = () => {
@@ -161,15 +164,14 @@ export default function GallerySection() {
     <section
       id="gallery"
       ref={sectionRef}
-      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 overflow-hidden"
+      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-36 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 overflow-hidden"
     >
       {/* Background Radial Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-[#00bfa6]/10 rounded-full blur-[180px] pointer-events-none" />
 
-      {/* Pinned Viewport Container */}
-      <div className="min-h-screen w-full flex flex-col justify-between py-12 sm:py-16">
+      <div className="relative z-10 w-full flex flex-col justify-between">
         {/* Header Container */}
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-6 mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="max-w-6xl w-full mx-auto px-6 mb-10 sm:mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6] mb-3">
               <Sparkles size={13} className="text-[#00bfa6]" />
@@ -178,7 +180,7 @@ export default function GallerySection() {
             <h2 className="font-serif text-[clamp(2.2rem,4.5vw,3.8rem)] font-normal tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.1]">
               Curated celebratory <span className="italic text-[#00bfa6] font-semibold">atmospheres.</span>
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl">
+            <p className="mt-3 text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl leading-relaxed">
               Scroll down to glide through each festive environment, lighting style, and cultural attire.
             </p>
           </div>
@@ -209,7 +211,7 @@ export default function GallerySection() {
         </div>
 
         {/* Scroll-Driven Horizontal Card Track */}
-        <div className="relative z-10 w-full overflow-hidden my-auto py-4">
+        <div className="w-full overflow-hidden py-4">
           <div
             ref={trackRef}
             className="flex gap-6 sm:gap-8 pl-6 sm:pl-16 lg:pl-24 pr-16 sm:pr-28 lg:pr-36 w-max will-change-transform"
@@ -225,7 +227,7 @@ export default function GallerySection() {
                   className={`showcase-card shrink-0 w-[300px] sm:w-[380px] lg:w-[420px] rounded-3xl p-6 sm:p-8 border transition-all duration-300 flex flex-col justify-between min-h-[480px] sm:min-h-[500px] shadow-xl cursor-pointer ${
                     isCurrent
                       ? "bg-white dark:bg-[#143838] border-[#00bfa6] shadow-[0_16px_40px_rgba(0,191,166,0.22)] scale-[1.01]"
-                      : "bg-white/70 dark:bg-[#143838]/60 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50 hover:bg-white/90 dark:hover:bg-[#143838]/80"
+                      : "bg-white/75 dark:bg-[#143838]/60 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50 hover:bg-white/90 dark:hover:bg-[#143838]/80"
                   }`}
                 >
                   <div>
@@ -295,7 +297,7 @@ export default function GallerySection() {
         </div>
 
         {/* Footer: Indicator Dots & Scroll Progress Hint */}
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-6 mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl w-full mx-auto px-6 mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             {SHOWCASE_ITEMS.map((item, i) => (
               <button
@@ -313,7 +315,7 @@ export default function GallerySection() {
 
           <div className="flex items-center gap-2 text-[11px] font-mono text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00bfa6] animate-pulse" />
-            <span>Scroll vertically to glide horizontally through gallery</span>
+            <span>Scroll vertically to glide through atmospheres</span>
           </div>
         </div>
       </div>
