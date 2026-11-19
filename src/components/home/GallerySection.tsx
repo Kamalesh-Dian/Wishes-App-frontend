@@ -70,74 +70,52 @@ const SHOWCASE_ITEMS = [
 ];
 
 export default function GallerySection() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<ScrollTrigger | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    const section = sectionRef.current;
+    const container = containerRef.current;
     const track = trackRef.current;
-    if (!section || !track) return;
+    if (!container || !track) return;
 
     // Respect user's motion preference
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      const getScrollAmount = () => {
-        const trackWidth = track.scrollWidth;
-        const visibleWidth = window.innerWidth;
-        return -(trackWidth - visibleWidth);
-      };
+      // Use CSS sticky instead of GSAP pin: true to prevent layout shift and pin-spacer traps
+      ScrollTrigger.create({
+        trigger: container,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.8,
+        onUpdate: (self) => {
+          const p = self.progress;
 
-      // Create a pinned timeline with lead-in pause for Card 1 and lead-out pause for Card 5
-      // 1. Lead-in (0% to 15%): Card 1 stays completely stationary so the user sees Card 1 in full view upon arrival
-      // 2. Horizontal glide (15% to 85%): Cards glide smoothly through Card 2, 3, 4 to Card 5
-      // 3. Lead-out (85% to 100%): Card 5 stays completely stationary so the user sees Card 5 in full view before unpinning
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${Math.max(window.innerHeight * 2.5, track.scrollWidth)}`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const p = self.progress;
-            let normalized = 0;
-            if (p <= 0.15) {
-              normalized = 0;
-            } else if (p >= 0.85) {
-              normalized = 1;
-            } else {
-              normalized = (p - 0.15) / 0.7;
-            }
-            const idx = Math.min(
-              SHOWCASE_ITEMS.length - 1,
-              Math.max(0, Math.round(normalized * (SHOWCASE_ITEMS.length - 1)))
-            );
-            setActiveIndex(idx);
-          },
+          // 1. Lead-in pause (0% to 12%): Card 1 stays stationary at x = 0 in full view
+          // 2. Smooth glide (12% to 88%): Cards glide from Card 1 to Card 5
+          // 3. Lead-out pause (88% to 100%): Card 5 stays stationary in full view before un-sticking
+          let normalized = 0;
+          if (p <= 0.12) {
+            normalized = 0;
+          } else if (p >= 0.88) {
+            normalized = 1;
+          } else {
+            normalized = (p - 0.12) / 0.76;
+          }
+
+          const maxScroll = track.scrollWidth - window.innerWidth;
+          gsap.set(track, { x: -normalized * Math.max(0, maxScroll) });
+
+          const idx = Math.min(
+            SHOWCASE_ITEMS.length - 1,
+            Math.max(0, Math.round(normalized * (SHOWCASE_ITEMS.length - 1)))
+          );
+          setActiveIndex(idx);
         },
       });
-
-      // Lead-in resting pause: Card 1 stationary
-      tl.to({}, { duration: 0.15 });
-
-      // Horizontal translation from Card 1 to Card 5
-      tl.to(track, {
-        x: getScrollAmount,
-        ease: "none",
-        duration: 0.7,
-      });
-
-      // Lead-out resting pause: Card 5 stationary
-      tl.to({}, { duration: 0.15 });
-
-      triggerRef.current = tl.scrollTrigger || null;
-    }, sectionRef);
+    }, container);
 
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -150,26 +128,27 @@ export default function GallerySection() {
   }, []);
 
   const scrollToIndex = (index: number) => {
-    const trigger = triggerRef.current;
-    if (!trigger) {
-      setActiveIndex(index);
-      return;
-    }
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const containerTop = window.scrollY + rect.top;
+    const scrollHeight = container.offsetHeight - window.innerHeight;
 
     const totalSteps = SHOWCASE_ITEMS.length - 1;
     const normalized = index / totalSteps;
 
-    // Map index into timeline scroll progress
-    let targetProgress = 0;
+    // Map into container scroll travel
+    let targetP = 0;
     if (index === 0) {
-      targetProgress = 0.05;
+      targetP = 0.05;
     } else if (index === totalSteps) {
-      targetProgress = 0.95;
+      targetP = 0.95;
     } else {
-      targetProgress = 0.15 + normalized * 0.7;
+      targetP = 0.12 + normalized * 0.76;
     }
 
-    const targetScroll = trigger.start + targetProgress * (trigger.end - trigger.start);
+    const targetScroll = containerTop + targetP * scrollHeight;
 
     const lenis = (window as unknown as { __lenis?: { scrollTo: (pos: number, opts: { duration: number }) => void } }).__lenis;
     if (lenis) {
@@ -193,14 +172,14 @@ export default function GallerySection() {
   return (
     <section
       id="gallery"
-      ref={sectionRef}
-      className="relative z-20 w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 overflow-hidden"
+      ref={containerRef}
+      className="relative w-full h-[230vh] bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-20"
     >
       {/* Background Radial Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-[#00bfa6]/10 rounded-full blur-[180px] pointer-events-none" />
 
-      {/* Viewport Pinned Frame: sized to fit 100% within the viewport height without clipping */}
-      <div className="h-screen max-h-screen w-full flex flex-col justify-between py-6 sm:py-8 lg:py-10">
+      {/* Viewport Frame with native CSS sticky positioning - No GSAP pin spacer, no layout overlaps */}
+      <div className="sticky top-0 h-screen max-h-screen w-full flex flex-col justify-between py-6 sm:py-8 lg:py-10 overflow-hidden">
         {/* Header Container */}
         <div className="max-w-6xl w-full mx-auto px-6 flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
           <div>

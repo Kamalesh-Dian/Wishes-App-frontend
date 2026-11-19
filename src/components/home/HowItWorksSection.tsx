@@ -86,7 +86,7 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300"
+      className="relative z-10 w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-24"
     >
       {/* Background Decorative Radial Glows */}
       <div className="absolute top-1/4 left-10 w-[500px] h-[500px] bg-[#00bfa6]/10 rounded-full blur-[160px] pointer-events-none" />
