@@ -73,17 +73,17 @@ export default function ResultPage() {
             py-3
             rounded-xl
             border
-            border-slate-200
-            bg-white
-            text-slate-700
+            border-[#00bfa6]
+            bg-[#00bfa6]
+            text-[#0f2a2a]
             font-bold
             shadow-sm
-            hover:bg-slate-50
+            hover:bg-[#00a892]
             transition-colors
             cursor-pointer
           "
         >
-          Create Another
+          Create from Step 1
         </button>
       </div>
 

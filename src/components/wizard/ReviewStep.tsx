@@ -213,6 +213,16 @@ export default function ReviewStep() {
                 >
                   <Download size={14} /> Download
                 </button>
+                <button 
+                  onClick={() => {
+                    resetWish();
+                    navigate("/create");
+                    toast.success("Ready to create a new wish from Step 1!");
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-[#00bfa6] hover:bg-[#00a892] text-[#0f2a2a] text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
+                >
+                  Start Over (Step 1)
+                </button>
               </>
             )}
           </div>
