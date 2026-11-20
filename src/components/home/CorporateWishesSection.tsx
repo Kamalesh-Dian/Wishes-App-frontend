@@ -36,7 +36,7 @@ export default function CorporateWishesSection() {
   return (
     <section
       id="corporate"
-      className="relative z-10 w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-24"
+      className="relative z-10 w-full bg-transparent text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-24"
     >
       {/* Background Ambient Glows */}
       <div className="absolute top-1/4 -right-40 w-96 h-96 bg-[#00bfa6]/10 rounded-full blur-[150px] pointer-events-none" />

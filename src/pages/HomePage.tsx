@@ -5,6 +5,7 @@ import Lenis from "lenis";
 
 import CinematicNavbar from "../components/home/CinematicNavbar";
 import CustomCursor from "../components/home/CustomCursor";
+import WishesBackgroundAnimation from "../components/home/WishesBackgroundAnimation";
 import HeroSection from "../components/home/HeroSection";
 import HowItWorksSection from "../components/home/HowItWorksSection";
 import GallerySection from "../components/home/GallerySection";
@@ -74,6 +75,9 @@ export default function HomePage() {
 
       {/* Custom Precision Cursor */}
       <CustomCursor />
+
+      {/* Cursor & Card-Reactive Floating Balloons, Confetti & Wish Phrases Background */}
+      <WishesBackgroundAnimation />
 
       {/* Floating Glassmorphic Header Navigation */}
       <CinematicNavbar />

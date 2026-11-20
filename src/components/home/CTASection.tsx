@@ -23,7 +23,7 @@ export default function CTASection() {
   };
 
   return (
-    <footer className="relative w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] pt-24 sm:pt-32 pb-10 overflow-hidden border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300">
+    <footer className="relative w-full bg-transparent text-[#0f2a2a] dark:text-[#d9faf4] pt-24 sm:pt-32 pb-10 overflow-hidden border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300">
       {/* Background Coral & Teal Radial Flares */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[750px] h-[380px] bg-gradient-to-b from-[#00bfa6]/15 via-[#FF5A52]/10 to-transparent blur-[150px] pointer-events-none" />
 
@@ -32,13 +32,6 @@ export default function CTASection() {
         <div className="relative rounded-3xl p-8 sm:p-14 border border-[#0f2a2a]/12 dark:border-[#d9faf4]/15 bg-white/75 dark:bg-[#143838]/75 backdrop-blur-2xl shadow-2xl text-center max-w-4xl mx-auto mb-20 sm:mb-24 overflow-hidden">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#FF5A52]/15 rounded-full blur-[90px] pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#00bfa6]/20 rounded-full blur-[90px] pointer-events-none" />
-
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d9faf4]/80 dark:bg-[#0f2a2a]/70 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 mb-6 shadow-sm">
-            <Sparkles size={13} className="text-[#FF5A52]" />
-            <span className="text-[11px] font-mono font-bold tracking-[0.25em] uppercase text-[#FF5A52]">
-              Start In Seconds
-            </span>
-          </div>
 
           <h2 className="font-sans text-[clamp(2.2rem,5.5vw,4.4rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06] mb-5">
             Give them a celebration they will{" "}

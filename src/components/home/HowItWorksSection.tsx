@@ -13,10 +13,10 @@ const STEPS = [
     title: "Upload a candid photo.",
     subtitle: "True facial likeness, zero distortion.",
     description:
-      "Upload any everyday photograph of a friend, family member, or colleague. Our biometric identity lock maps 68 facial landmarks and natural expressions so their real smile stays unmistakable.",
+      "Upload your photo with clear facial expression for stunning results. AI will enhance and customize your picture in a festive background.",
     icon: Camera,
     previewBadge: "BIOMETRIC FIDELITY: 99.8%",
-    image: "/people/family.jpg",
+    image: "/people/person.jpg",
     imageCaption: "Candid Subject Identity Locked • 68 Landmark Vectors",
   },
   {
@@ -28,7 +28,7 @@ const STEPS = [
       "Select an occasion, destination setting, and celebratory mood. The engine stages warm brass diyas, candlelit bokeh, and culturally authentic attire that harmonizes naturally with the subject.",
     icon: Palette,
     previewBadge: "100+ CURATED FESTIVE PRESETS",
-    image: "/themes/luxury-hotel.jpg",
+    image: "/themes/theme.avif",
     imageCaption: "Atmospheric Lighting & Destination Backdrop Staging",
   },
   {
@@ -37,10 +37,10 @@ const STEPS = [
     title: "Export in 4K Ultra-HD.",
     subtitle: "Instant download or scheduled team delivery.",
     description:
-      "In under 60 seconds, your studio-grade celebration scene is rendered at 300 DPI. Download for framing, share a direct link, or automate delivery via OneDrive roster sync.",
+      "In under 60 seconds, your studio-grade celebration scene is rendered. Download for framing, share a direct link, or automate delivery via OneDrive roster sync.",
     icon: Gift,
-    previewBadge: "4K UHD • 300 DPI EXPORT",
-    image: "/showcase/diwali.webp",
+    previewBadge: "4K",
+    image: "/showcase/celebration.webp",
     imageCaption: "Final 4K Celebration Scene • Studio Ray-Traced Output",
   },
 ];
@@ -76,7 +76,7 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="relative z-10 w-full bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-24"
+      className="relative z-10 w-full bg-transparent text-[#0f2a2a] dark:text-[#d9faf4] py-24 sm:py-32 px-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-24"
     >
       {/* Background Decorative Radial Glows */}
       <div className="absolute top-1/4 left-10 w-[500px] h-[500px] bg-[#00bfa6]/10 rounded-full blur-[160px] pointer-events-none" />
@@ -169,14 +169,11 @@ export default function HowItWorksSection() {
               {/* Top Bar of the Visual Pipeline */}
               <div className="flex items-center justify-between pb-4 border-b border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A52] animate-pulse" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#b01010] animate-pulse" />
                   <span className="font-mono text-xs uppercase tracking-wider text-[#0f2a2a]/85 dark:text-[#d9faf4]/85 font-bold">
-                    Live Visual Pipeline
+                    Visual Pipeline
                   </span>
                 </div>
-                <span className="font-mono text-xs px-3 py-1 rounded-full bg-[#00bfa6]/15 text-[#00bfa6] font-bold">
-                  STEP 0{activeStep + 1} / 03
-                </span>
               </div>
 
               {/* Layered Celebration Visual Preview Card */}
@@ -295,22 +292,7 @@ export default function HowItWorksSection() {
               </div>
 
               {/* Bottom Quick Action */}
-              <div className="pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 flex items-center justify-between">
-                <div className="flex gap-1.5">
-                  {[0, 1, 2].map((idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveStep(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        activeStep === idx
-                          ? "w-8 bg-[#FF5A52]"
-                          : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20 hover:bg-[#00bfa6]/50"
-                      }`}
-                      aria-label={`Jump to step ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
+              <div className="pt-4 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 flex items-center justify-end">
                 <Link
                   to="/create"
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00bfa6] hover:text-[#FF5A52] transition-colors"

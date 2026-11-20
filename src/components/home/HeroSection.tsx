@@ -5,8 +5,8 @@ import {
   ArrowRight,
   Sparkles,
   Wand2,
-  ShieldCheck,
 } from "lucide-react";
+import { emitActiveCardTheme } from "./WishesBackgroundAnimation";
 
 interface HeroCardItem {
   id: string;
@@ -189,10 +189,23 @@ export default function HeroSection() {
     return diff;
   };
 
+  // Sync background balloons, confetti & wish phrases with active center pop-up card
+  useEffect(() => {
+    const current = CAROUSEL_CARDS[activeIndex];
+    if (current) {
+      emitActiveCardTheme({
+        id: current.id,
+        title: current.title,
+        occasion: current.occasion,
+        accentColor: current.accentColor,
+      });
+    }
+  }, [activeIndex]);
+
   return (
     <section
       aria-label="Wishes AI Hero"
-      className="relative w-full min-h-screen flex items-center bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] pt-28 pb-16 sm:py-28 overflow-hidden transition-colors duration-300"
+      className="relative w-full min-h-screen flex items-center bg-transparent text-[#0f2a2a] dark:text-[#d9faf4] pt-28 pb-16 sm:py-28 overflow-hidden transition-colors duration-300"
     >
       {/* Subtle Ambient Glows */}
       <div className="absolute top-1/4 -left-24 w-96 h-96 bg-[#00bfa6]/15 rounded-full blur-[150px] pointer-events-none" />
@@ -201,19 +214,10 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
         {/* Left Column: Editorial Headline & Primary Actions */}
         <div className="lg:col-span-5 text-center lg:text-left flex flex-col items-center lg:items-start">
-          {/* Top Status Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/[0.06] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#FF5A52] animate-pulse" />
-            <span className="text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-[#0f2a2a]/85 dark:text-[#d9faf4]/90 flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-[#00bfa6]" />
-              Identity-Preserving AI Studio
-            </span>
-          </div>
-
           <h1 className="font-sans text-[clamp(2.35rem,4.6vw,4.3rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
             Turn one candid portrait into a{" "}
             <span className="text-[#00bfa6]">celebration</span>{" "}
-            <span className="underline decoration-[#FF5A52]/80 decoration-wavy underline-offset-8">
+            <span className="underline decoration-[#00bfa6]/80 decoration-wavy underline-offset-8">
               masterpiece.
             </span>
           </h1>
@@ -246,34 +250,6 @@ export default function HeroSection() {
               <span>Explore Process</span>
             </button>
           </div>
-
-          {/* Quick Trust Highlights */}
-          <div className="mt-8 pt-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 grid grid-cols-3 gap-4 w-full max-w-md text-left">
-            <div>
-              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#00bfa6]">
-                99.8%
-              </span>
-              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
-                Identity Lock
-              </span>
-            </div>
-            <div>
-              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#FF5A52]">
-                4K UHD
-              </span>
-              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
-                300 DPI Print
-              </span>
-            </div>
-            <div>
-              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#00bfa6]">
-                &lt; 60s
-              </span>
-              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
-                Studio Render
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Right Column: Continuous Infinite Loop Fanned Pop-Up Card Carousel */}
@@ -302,6 +278,14 @@ export default function HeroSection() {
                 <motion.div
                   key={card.id}
                   onClick={() => selectCardIndex(index)}
+                  onMouseEnter={() =>
+                    emitActiveCardTheme({
+                      id: card.id,
+                      title: card.title,
+                      occasion: card.occasion,
+                      accentColor: card.accentColor,
+                    })
+                  }
                   animate={{
                     x: translateX,
                     y: translateY,

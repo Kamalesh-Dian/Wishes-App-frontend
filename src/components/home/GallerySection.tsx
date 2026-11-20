@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { emitActiveCardTheme } from "./WishesBackgroundAnimation";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -193,7 +194,7 @@ export default function GallerySection() {
     <section
       id="gallery"
       ref={sectionRef}
-      className="relative w-full h-[340vh] bg-[#d9faf4] dark:bg-[#0b1f1f] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-20"
+      className="relative w-full h-[340vh] bg-transparent text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-20"
     >
       {/* Ambient Background Glows */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center" ref={stageRef}>
@@ -263,11 +264,6 @@ export default function GallerySection() {
             }}
             className="lg:col-span-5 flex flex-col items-start text-left"
           >
-            {/* Circular Eye / Studio Badge */}
-            <div className="w-10 h-10 rounded-full bg-white/80 dark:bg-[#143838] border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 flex items-center justify-center text-[#00bfa6] mb-5 shadow-sm">
-              <Eye size={17} />
-            </div>
-
             <h2 className="font-sans text-[clamp(2rem,3.8vw,3.2rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#f4f1ea] leading-[1.08]">
               Our vision
               <br />
@@ -408,6 +404,14 @@ export default function GallerySection() {
               <Link
                 to="/create"
                 key={card.id}
+                onMouseEnter={() =>
+                  emitActiveCardTheme({
+                    id: card.id === "editorial-birthday" ? "birthday" : card.id,
+                    title: card.title,
+                    occasion: card.occasion,
+                    accentColor: i % 2 === 0 ? "#00bfa6" : "#FF5A52",
+                  })
+                }
                 style={{
                   width: `${BASE_CARD_W}px`,
                   height: `${BASE_CARD_H}px`,
@@ -460,37 +464,6 @@ export default function GallerySection() {
               </Link>
             );
           })}
-        </div>
-
-        {/* Bottom Stage Indicator Bar */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/75 dark:bg-[#143838]/80 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md shadow-sm text-[10px] font-mono">
-          <span
-            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
-              progress < 0.3
-                ? "bg-[#00bfa6] text-[#0f2a2a]"
-                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
-            }`}
-          >
-            01 • Rise
-          </span>
-          <span
-            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
-              progress >= 0.3 && progress < 0.64
-                ? "bg-[#FF5A52] text-white"
-                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
-            }`}
-          >
-            02 • Cascade
-          </span>
-          <span
-            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
-              progress >= 0.64
-                ? "bg-[#00bfa6] text-[#0f2a2a]"
-                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
-            }`}
-          >
-            03 • Studio Folder
-          </span>
         </div>
       </div>
     </section>
