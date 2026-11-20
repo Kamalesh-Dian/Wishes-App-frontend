@@ -1,4 +1,4 @@
-import { Users, Cloud, CheckCircle, ArrowRight } from "lucide-react";
+import { Users, Cloud, CheckCircle, ArrowRight, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function CorporateWishesSection() {
@@ -147,13 +147,24 @@ export default function CorporateWishesSection() {
                 </p>
               </div>
 
-              <Link
-                to="/onedrive"
-                className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold shadow-[0_0_24px_rgba(0,191,166,0.35)] hover:shadow-[0_0_32px_rgba(0,191,166,0.6)] transition-all hover:scale-105"
-              >
-                <span>Connect Calendar</span>
-                <ArrowRight size={13} />
-              </Link>
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <a
+                  href="/wishes_employee_roster_template.xlsx"
+                  download="wishes_employee_roster_template.xlsx"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0f2a2a]/20 dark:border-[#d9faf4]/20 hover:border-[#00bfa6] text-[#0f2a2a] dark:text-[#d9faf4] text-xs font-bold transition-all hover:scale-105"
+                  title="Download standard Excel template with sample rows and instructions"
+                >
+                  <Download size={13} className="text-[#00bfa6]" />
+                  <span>Roster Template</span>
+                </a>
+                <Link
+                  to="/onedrive"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold shadow-[0_0_24px_rgba(0,191,166,0.35)] hover:shadow-[0_0_32px_rgba(0,191,166,0.6)] transition-all hover:scale-105"
+                >
+                  <span>Connect Calendar</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

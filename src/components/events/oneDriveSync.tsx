@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { CheckCircle2, RefreshCw, Folder, FileSpreadsheet, UploadCloud, AlertTriangle } from "lucide-react";
+import { CheckCircle2, RefreshCw, Folder, FileSpreadsheet, UploadCloud, AlertTriangle, Download } from "lucide-react";
 import { fetchEventsBySource } from "../../services/event";
 import { useEventStore } from "../../store/eventStore";
 import { getCurrentAccount, loginToOneDrive } from "../../services/microsoftAuth";
@@ -227,10 +227,18 @@ export default function OneDriveSync() {
 
       {!selectedFile && !importSuccess && (
         <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-xl border border-white/60 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-[13px] font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Folder size={14} className="text-slate-400 dark:text-slate-500" /> Available Excel Files
             </h3>
+            <a
+              href="/wishes_employee_roster_template.xlsx"
+              download="wishes_employee_roster_template.xlsx"
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00bfa6] hover:underline"
+            >
+              <Download size={12} />
+              <span>Download Standard Roster Template (.xlsx)</span>
+            </a>
           </div>
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {isLoadingFiles ? (
