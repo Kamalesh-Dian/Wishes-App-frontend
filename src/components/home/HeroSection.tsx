@@ -1,154 +1,155 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Wand2, ShieldCheck } from "lucide-react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowRight,
+  Sparkles,
+  Wand2,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
-gsap.registerPlugin(ScrollTrigger);
+interface HeroCardItem {
+  id: string;
+  title: string;
+  occasion: string;
+  subtitle: string;
+  image: string;
+  cardBg: string;
+  accentColor: string;
+  floatingBadge?: {
+    text: string;
+    bg: string;
+    textCol: string;
+    position: "left" | "right";
+  };
+}
 
-const TOTAL_FRAMES = 40;
-const PRELOAD_COUNT = 10;
+const CAROUSEL_CARDS: HeroCardItem[] = [
+  {
+    id: "diwali",
+    title: "Diwali Twilight",
+    occasion: "Festival of Lights",
+    subtitle: "Warm brass diyas & marigold garlands",
+    image: "/people/family.jpg",
+    cardBg: "from-[#FF5A52] to-[#D93830]",
+    accentColor: "#FF5A52",
+    floatingBadge: {
+      text: "Diwali Glow ✨",
+      bg: "bg-[#FF5A52]",
+      textCol: "text-white",
+      position: "left",
+    },
+  },
+  {
+    id: "beach",
+    title: "Coastal Reverie",
+    occasion: "Anniversary Getaway",
+    subtitle: "Tropical sunset & ocean horizon",
+    image: "/themes/beach.jpg",
+    cardBg: "from-[#38BDF8] to-[#0284C7]",
+    accentColor: "#38BDF8",
+  },
+  {
+    id: "birthday",
+    title: "30th Milestone",
+    occasion: "Candlelit Soirée",
+    subtitle: "Sparklers & candid laughter in 4K",
+    image: "/people/friends.jpg",
+    cardBg: "from-[#F5B24A] to-[#D97706]",
+    accentColor: "#F5B24A",
+    floatingBadge: {
+      text: "99.8% Likeness",
+      bg: "bg-[#F5B24A]",
+      textCol: "text-[#0f2a2a]",
+      position: "left",
+    },
+  },
+  {
+    id: "wedding",
+    title: "Royal Sangeet",
+    occasion: "Palace Celebration",
+    subtitle: "Grand arches & ray-traced festive light",
+    image: "/themes/luxury-hotel.jpg",
+    cardBg: "from-[#00bfa6] to-[#0d9488]",
+    accentColor: "#00bfa6",
+    floatingBadge: {
+      text: "4K Studio Print",
+      bg: "bg-[#00bfa6]",
+      textCol: "text-[#0f2a2a]",
+      position: "right",
+    },
+  },
+  {
+    id: "corporate",
+    title: "Team Milestone",
+    occasion: "5th Work Anniversary",
+    subtitle: "Automated OneDrive roster greeting",
+    image: "/people/colleagues.jpg",
+    cardBg: "from-[#A78BFA] to-[#7C3AED]",
+    accentColor: "#A78BFA",
+    floatingBadge: {
+      text: "Auto-Synced 🚀",
+      bg: "bg-[#A78BFA]",
+      textCol: "text-[#0f2a2a]",
+      position: "right",
+    },
+  },
+  {
+    id: "mountain",
+    title: "Alpine Retreat",
+    occasion: "Adventure Milestone",
+    subtitle: "Emerald peaks & crystal lake reflection",
+    image: "/themes/mountain.jpg",
+    cardBg: "from-[#14B8A6] to-[#0F766E]",
+    accentColor: "#14B8A6",
+  },
+  {
+    id: "travel",
+    title: "Global Journey",
+    occasion: "Bon Voyage Wish",
+    subtitle: "Worldwide celebration & flight horizon",
+    image: "/themes/travel.jpg",
+    cardBg: "from-[#FB7185] to-[#E11D48]",
+    accentColor: "#FB7185",
+  },
+];
 
 export default function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const currentFrameRef = useRef<number>(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(3); // Center card by default
+  const [isPaused, setIsPaused] = useState(false);
 
-  const getFramePath = useCallback((index: number) => {
-    const frameNum = String(index + 1).padStart(4, "0");
-    return `/hero/frame_${frameNum}.webp`;
-  }, []);
+  const total = CAROUSEL_CARDS.length;
 
-  const renderFrame = useCallback((index: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % total);
+  };
 
-    const img = imagesRef.current[index];
-    if (!img || !img.complete || img.naturalWidth === 0) return;
-
-    const w = canvas.width;
-    const h = canvas.height;
-    const imgW = img.naturalWidth;
-    const imgH = img.naturalHeight;
-
-    const scale = Math.max(w / imgW, h / imgH);
-    const renderW = imgW * scale;
-    const renderH = imgH * scale;
-    const offsetX = (w - renderW) / 2;
-    const offsetY = (h - renderH) / 2;
-
-    ctx.clearRect(0, 0, w, h);
-    ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
-  }, []);
-
-  const handleResize = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    renderFrame(currentFrameRef.current);
-  }, [renderFrame]);
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + total) % total);
+  };
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    const checkReducedMotion = () => {
-      setPrefersReducedMotion(
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      );
-    };
-
-    checkMobile();
-    checkReducedMotion();
-    window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    imagesRef.current = new Array(TOTAL_FRAMES);
-
-    let loadedCount = 0;
-    for (let i = 0; i < PRELOAD_COUNT; i++) {
-      const img = new Image();
-      img.src = getFramePath(i);
-      img.onload = () => {
-        loadedCount++;
-        if (i === 0) {
-          setFirstFrameLoaded(true);
-          renderFrame(0);
-        }
-        if (loadedCount === PRELOAD_COUNT) {
-          loadRemainingFrames();
-        }
-      };
-      imagesRef.current[i] = img;
-    }
-
-    function loadRemainingFrames() {
-      for (let i = PRELOAD_COUNT; i < TOTAL_FRAMES; i++) {
-        const img = new Image();
-        img.src = getFramePath(i);
-        imagesRef.current[i] = img;
-      }
-    }
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [getFramePath, handleResize, renderFrame]);
-
-  useEffect(() => {
-    if (isMobile || prefersReducedMotion) return;
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.5,
-        onUpdate: (self) => {
-          const progress = self.progress;
-          setScrollProgress(progress);
-
-          const targetFrame = Math.min(
-            TOTAL_FRAMES - 1,
-            Math.floor(progress * TOTAL_FRAMES)
-          );
-
-          if (targetFrame !== currentFrameRef.current) {
-            currentFrameRef.current = targetFrame;
-            renderFrame(targetFrame);
-          }
-        },
-      });
-    }, container);
-
-    return () => ctx.revert();
-  }, [isMobile, prefersReducedMotion, renderFrame]);
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % total);
+    }, 3400);
+    return () => clearInterval(timer);
+  }, [isPaused, total]);
 
   const handleLearnMore = (e: React.MouseEvent) => {
     e.preventDefault();
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: HTMLElement | string, opts: { offset: number; duration: number }) => void } }).__lenis;
+    const lenis = (
+      window as unknown as {
+        __lenis?: {
+          scrollTo: (
+            t: HTMLElement | string,
+            opts: { offset: number; duration: number }
+          ) => void;
+        };
+      }
+    ).__lenis;
     const target = document.getElementById("how-it-works");
     if (lenis && target) {
       lenis.scrollTo(target, { offset: -80, duration: 1.2 });
@@ -157,130 +158,54 @@ export default function HeroSection() {
     }
   };
 
-  const activeStage = isMobile || prefersReducedMotion
-    ? 0
-    : scrollProgress < 0.35
-      ? 0
-      : scrollProgress < 0.7
-        ? 1
-        : 2;
+  // Compute circular relative offset (-3 .. 0 .. +3) from activeIndex
+  const getRelativeOffset = (index: number) => {
+    let diff = index - activeIndex;
+    const half = Math.floor(total / 2);
+    if (diff > half) diff -= total;
+    if (diff < -half) diff += total;
+    return diff;
+  };
+
+  const activeCard = CAROUSEL_CARDS[activeIndex];
 
   return (
     <section
-      ref={containerRef}
       aria-label="Wishes AI Hero"
-      className={`relative w-full ${
-        isMobile || prefersReducedMotion ? "min-h-screen py-24 sm:py-28" : "h-[230vh]"
-      } bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] transition-colors duration-300`}
+      className="relative w-full min-h-screen flex items-center bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] pt-28 pb-16 sm:py-28 overflow-hidden transition-colors duration-300"
     >
-      {/* Pinned Viewport */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* Cohesive Visual Fallback Layer (Never Empty) */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-          <img
-            src="/hero/frame_0020.webp"
-            alt="Atmospheric night-market celebration backdrop"
-            className="w-full h-full object-cover opacity-35 dark:opacity-55 scale-105"
-          />
-        </div>
+      {/* Subtle Ambient Glows (No Background Video) */}
+      <div className="absolute top-1/4 -left-24 w-96 h-96 bg-[#00bfa6]/15 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-[480px] h-[480px] bg-[#FF5A52]/12 dark:bg-[#00bfa6]/15 rounded-full blur-[160px] pointer-events-none" />
 
-        {/* Scrubbed 40-Frame Canvas (Desktop) */}
-        {!isMobile && !prefersReducedMotion && (
-          <canvas
-            ref={canvasRef}
-            aria-label="Interactive celebration frame sequence"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700"
-            style={{ opacity: firstFrameLoaded ? 0.85 : 0 }}
-          />
-        )}
-
-        {/* Editorial Vignettes & Night-Market Coral/Teal Glows */}
-        <div className="absolute inset-0 bg-radial-[ellipse_80%_80%_at_50%_50%] from-transparent via-[#d9faf4]/55 dark:via-[#0f2a2a]/65 to-[#d9faf4] dark:to-[#0f2a2a] pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-36 bg-gradient-to-b from-[#d9faf4] dark:from-[#0f2a2a] via-[#d9faf4]/80 dark:via-[#0f2a2a]/80 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#d9faf4] dark:from-[#0f2a2a] via-[#d9faf4]/80 dark:via-[#0f2a2a]/80 to-transparent pointer-events-none" />
-
-        {/* Restrained Coral-Red & Teal Ambient Lantern Glows */}
-        <div className="absolute top-1/4 -left-16 w-96 h-96 bg-[#FF5A52]/15 dark:bg-[#FF5A52]/20 rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-16 w-96 h-96 bg-[#00bfa6]/20 rounded-full blur-[160px] pointer-events-none" />
-
-        {/* Content Container */}
-        <div className="relative z-10 max-w-6xl w-full mx-auto px-6 pt-16 flex flex-col items-center text-center">
-          {/* Small Uppercase Editorial Label */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/75 dark:bg-white/[0.06] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-6 shadow-sm">
+      <div className="relative z-10 max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        {/* Left Column: Editorial Headline & Primary Actions */}
+        <div className="lg:col-span-5 text-center lg:text-left flex flex-col items-center lg:items-start">
+          {/* Top Status Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/[0.06] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-6 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#FF5A52] animate-pulse" />
-            <span className="text-[11px] font-mono font-bold tracking-[0.22em] uppercase text-[#0f2a2a]/85 dark:text-[#d9faf4]/90 flex items-center gap-1.5">
+            <span className="text-[11px] font-mono font-bold tracking-[0.2em] uppercase text-[#0f2a2a]/85 dark:text-[#d9faf4]/90 flex items-center gap-1.5">
               <ShieldCheck size={13} className="text-[#00bfa6]" />
-              Identity-Preserving Celebration Studio
-            </span>
-            <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF5A52]/15 text-[#FF5A52] font-bold">
-              FRAME {String(Math.min(TOTAL_FRAMES, Math.floor(scrollProgress * TOTAL_FRAMES) + 1)).padStart(2, "0")}/40
+              Identity-Preserving AI Studio
             </span>
           </div>
 
-          {/* Three Staged Headlines */}
-          <div className="relative min-h-[170px] sm:min-h-[195px] w-full max-w-4xl flex flex-col items-center justify-center">
-            {/* Stage 1 (0% - 35%) */}
-            <div
-              className={`transition-all duration-500 ${
-                activeStage === 0
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 -translate-y-6 pointer-events-none absolute inset-0"
-              }`}
-            >
-              <h1 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
-                Turn one candid portrait into a{" "}
-                <span className="text-[#00bfa6]">celebration</span>{" "}
-                <span className="underline decoration-[#FF5A52]/70 decoration-wavy underline-offset-8">
-                  scene.
-                </span>
-              </h1>
-              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
-                Upload a single photograph. Wishes AI stages festive night-market lanterns, royal arches,
-                and candlelit soirées while preserving 100% of their true facial identity.
-              </p>
-            </div>
+          <h1 className="font-sans text-[clamp(2.35rem,4.6vw,4.3rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
+            Turn one candid portrait into a{" "}
+            <span className="text-[#00bfa6]">celebration</span>{" "}
+            <span className="underline decoration-[#FF5A52]/80 decoration-wavy underline-offset-8">
+              masterpiece.
+            </span>
+          </h1>
 
-            {/* Stage 2 (35% - 70%) */}
-            <div
-              className={`transition-all duration-500 ${
-                activeStage === 1
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-6 pointer-events-none absolute inset-0"
-              }`}
-            >
-              <h2 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
-                Editorial warmth.{" "}
-                <span className="text-[#FF5A52]">Festival light.</span>{" "}
-                <span className="text-[#00bfa6]">Zero distortion.</span>
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
-                From glowing Diwali diyas and milestone birthdays to palace wedding sangeets—ray-traced
-                illumbering harmonizes naturally with skin tones and silk attire.
-              </p>
-            </div>
+          <p className="mt-5 max-w-xl text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
+            Upload a single photograph. Wishes AI stages festive night-market lanterns,
+            royal wedding arches, and milestone soirées while preserving 100% of their true
+            facial identity.
+          </p>
 
-            {/* Stage 3 (70% - 100%) */}
-            <div
-              className={`transition-all duration-500 ${
-                activeStage === 2
-                  ? "opacity-100 translate-y-0 scale-100"
-                  : "opacity-0 translate-y-6 pointer-events-none absolute inset-0"
-              }`}
-            >
-              <h2 className="font-sans text-[clamp(2.3rem,5.8vw,4.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
-                Keepsakes that linger{" "}
-                <span className="text-[#00bfa6]">forever</span>{" "}
-                <span className="text-[#FF5A52]">in 4K.</span>
-              </h2>
-              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 font-normal leading-relaxed">
-                Crafted in 60 seconds for personal milestones or dispatched automatically across your
-                organization via OneDrive roster sync.
-              </p>
-            </div>
-          </div>
-
-          {/* Primary Actions (Always Accessible) */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+          {/* CTA Buttons */}
+          <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
             <Link
               to="/create"
               className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#00bfa6] text-[#0f2a2a] font-bold text-sm sm:text-base shadow-[0_10px_30px_rgba(0,191,166,0.38)] hover:shadow-[0_12px_42px_rgba(0,191,166,0.6)] transition-all hover:scale-[1.03]"
@@ -300,6 +225,203 @@ export default function HeroSection() {
               <Wand2 size={15} className="text-[#FF5A52]" />
               <span>Explore Process</span>
             </button>
+          </div>
+
+          {/* Quick Trust Highlights */}
+          <div className="mt-8 pt-6 border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 grid grid-cols-3 gap-4 w-full max-w-md text-left">
+            <div>
+              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#00bfa6]">
+                99.8%
+              </span>
+              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
+                Identity Lock
+              </span>
+            </div>
+            <div>
+              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#FF5A52]">
+                4K UHD
+              </span>
+              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
+                300 DPI Print
+              </span>
+            </div>
+            <div>
+              <span className="block font-mono text-base sm:text-lg font-extrabold text-[#00bfa6]">
+                &lt; 60s
+              </span>
+              <span className="text-[11px] text-[#0f2a2a]/65 dark:text-[#d9faf4]/65">
+                Studio Render
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Fanned Pop-Up Card Carousel (Inspired by Reference Image) */}
+        <div
+          className="lg:col-span-7 flex flex-col items-center justify-center"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Fanned Deck Stage */}
+          <div className="relative w-full h-[340px] sm:h-[400px] flex items-center justify-center select-none">
+            {CAROUSEL_CARDS.map((card, index) => {
+              const offset = getRelativeOffset(index);
+              const absOffset = Math.abs(offset);
+              const isCenter = offset === 0;
+
+              // Spacing and arc geometry matching the reference fanned pop-up deck
+              const xStep = typeof window !== "undefined" && window.innerWidth < 640 ? 52 : 78;
+              const translateX = offset * xStep;
+              // Center card pops UP (-30px), side cards curve down gently along an arc
+              const translateY = isCenter ? -28 : absOffset * 12 + (absOffset > 2 ? 10 : 0);
+              const scale = isCenter ? 1.14 : Math.max(0.76, 0.96 - absOffset * 0.06);
+              const rotate = offset * 3.8;
+              const zIndex = 30 - absOffset * 5;
+              const opacity = absOffset > 3 ? 0 : 1 - absOffset * 0.08;
+
+              return (
+                <motion.div
+                  key={card.id}
+                  onClick={() => setActiveIndex(index)}
+                  animate={{
+                    x: translateX,
+                    y: translateY,
+                    scale,
+                    rotate,
+                    opacity,
+                    zIndex,
+                  }}
+                  whileHover={{
+                    y: isCenter ? -34 : translateY - 12,
+                    scale: isCenter ? 1.17 : scale + 0.04,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 24,
+                  }}
+                  style={{ zIndex }}
+                  className={`absolute w-[165px] h-[215px] sm:w-[205px] sm:h-[260px] rounded-[26px] p-2.5 bg-gradient-to-b ${card.cardBg} cursor-pointer transition-shadow duration-300 ${
+                    isCenter
+                      ? "shadow-[0_28px_60px_rgba(0,0,0,0.45)] ring-4 ring-white/80 dark:ring-[#d9faf4]/40"
+                      : "shadow-[0_14px_30px_rgba(0,0,0,0.28)] hover:shadow-2xl"
+                  }`}
+                >
+                  {/* Floating Speech-Bubble Callout Pill (Like Reference Image) */}
+                  <AnimatePresence>
+                    {(isCenter || offset === -2 || offset === 2) && card.floatingBadge && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.85 }}
+                        animate={{
+                          opacity: 1,
+                          y: [0, -5, 0],
+                          scale: 1,
+                          rotate: offset < 0 ? -6 : offset > 0 ? 6 : 0,
+                        }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{
+                          y: { duration: 2.6, repeat: Infinity, ease: "easeInOut" },
+                          opacity: { duration: 0.25 },
+                        }}
+                        className={`absolute -top-9 ${
+                          card.floatingBadge.position === "left" ? "left-2" : "right-2"
+                        } z-40 px-3 py-1 rounded-full ${card.floatingBadge.bg} ${
+                          card.floatingBadge.textCol
+                        } text-[10px] font-mono font-extrabold tracking-wide shadow-lg whitespace-nowrap`}
+                      >
+                        {card.floatingBadge.text}
+                        {/* Little Speech-Bubble Pointer Tail */}
+                        <span
+                          className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rotate-45 ${card.floatingBadge.bg}`}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Card Inner Image Frame */}
+                  <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-white dark:bg-[#091616] flex flex-col justify-between">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                    />
+
+                    {/* Subtle Top Corner Dot */}
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[8px] font-mono font-bold uppercase tracking-wider text-white">
+                      {card.occasion}
+                    </div>
+
+                    {/* Center Pop-Up Card Bottom Frosted Overlay Bar (Matching Reference Center Card) */}
+                    <div
+                      className={`absolute bottom-2 left-2 right-2 rounded-2xl p-2.5 backdrop-blur-md transition-all duration-300 ${
+                        isCenter
+                          ? "bg-black/70 text-white opacity-100 translate-y-0"
+                          : "bg-black/50 text-white/90 opacity-85"
+                      }`}
+                    >
+                      <p className="font-sans text-xs sm:text-sm font-extrabold leading-tight truncate">
+                        {card.title}
+                      </p>
+                      {isCenter && (
+                        <p className="text-[10px] text-white/80 truncate mt-0.5">
+                          {card.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Active Pop-Up Card Info Bar & Carousel Controls */}
+          <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 px-5 py-3 rounded-full bg-white/80 dark:bg-[#143838]/85 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-xl shadow-lg">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous card"
+                className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
+              >
+                <ChevronLeft size={15} />
+              </button>
+
+              <div className="flex items-center gap-1.5 px-2">
+                {CAROUSEL_CARDS.map((c, idx) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setActiveIndex(idx)}
+                    aria-label={`Select ${c.title}`}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      activeIndex === idx
+                        ? "w-6 bg-[#FF5A52]"
+                        : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/25 hover:bg-[#00bfa6]"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next card"
+                className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+
+            <div className="hidden sm:block h-4 w-px bg-[#0f2a2a]/15 dark:bg-[#d9faf4]/15" />
+
+            <div className="text-center sm:text-left">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FF5A52] font-bold block">
+                ACTIVE SCENE • {activeCard.occasion}
+              </span>
+              <span className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4]">
+                {activeCard.title} — {activeCard.subtitle}
+              </span>
+            </div>
           </div>
         </div>
       </div>
