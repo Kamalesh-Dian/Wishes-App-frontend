@@ -50,6 +50,12 @@ const CAROUSEL_CARDS: HeroCardItem[] = [
     image: "/themes/beach.jpg",
     cardBg: "from-[#38BDF8] to-[#0284C7]",
     accentColor: "#38BDF8",
+    floatingBadge: {
+      text: "Sunset Vibe 🌴",
+      bg: "bg-[#38BDF8]",
+      textCol: "text-[#0f2a2a]",
+      position: "left",
+    },
   },
   {
     id: "birthday",
@@ -104,6 +110,12 @@ const CAROUSEL_CARDS: HeroCardItem[] = [
     image: "/themes/mountain.jpg",
     cardBg: "from-[#14B8A6] to-[#0F766E]",
     accentColor: "#14B8A6",
+    floatingBadge: {
+      text: "Pure Nature 🏔️",
+      bg: "bg-[#14B8A6]",
+      textCol: "text-[#0f2a2a]",
+      position: "right",
+    },
   },
   {
     id: "travel",
@@ -113,30 +125,50 @@ const CAROUSEL_CARDS: HeroCardItem[] = [
     image: "/themes/travel.jpg",
     cardBg: "from-[#FB7185] to-[#E11D48]",
     accentColor: "#FB7185",
+    floatingBadge: {
+      text: "Bon Voyage ✈️",
+      bg: "bg-[#FB7185]",
+      textCol: "text-white",
+      position: "right",
+    },
   },
 ];
 
 export default function HeroSection() {
-  const [activeIndex, setActiveIndex] = useState(3); // Center card by default
-  const [isPaused, setIsPaused] = useState(false);
-
+  // Continuously incrementing step counter for a true infinite circular loop
+  const [step, setStep] = useState(3);
   const total = CAROUSEL_CARDS.length;
+  const activeIndex = ((step % total) + total) % total;
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % total);
+    setStep((prev) => prev + 1);
   };
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + total) % total);
+    setStep((prev) => prev - 1);
   };
 
+  const selectCardIndex = (targetIdx: number) => {
+    let diff = targetIdx - activeIndex;
+    const half = Math.floor(total / 2);
+    if (diff > half) diff -= total;
+    if (diff < -half) diff += total;
+    setStep((prev) => prev + diff);
+  };
+
+  // Continuous automatic infinite loop (never stops on hover)
   useEffect(() => {
-    if (isPaused) return;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReducedMotion) return;
+
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % total);
-    }, 3400);
+      setStep((prev) => prev + 1);
+    }, 2200);
+
     return () => clearInterval(timer);
-  }, [isPaused, total]);
+  }, []);
 
   const handleLearnMore = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -174,7 +206,7 @@ export default function HeroSection() {
       aria-label="Wishes AI Hero"
       className="relative w-full min-h-screen flex items-center bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] pt-28 pb-16 sm:py-28 overflow-hidden transition-colors duration-300"
     >
-      {/* Subtle Ambient Glows (No Background Video) */}
+      {/* Subtle Ambient Glows */}
       <div className="absolute top-1/4 -left-24 w-96 h-96 bg-[#00bfa6]/15 rounded-full blur-[150px] pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-[480px] h-[480px] bg-[#FF5A52]/12 dark:bg-[#00bfa6]/15 rounded-full blur-[160px] pointer-events-none" />
 
@@ -256,33 +288,32 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Right Column: Fanned Pop-Up Card Carousel (Inspired by Reference Image) */}
-        <div
-          className="lg:col-span-7 flex flex-col items-center justify-center"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
+        {/* Right Column: Continuous Infinite Loop Fanned Pop-Up Card Carousel */}
+        <div className="lg:col-span-7 flex flex-col items-center justify-center">
           {/* Fanned Deck Stage */}
           <div className="relative w-full h-[340px] sm:h-[400px] flex items-center justify-center select-none">
             {CAROUSEL_CARDS.map((card, index) => {
               const offset = getRelativeOffset(index);
               const absOffset = Math.abs(offset);
               const isCenter = offset === 0;
+              const isOuterEdge = absOffset >= 3;
 
               // Spacing and arc geometry matching the reference fanned pop-up deck
-              const xStep = typeof window !== "undefined" && window.innerWidth < 640 ? 52 : 78;
+              const xStep =
+                typeof window !== "undefined" && window.innerWidth < 640 ? 50 : 76;
               const translateX = offset * xStep;
-              // Center card pops UP (-30px), side cards curve down gently along an arc
-              const translateY = isCenter ? -28 : absOffset * 12 + (absOffset > 2 ? 10 : 0);
-              const scale = isCenter ? 1.14 : Math.max(0.76, 0.96 - absOffset * 0.06);
-              const rotate = offset * 3.8;
-              const zIndex = 30 - absOffset * 5;
-              const opacity = absOffset > 3 ? 0 : 1 - absOffset * 0.08;
+              // Center card pops UP (-30px), side cards curve down along an arc
+              const translateY = isCenter ? -30 : absOffset * 12 + (absOffset >= 2 ? 8 : 0);
+              const scale = isCenter ? 1.15 : Math.max(0.75, 0.95 - absOffset * 0.06);
+              const rotate = offset * 4;
+              // Outer wrapping cards pass cleanly behind the deck (zIndex: 1) during loop wrap-around
+              const zIndex = isOuterEdge ? 1 : 30 - absOffset * 6;
+              const opacity = isOuterEdge ? 0.55 : 1 - absOffset * 0.07;
 
               return (
                 <motion.div
                   key={card.id}
-                  onClick={() => setActiveIndex(index)}
+                  onClick={() => selectCardIndex(index)}
                   animate={{
                     x: translateX,
                     y: translateY,
@@ -292,18 +323,18 @@ export default function HeroSection() {
                     zIndex,
                   }}
                   whileHover={{
-                    y: isCenter ? -34 : translateY - 12,
-                    scale: isCenter ? 1.17 : scale + 0.04,
+                    y: isCenter ? -36 : translateY - 12,
+                    scale: isCenter ? 1.18 : scale + 0.04,
                   }}
                   transition={{
                     type: "spring",
-                    stiffness: 260,
+                    stiffness: 220,
                     damping: 24,
                   }}
                   style={{ zIndex }}
-                  className={`absolute w-[165px] h-[215px] sm:w-[205px] sm:h-[260px] rounded-[26px] p-2.5 bg-gradient-to-b ${card.cardBg} cursor-pointer transition-shadow duration-300 ${
+                  className={`absolute w-[162px] h-[212px] sm:w-[202px] sm:h-[258px] rounded-[26px] p-2.5 bg-gradient-to-b ${card.cardBg} cursor-pointer transition-shadow duration-300 ${
                     isCenter
-                      ? "shadow-[0_28px_60px_rgba(0,0,0,0.45)] ring-4 ring-white/80 dark:ring-[#d9faf4]/40"
+                      ? "shadow-[0_28px_60px_rgba(0,0,0,0.45)] ring-4 ring-white/85 dark:ring-[#d9faf4]/45"
                       : "shadow-[0_14px_30px_rgba(0,0,0,0.28)] hover:shadow-2xl"
                   }`}
                 >
@@ -320,7 +351,7 @@ export default function HeroSection() {
                         }}
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{
-                          y: { duration: 2.6, repeat: Infinity, ease: "easeInOut" },
+                          y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
                           opacity: { duration: 0.25 },
                         }}
                         className={`absolute -top-9 ${
@@ -330,7 +361,6 @@ export default function HeroSection() {
                         } text-[10px] font-mono font-extrabold tracking-wide shadow-lg whitespace-nowrap`}
                       >
                         {card.floatingBadge.text}
-                        {/* Little Speech-Bubble Pointer Tail */}
                         <span
                           className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rotate-45 ${card.floatingBadge.bg}`}
                         />
@@ -346,16 +376,16 @@ export default function HeroSection() {
                       className="w-full h-full object-cover select-none pointer-events-none"
                     />
 
-                    {/* Subtle Top Corner Dot */}
+                    {/* Top Occasion Tag */}
                     <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-md text-[8px] font-mono font-bold uppercase tracking-wider text-white">
                       {card.occasion}
                     </div>
 
-                    {/* Center Pop-Up Card Bottom Frosted Overlay Bar (Matching Reference Center Card) */}
+                    {/* Center Pop-Up Card Bottom Frosted Overlay Bar */}
                     <div
                       className={`absolute bottom-2 left-2 right-2 rounded-2xl p-2.5 backdrop-blur-md transition-all duration-300 ${
                         isCenter
-                          ? "bg-black/70 text-white opacity-100 translate-y-0"
+                          ? "bg-black/75 text-white opacity-100 translate-y-0"
                           : "bg-black/50 text-white/90 opacity-85"
                       }`}
                     >
@@ -374,13 +404,13 @@ export default function HeroSection() {
             })}
           </div>
 
-          {/* Active Pop-Up Card Info Bar & Carousel Controls */}
+          {/* Active Pop-Up Card Info Bar & Infinite Loop Controls */}
           <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 px-5 py-3 rounded-full bg-white/80 dark:bg-[#143838]/85 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-xl shadow-lg">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handlePrev}
-                aria-label="Previous card"
+                aria-label="Previous card in loop"
                 className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
               >
                 <ChevronLeft size={15} />
@@ -391,7 +421,7 @@ export default function HeroSection() {
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setActiveIndex(idx)}
+                    onClick={() => selectCardIndex(idx)}
                     aria-label={`Select ${c.title}`}
                     className={`h-2 rounded-full transition-all cursor-pointer ${
                       activeIndex === idx
@@ -405,7 +435,7 @@ export default function HeroSection() {
               <button
                 type="button"
                 onClick={handleNext}
-                aria-label="Next card"
+                aria-label="Next card in loop"
                 className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
               >
                 <ChevronRight size={15} />
@@ -414,9 +444,9 @@ export default function HeroSection() {
 
             <div className="hidden sm:block h-4 w-px bg-[#0f2a2a]/15 dark:bg-[#d9faf4]/15" />
 
-            <div className="text-center sm:text-left">
+            <div className="text-center sm:text-left min-w-[230px]">
               <span className="text-[10px] font-mono uppercase tracking-wider text-[#FF5A52] font-bold block">
-                ACTIVE SCENE • {activeCard.occasion}
+                LIVE LOOP • {activeCard.occasion}
               </span>
               <span className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4]">
                 {activeCard.title} — {activeCard.subtitle}
