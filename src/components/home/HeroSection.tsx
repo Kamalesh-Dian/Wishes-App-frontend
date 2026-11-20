@@ -6,8 +6,6 @@ import {
   Sparkles,
   Wand2,
   ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 interface HeroCardItem {
@@ -140,14 +138,6 @@ export default function HeroSection() {
   const total = CAROUSEL_CARDS.length;
   const activeIndex = ((step % total) + total) % total;
 
-  const handleNext = () => {
-    setStep((prev) => prev + 1);
-  };
-
-  const handlePrev = () => {
-    setStep((prev) => prev - 1);
-  };
-
   const selectCardIndex = (targetIdx: number) => {
     let diff = targetIdx - activeIndex;
     const half = Math.floor(total / 2);
@@ -198,8 +188,6 @@ export default function HeroSection() {
     if (diff < -half) diff += total;
     return diff;
   };
-
-  const activeCard = CAROUSEL_CARDS[activeIndex];
 
   return (
     <section
@@ -402,56 +390,6 @@ export default function HeroSection() {
                 </motion.div>
               );
             })}
-          </div>
-
-          {/* Active Pop-Up Card Info Bar & Infinite Loop Controls */}
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 px-5 py-3 rounded-full bg-white/80 dark:bg-[#143838]/85 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-xl shadow-lg">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handlePrev}
-                aria-label="Previous card in loop"
-                className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
-              >
-                <ChevronLeft size={15} />
-              </button>
-
-              <div className="flex items-center gap-1.5 px-2">
-                {CAROUSEL_CARDS.map((c, idx) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => selectCardIndex(idx)}
-                    aria-label={`Select ${c.title}`}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${
-                      activeIndex === idx
-                        ? "w-6 bg-[#FF5A52]"
-                        : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/25 hover:bg-[#00bfa6]"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleNext}
-                aria-label="Next card in loop"
-                className="w-8 h-8 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 flex items-center justify-center hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors cursor-pointer"
-              >
-                <ChevronRight size={15} />
-              </button>
-            </div>
-
-            <div className="hidden sm:block h-4 w-px bg-[#0f2a2a]/15 dark:bg-[#d9faf4]/15" />
-
-            <div className="text-center sm:text-left min-w-[230px]">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FF5A52] font-bold block">
-                LIVE LOOP • {activeCard.occasion}
-              </span>
-              <span className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4]">
-                {activeCard.title} — {activeCard.subtitle}
-              </span>
-            </div>
           </div>
         </div>
       </div>

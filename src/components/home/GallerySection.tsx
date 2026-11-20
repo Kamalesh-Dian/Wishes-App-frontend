@@ -1,344 +1,496 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, ArrowRight, Flame, Heart, Crown, Cake, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Eye,
+  Plus,
+  Sparkles,
+  Wand2,
+  Camera,
+  Palette,
+  Layers,
+  Compass,
+  Gift,
+  ArrowRight,
+} from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SHOWCASE_ITEMS = [
+interface ShowcaseCardData {
+  id: string;
+  title: string;
+  occasion: string;
+  subtitle: string;
+  image: string;
+  bgTint: string;
+  isEditorialInCascade?: boolean;
+}
+
+const SHOWCASE_CARDS: ShowcaseCardData[] = [
   {
     id: "diwali",
-    title: "Diwali Twilight Splendor",
-    occasion: "Diwali • Festival of Lights",
-    tag: "FESTIVE LIGHTING",
-    icon: Flame,
-    image: "/showcase/diwali.webp",
-    accent: "#FF5A52",
-    description:
-      "Handcrafted brass diyas, glowing marigold garlands, and golden twilight reflections. The subject's genuine smile is preserved with silk garment textures.",
-    quote: "“The diyas cast a natural golden glow that looked like a high-budget film production.”",
-    specs: ["Warm Candlelit Bokeh", "Silk Texture Fidelity", "Authentic Cultural Decor"],
+    title: "Diwali Twilight",
+    occasion: "Festival of Lights",
+    subtitle: "Warm brass diyas & marigold bokeh",
+    image: "/people/family.jpg",
+    bgTint: "#F5E6D3",
   },
   {
-    id: "birthday",
-    title: "Milestone 30th Soirée",
-    occasion: "30th Birthday • Celebration",
-    tag: "COCKTAIL & CANDLELIGHT",
-    icon: Cake,
-    image: "/showcase/birthday.webp",
-    accent: "#00bfa6",
-    description:
-      "Midnight champagne reflections, floating helium balloons, and sparkling candle glow around the subject. Candor and celebratory energy locked in 4K.",
-    quote: "“Captured Maya’s genuine laughter in a setting more magical than any photoshoot could manage.”",
-    specs: ["Champagne Reflections", "Festive Sparkler Trails", "Candid Expression Lock"],
+    id: "editorial-birthday",
+    title: "Where portrait meets celebration",
+    occasion: "30th Milestone Soirée",
+    subtitle:
+      "Upload one candid photo and stage keepsakes worth staying up for.",
+    image: "/people/friends.jpg",
+    bgTint: "#F4F1EA",
+    isEditorialInCascade: true,
   },
   {
     id: "wedding",
-    title: "Royal Palace Sangeet",
-    occasion: "Royal Wedding • Heritage",
-    tag: "MAJESTIC HERITAGE",
-    icon: Crown,
-    image: "/showcase/wedding.webp",
-    accent: "#FF5A52",
-    description:
-      "Intricately embroidered festive attire, historic sandstone arches, and cascading jasmine garlands with studio-grade depth and ray-traced lighting.",
-    quote: "“Preserved every subtle nuance of my parents’ portraits with majestic historical architecture.”",
-    specs: ["Zari Embroidery Detail", "Grand Archway Depth", "Authentic Royal Lighting"],
-  },
-  {
-    id: "anniversary",
-    title: "Silver Jubilee Reverie",
-    occasion: "Silver Anniversary • 25 Years",
-    tag: "LANTERN REFLECTIONS",
-    icon: Heart,
-    image: "/showcase/anniversary.webp",
-    accent: "#00bfa6",
-    description:
-      "Floating water lanterns drifting across a calm lake beneath a star-filled velvet sky with warm ambient intimacy and timeless heirloom portraiture.",
-    quote: "“A poetic, timeless keepsake that looks like an oil painting brought to life.”",
-    specs: ["Water Ripple Reflections", "Bioluminescent Lanterns", "Intimate Dual Portrait"],
+    title: "Royal Sangeet",
+    occasion: "Palace Heritage",
+    subtitle: "Sandstone arches & jasmine garlands",
+    image: "/themes/luxury-hotel.jpg",
+    bgTint: "#D9E8E4",
   },
   {
     id: "corporate",
-    title: "Executive Work Milestone",
-    occasion: "Corporate • Team Appreciation",
-    tag: "COMPANY-WIDE GREETING",
-    icon: Star,
-    image: "/showcase/corporate.webp",
-    accent: "#00bfa6",
-    description:
-      "Contemporary glass atrium adorned with warm celebration spotlights and personalized team accolades, automated seamlessly via OneDrive roster sync.",
-    quote: "“Sent automatically via OneDrive on our VP's 5th work anniversary. Clean, respectful, and premium.”",
-    specs: ["OneDrive Automated Sync", "Brand Logo Integration", "Instant 9:00 AM Dispatch"],
+    title: "Team Milestone",
+    occasion: "Work Anniversary",
+    subtitle: "Automated OneDrive roster dispatch",
+    image: "/people/colleagues.jpg",
+    bgTint: "#E8DFD5",
+  },
+  {
+    id: "mountain",
+    title: "Alpine Retreat",
+    occasion: "Adventure Wish",
+    subtitle: "Emerald peaks & crystal lake horizon",
+    image: "/themes/mountain.jpg",
+    bgTint: "#CBEFE3",
+  },
+  {
+    id: "beach",
+    title: "Sunset Reverie",
+    occasion: "Silver Anniversary",
+    subtitle: "Tropical horizon & golden twilight",
+    image: "/themes/beach.jpg",
+    bgTint: "#FCD5B5",
   },
 ];
 
+const FLOATING_TOOLS = [
+  { icon: Wand2, x: "18%", y: "10%" },
+  { icon: Camera, x: "4%", y: "42%" },
+  { icon: Sparkles, x: "28%", y: "46%" },
+  { icon: Compass, x: "46%", y: "58%" },
+  { icon: Palette, x: "12%", y: "78%" },
+  { icon: Layers, x: "34%", y: "84%" },
+  { icon: Gift, x: "66%", y: "48%" },
+];
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+function clamp01(v: number) {
+  return Math.max(0, Math.min(1, v));
+}
+
+function smoothstep(edge0: number, edge1: number, x: number) {
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+}
+
 export default function GallerySection() {
-  const containerRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const [progress, setProgress] = useState(0);
+  const [slotMetrics, setSlotMetrics] = useState<
+    { x: number; y: number; scaleX: number; scaleY: number }[]
+  >([]);
+  const [stageSize, setStageSize] = useState({ w: 1280, h: 800 });
+
+  const BASE_CARD_W = 220;
+  const BASE_CARD_H = 270;
+
+  const measureSlots = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const stageRect = stage.getBoundingClientRect();
+    const centerX = stageRect.width / 2;
+    const centerY = stageRect.height / 2;
+
+    setStageSize({ w: stageRect.width, h: stageRect.height });
+
+    const metrics = SHOWCASE_CARDS.map((_, idx) => {
+      const el = slotRefs.current[idx];
+      if (!el) {
+        return { x: 200, y: 0, scaleX: 0.75, scaleY: 0.75 };
+      }
+      const r = el.getBoundingClientRect();
+      const slotCenterX = r.left - stageRect.left + r.width / 2;
+      const slotCenterY = r.top - stageRect.top + r.height / 2;
+      return {
+        x: slotCenterX - centerX,
+        y: slotCenterY - centerY,
+        scaleX: r.width / BASE_CARD_W,
+        scaleY: r.height / BASE_CARD_H,
+      };
+    });
+
+    setSlotMetrics(metrics);
+  }, []);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
+    measureSlots();
+    window.addEventListener("resize", measureSlots);
+    const t = setTimeout(measureSlots, 300);
+    return () => {
+      window.removeEventListener("resize", measureSlots);
+      clearTimeout(t);
+    };
+  }, [measureSlots]);
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) return;
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
-        trigger: container,
+        trigger: section,
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.8,
+        scrub: 0.6,
         onUpdate: (self) => {
-          const p = self.progress;
-
-          let normalized = 0;
-          if (p <= 0.12) {
-            normalized = 0;
-          } else if (p >= 0.88) {
-            normalized = 1;
-          } else {
-            normalized = (p - 0.12) / 0.76;
-          }
-
-          const maxScroll = track.scrollWidth - window.innerWidth;
-          gsap.set(track, { x: -normalized * Math.max(0, maxScroll) });
-
-          const idx = Math.min(
-            SHOWCASE_ITEMS.length - 1,
-            Math.max(0, Math.round(normalized * (SHOWCASE_ITEMS.length - 1)))
-          );
-          setActiveIndex(idx);
+          setProgress(self.progress);
         },
       });
-    }, container);
+    }, section);
 
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 250);
-
-    return () => {
-      clearTimeout(timer);
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
-  const scrollToIndex = (index: number) => {
-    const container = containerRef.current;
-    if (!container) return;
+  // Choreography timeline weights:
+  // Stage 1 (0.00 -> 0.30): Cards rise from bottom into center stack over big headline
+  // Stage 2 (0.30 -> 0.64): Cards spread left-to-right downward in a diagonal cascade
+  // Stage 3 (0.64 -> 1.00): Cards arrange into the 3x2 Folder div on the right while Left Vision column reveals
+  const riseT = smoothstep(0.0, 0.2, progress);
+  const toCascadeT = smoothstep(0.26, 0.54, progress);
+  const toFolderT = smoothstep(0.62, 0.92, progress);
 
-    const rect = container.getBoundingClientRect();
-    const containerTop = window.scrollY + rect.top;
-    const scrollHeight = container.offsetHeight - window.innerHeight;
+  const stage1HeadlineOpacity = 1 - smoothstep(0.24, 0.38, progress);
+  const stage3FolderOpacity = smoothstep(0.6, 0.78, progress);
+  const editorialCardOverlayOpacity =
+    smoothstep(0.28, 0.42, progress) * (1 - smoothstep(0.62, 0.76, progress));
 
-    const totalSteps = SHOWCASE_ITEMS.length - 1;
-    const normalized = index / totalSteps;
-
-    let targetP = 0;
-    if (index === 0) {
-      targetP = 0.05;
-    } else if (index === totalSteps) {
-      targetP = 0.95;
-    } else {
-      targetP = 0.12 + normalized * 0.76;
-    }
-
-    const targetScroll = containerTop + targetP * scrollHeight;
-
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (pos: number, opts: { duration: number }) => void } }).__lenis;
-    if (lenis) {
-      lenis.scrollTo(targetScroll, { duration: 0.9 });
-    } else {
-      window.scrollTo({ top: targetScroll, behavior: "smooth" });
-    }
-    setActiveIndex(index);
-  };
-
-  const handlePrev = () => {
-    const nextIdx = Math.max(0, activeIndex - 1);
-    scrollToIndex(nextIdx);
-  };
-
-  const handleNext = () => {
-    const nextIdx = Math.min(SHOWCASE_ITEMS.length - 1, activeIndex + 1);
-    scrollToIndex(nextIdx);
-  };
+  const isCompact = stageSize.w < 1024;
 
   return (
     <section
       id="gallery"
-      ref={containerRef}
-      className="relative w-full h-[240vh] bg-[#d9faf4] dark:bg-[#0f2a2a] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-20"
+      ref={sectionRef}
+      className="relative w-full h-[340vh] bg-[#d9faf4] dark:bg-[#0b1f1f] text-[#0f2a2a] dark:text-[#d9faf4] border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 transition-colors duration-300 scroll-mt-20"
     >
-      {/* Background Night-Market Coral & Teal Glows */}
-      <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] bg-[#FF5A52]/10 rounded-full blur-[170px] pointer-events-none" />
-      <div className="absolute top-2/3 right-1/4 w-[650px] h-[400px] bg-[#00bfa6]/12 rounded-full blur-[170px] pointer-events-none" />
+      {/* Ambient Background Glows */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center" ref={stageRef}>
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[350px] bg-[#00bfa6]/12 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[350px] bg-[#FF5A52]/10 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Viewport Frame with Native CSS Sticky Positioning */}
-      <div className="sticky top-0 h-screen max-h-screen w-full flex flex-col justify-between py-5 sm:py-7 lg:py-8 overflow-hidden">
-        {/* Header Container */}
-        <div className="max-w-6xl w-full mx-auto px-6 flex flex-col md:flex-row md:items-end justify-between gap-3 shrink-0">
-          <div>
-            <div className="inline-flex items-center gap-2 text-[10px] font-mono font-bold tracking-[0.25em] uppercase text-[#FF5A52] mb-1.5">
-              <Sparkles size={13} className="text-[#FF5A52]" />
-              <span>Showcase Gallery</span>
+        {/* =====================================================================
+            STAGE 1: BIG CENTERED EDITORIAL HEADLINE & SPEECH-BUBBLE TAGS
+           ===================================================================== */}
+        <div
+          style={{
+            opacity: stage1HeadlineOpacity,
+            transform: `translateY(${lerp(0, -30, toCascadeT)}px) scale(${lerp(1, 0.96, toCascadeT)})`,
+          }}
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pointer-events-none select-none"
+        >
+          <div className="relative max-w-4xl w-full text-center mt-24 sm:mt-32">
+            {/* Floating Speech-Bubble Tag Left (@maya) */}
+            <div className="hidden sm:inline-flex items-center px-3.5 py-1 rounded-full bg-white dark:bg-[#d9faf4] text-[#0f2a2a] text-xs font-mono font-bold shadow-lg -rotate-12 mb-3 mr-64">
+              @maya
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-white dark:bg-[#d9faf4]" />
             </div>
-            <h2 className="font-sans text-[clamp(1.85rem,3.6vw,3.1rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
-              Curated celebratory <span className="text-[#00bfa6]">atmospheres.</span>
+
+            {/* Floating Pill Right */}
+            <div className="hidden sm:inline-flex items-center px-3.5 py-1 rounded-full bg-[#A78BFA] text-[#0f2a2a] text-xs font-mono font-bold shadow-lg rotate-6 mb-3 ml-64">
+              @arjun
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-[#A78BFA]" />
+            </div>
+
+            <h2 className="font-sans text-[clamp(1.75rem,4.2vw,3.5rem)] font-bold tracking-tight text-[#0f2a2a] dark:text-[#f4f1ea] leading-[1.18]">
+              Whether you&apos;re crafting a personal keepsake{" "}
+              <br className="hidden sm:inline" />
+              <span className="text-[#0f2a2a]/80 dark:text-[#f4f1ea]/85">
+                / or celebrating milestones across your team
+              </span>{" "}
+              <span className="inline-block align-middle w-9 h-6 sm:w-11 sm:h-7 rounded-lg overflow-hidden border border-[#00bfa6]/50 mx-1 shadow-sm">
+                <img
+                  src="/showcase/diwali.webp"
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </span>{" "}
+              Wishes AI
+              <br className="hidden sm:inline" /> connects portrait{" "}
+              <span className="inline-flex items-center justify-center align-middle w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#F5B24A] text-[#0f2a2a] mx-1 shadow-md">
+                <Sparkles size={16} />
+              </span>{" "}
+              &amp; emotion.
             </h2>
-            <p className="mt-1 text-xs sm:text-[13px] text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xl">
-              Scroll down to glide through Diwali, 30th Birthday, Royal Wedding, Silver Anniversary, and Corporate scenes.
-            </p>
-          </div>
-
-          {/* Navigation Controls & Counter */}
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="font-mono text-xs font-bold text-[#FF5A52] bg-[#FF5A52]/15 px-3 py-1 rounded-full">
-              0{activeIndex + 1} / 0{SHOWCASE_ITEMS.length}
-            </span>
-
-            <button
-              onClick={handlePrev}
-              disabled={activeIndex === 0}
-              aria-label="Previous showcase card"
-              className="w-9 h-9 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={activeIndex === SHOWCASE_ITEMS.length - 1}
-              aria-label="Next showcase card"
-              className="w-9 h-9 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 bg-white/80 dark:bg-[#143838]/80 flex items-center justify-center text-[#0f2a2a] dark:text-[#d9faf4] disabled:opacity-30 hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all cursor-pointer shadow-sm hover:scale-105"
-            >
-              <ChevronRight size={16} />
-            </button>
           </div>
         </div>
 
-        {/* Scroll-Driven Horizontal Card Track */}
-        <div className="w-full overflow-hidden my-auto py-2">
+        {/* =====================================================================
+            STAGE 3: LEFT VISION COLUMN & RIGHT FOLDER-LIKE CONTAINER ("Collect / Studio")
+           ===================================================================== */}
+        <div
+          style={{
+            opacity: stage3FolderOpacity,
+            pointerEvents: stage3FolderOpacity > 0.6 ? "auto" : "none",
+          }}
+          className="relative z-10 max-w-6xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center"
+        >
+          {/* Left Column: Vision Headline, CTA & Floating Circular Tool Icons */}
           <div
-            ref={trackRef}
-            className="flex gap-6 sm:gap-7 pl-6 sm:pl-16 lg:pl-24 pr-6 sm:pr-16 lg:pr-24 w-max will-change-transform"
+            style={{
+              transform: `translateY(${lerp(28, 0, toFolderT)}px)`,
+            }}
+            className="lg:col-span-5 flex flex-col items-start text-left"
           >
-            {SHOWCASE_ITEMS.map((item, index) => {
-              const Icon = item.icon;
-              const isCurrent = activeIndex === index;
+            {/* Circular Eye / Studio Badge */}
+            <div className="w-10 h-10 rounded-full bg-white/80 dark:bg-[#143838] border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 flex items-center justify-center text-[#00bfa6] mb-5 shadow-sm">
+              <Eye size={17} />
+            </div>
 
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => scrollToIndex(index)}
-                  className={`showcase-card group shrink-0 w-[305px] sm:w-[365px] lg:w-[405px] rounded-3xl p-4 sm:p-5 border transition-all duration-300 flex flex-col justify-between shadow-xl cursor-pointer ${
-                    isCurrent
-                      ? "bg-white dark:bg-[#143838] border-[#00bfa6] shadow-[0_16px_40px_rgba(0,191,166,0.22)] scale-[1.01]"
-                      : "bg-white/80 dark:bg-[#143838]/65 border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 hover:border-[#00bfa6]/50 hover:bg-white/95 dark:hover:bg-[#143838]/85"
-                  }`}
-                >
-                  <div>
-                    {/* Distinct Occasion Imagery Header */}
-                    <div className="relative w-full h-36 sm:h-40 rounded-2xl overflow-hidden mb-3.5 bg-[#091616] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
-                      <img
-                        src={item.image}
-                        alt={`${item.title} - ${item.occasion}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#091616]/70 via-transparent to-transparent" />
+            <h2 className="font-sans text-[clamp(2rem,3.8vw,3.2rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#f4f1ea] leading-[1.08]">
+              Our vision
+              <br />
+              for every kind of{" "}
+              <span className="text-[#00bfa6]">celebration.</span>
+            </h2>
 
-                      {/* Top Floating Tag & Icon */}
-                      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                        <span className="font-mono text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full bg-[#091616]/85 text-[#d9faf4] border border-white/15 backdrop-blur-md">
-                          {item.tag}
-                        </span>
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors shadow-md ${
-                            isCurrent
-                              ? "bg-[#FF5A52] text-white"
-                              : "bg-[#091616]/80 text-[#00bfa6] border border-white/15"
-                          }`}
-                        >
-                          <Icon size={13} />
-                        </div>
-                      </div>
-                    </div>
+            <p className="mt-4 text-xs sm:text-sm text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed max-w-md">
+              Every portrait holds a story. Wishes AI gives you a dedicated studio to stage
+              the festive atmosphere, lock facial identity, and deliver 4K keepsakes straight
+              from your browser.
+            </p>
 
-                    {/* Title & Occasion Label */}
-                    <div className="flex items-baseline justify-between gap-2 mb-1">
-                      <h3 className="font-sans text-lg sm:text-xl font-bold text-[#0f2a2a] dark:text-[#d9faf4]">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#FF5A52] mb-2">
-                      {item.occasion}
-                    </p>
+            <div className="mt-6 flex items-center gap-3">
+              <Link
+                to="/create"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white dark:bg-[#183f3f] border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 text-xs sm:text-sm font-bold text-[#0f2a2a] dark:text-[#f4f1ea] hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all shadow-md"
+              >
+                <span>Explore Studio</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
 
-                    {/* Short Atmospheric Description */}
-                    <p className="text-xs text-[#0f2a2a]/75 dark:text-[#d9faf4]/75 leading-relaxed mb-3 font-normal line-clamp-2">
-                      {item.description}
-                    </p>
-
-                    {/* Technical-Fidelity Specification Tags */}
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {item.specs.map((spec) => (
-                        <span
-                          key={spec}
-                          className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-md bg-[#d9faf4]/85 dark:bg-[#0f2a2a]/85 text-[#0f2a2a]/85 dark:text-[#d9faf4]/85 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
-                        >
-                          {spec}
-                        </span>
-                      ))}
-                    </div>
+            {/* Scattered Floating Circular Tool Icons (Matching Reference Image 3 Bottom-Left) */}
+            <div className="relative hidden sm:block w-full max-w-xs h-36 mt-6">
+              {FLOATING_TOOLS.map((tool, i) => {
+                const Icon = tool.icon;
+                return (
+                  <div
+                    key={i}
+                    style={{ left: tool.x, top: tool.y }}
+                    className="absolute w-10 h-10 rounded-full bg-white/75 dark:bg-[#143838]/90 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 flex items-center justify-center text-[#0f2a2a]/75 dark:text-[#d9faf4]/80 shadow-md backdrop-blur-md transition-transform hover:scale-110 hover:text-[#00bfa6]"
+                  >
+                    <Icon size={15} />
                   </div>
+                );
+              })}
+            </div>
+          </div>
 
-                  <div>
-                    {/* Brief User Quote */}
-                    <div className="p-2.5 sm:p-3 rounded-xl bg-[#d9faf4]/55 dark:bg-[#0f2a2a]/55 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 mb-3">
-                      <p className="italic text-[11px] text-[#0f2a2a]/90 dark:text-[#d9faf4]/90 leading-snug">
-                        {item.quote}
-                      </p>
-                    </div>
+          {/* Right Column: Folder-Like Div ("Collect" Header + "Studio" Tab + 3x2 Grid) */}
+          <div className="lg:col-span-7 w-full">
+            <div className="relative rounded-[30px] p-3 sm:p-4 bg-[#bfece4]/70 dark:bg-[#071515]/90 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 shadow-2xl backdrop-blur-xl">
+              {/* Top Bar Inside Outer Frame: "Collect" & "+ Create" Button */}
+              <div className="flex items-center justify-between px-4 pt-1 pb-3">
+                <span className="font-sans text-xs sm:text-sm font-bold text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
+                  Collect
+                </span>
+                <Link
+                  to="/create"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-[#143838] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 text-[11px] font-bold text-[#0f2a2a] dark:text-[#d9faf4] hover:border-[#00bfa6] hover:text-[#00bfa6] transition-colors shadow-sm"
+                >
+                  <Plus size={12} className="text-[#00bfa6]" />
+                  <span>Create</span>
+                </Link>
+              </div>
 
-                    {/* Synthesize Similar Scene Action */}
-                    <Link
-                      to="/create"
-                      className="w-full py-2.5 rounded-full bg-[#00bfa6] text-[#0f2a2a] text-xs font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_24px_rgba(0,191,166,0.5)] transition-all hover:scale-[1.01]"
-                    >
-                      <span>Synthesize Similar Scene</span>
-                      <ArrowRight size={13} />
-                    </Link>
+              {/* Sculpted Folder Tab Header ("Studio") */}
+              <div className="relative">
+                <div className="flex items-end">
+                  <div className="relative z-10 px-6 py-2.5 rounded-t-2xl bg-white/95 dark:bg-[#112c2c] border-t border-l border-r border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 font-sans text-xs sm:text-sm font-bold text-[#0f2a2a] dark:text-[#f4f1ea] flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00bfa6]" />
+                    <span>Studio</span>
+                  </div>
+                  {/* Folder Tab Slope Connector */}
+                  <div
+                    className="w-6 h-6 bg-white/95 dark:bg-[#112c2c] -ml-1"
+                    style={{
+                      clipPath: "polygon(0 0, 0 100%, 100% 100%)",
+                    }}
+                  />
+                </div>
+
+                {/* Folder Body Containing the 3x2 Grid Slots */}
+                <div className="relative z-0 -mt-px rounded-b-[24px] rounded-tr-[24px] p-4 sm:p-5 bg-white/95 dark:bg-[#112c2c] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 shadow-inner">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                    {SHOWCASE_CARDS.map((card, idx) => (
+                      <div
+                        key={card.id}
+                        ref={(el) => {
+                          slotRefs.current[idx] = el;
+                        }}
+                        className="w-full aspect-[22/27] rounded-2xl border border-dashed border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"
+                      />
+                    ))}
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Footer: Indicator Dots & Scroll Progress Hint */}
-        <div className="max-w-6xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-2">
-            {SHOWCASE_ITEMS.map((item, i) => (
-              <button
-                key={item.id}
-                onClick={() => scrollToIndex(i)}
-                aria-label={`Jump to showcase ${i + 1}: ${item.title}`}
-                className={`h-2 rounded-full transition-all cursor-pointer ${
-                  activeIndex === i
-                    ? "w-8 bg-[#FF5A52]"
-                    : "w-2 bg-[#0f2a2a]/20 dark:bg-[#d9faf4]/20 hover:bg-[#00bfa6]/60"
-                }`}
-              />
-            ))}
-          </div>
+        {/* =====================================================================
+            CHOREOGRAPHED FLOATING CARDS (MORPH ACROSS STAGES 1 -> 2 -> 3)
+           ===================================================================== */}
+        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+          {SHOWCASE_CARDS.map((card, i) => {
+            // 1. Stage 1 coordinates (Stacked Fan rising from bottom to upper-center)
+            const startY = 520 + i * 35;
+            const stackX = (i - 2.5) * 10;
+            const stackY = -75 + (i - 2.5) * 3;
+            const stackRot = -10 + i * 3.8;
 
-          <div className="flex items-center gap-2 text-[11px] font-mono text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A52] animate-pulse" />
-            <span>Scroll vertically to glide through celebration atmospheres</span>
-          </div>
+            const s1X = stackX;
+            const s1Y = lerp(startY, stackY, riseT);
+            const s1Rot = lerp(stackRot * 1.4, stackRot, riseT);
+            const s1Scale = lerp(0.86, 1.0, riseT);
+
+            // 2. Stage 2 coordinates (Left-to-Right Downward Diagonal Cascade)
+            const cascadeSpreadX = isCompact ? 54 : 138;
+            const cascadeSpreadY = isCompact ? 26 : 44;
+            const s2X = (i - 2.5) * cascadeSpreadX;
+            const s2Y = (i - 2.5) * cascadeSpreadY;
+            const s2Rot = -3.5 + i * 1.4;
+            const s2Scale = isCompact ? 0.78 : 0.96;
+
+            // Interpolate Stage 1 -> Stage 2
+            const midX = lerp(s1X, s2X, toCascadeT);
+            const midY = lerp(s1Y, s2Y, toCascadeT);
+            const midRot = lerp(s1Rot, s2Rot, toCascadeT);
+            const midScale = lerp(s1Scale, s2Scale, toCascadeT);
+
+            // 3. Stage 3 coordinates (Exact measured slot inside the Folder 3x2 grid)
+            const slot = slotMetrics[i] || {
+              x: 200,
+              y: 0,
+              scaleX: 0.72,
+              scaleY: 0.72,
+            };
+            const folderScale = Math.min(slot.scaleX, slot.scaleY);
+
+            const finalX = lerp(midX, slot.x, toFolderT);
+            const finalY = lerp(midY, slot.y, toFolderT);
+            const finalRot = lerp(midRot, 0, toFolderT);
+            const finalScale = lerp(midScale, folderScale, toFolderT);
+
+            return (
+              <Link
+                to="/create"
+                key={card.id}
+                style={{
+                  width: `${BASE_CARD_W}px`,
+                  height: `${BASE_CARD_H}px`,
+                  transform: `translate3d(${finalX.toFixed(1)}px, ${finalY.toFixed(1)}px, 0) scale(${finalScale.toFixed(3)}) rotate(${finalRot.toFixed(2)}deg)`,
+                  zIndex: 20 + i,
+                }}
+                className="group absolute rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.35)] border-2 border-white/80 dark:border-white/15 bg-white dark:bg-[#143838] pointer-events-auto cursor-pointer transition-shadow hover:shadow-[0_25px_60px_rgba(0,191,166,0.35)] will-change-transform"
+              >
+                {/* Card Illustration Image */}
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="w-full h-full object-cover select-none transition-transform duration-500 group-hover:scale-105"
+                />
+
+                {/* Stage 2 Editorial White Card Overlay on Card #2 (Matching Reference Screenshot 2) */}
+                {card.isEditorialInCascade && (
+                  <div
+                    style={{ opacity: editorialCardOverlayOpacity }}
+                    className="absolute inset-0 p-5 bg-[#F4F1EA] text-[#0f2a2a] flex flex-col justify-between pointer-events-none"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-sans text-base font-extrabold leading-snug text-[#0f2a2a]">
+                        Where portrait
+                        <br />
+                        meets celebration
+                      </h3>
+                      <span className="w-7 h-7 rounded-full bg-[#0f2a2a] text-white flex items-center justify-center shrink-0">
+                        <Eye size={13} />
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#0f2a2a]/75 leading-relaxed font-medium">
+                      {card.subtitle}
+                    </p>
+                  </div>
+                )}
+
+                {/* Subtle Bottom Label Pill */}
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 px-3 py-1.5 rounded-xl bg-black/65 backdrop-blur-md text-white flex items-center justify-between">
+                  <div className="truncate">
+                    <p className="text-[11px] font-bold leading-tight truncate">
+                      {card.title}
+                    </p>
+                    <p className="text-[9px] text-[#00bfa6] font-mono uppercase tracking-wider truncate">
+                      {card.occasion}
+                    </p>
+                  </div>
+                  <Sparkles size={11} className="text-[#FF5A52] shrink-0 ml-1" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Bottom Stage Indicator Bar */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/75 dark:bg-[#143838]/80 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md shadow-sm text-[10px] font-mono">
+          <span
+            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
+              progress < 0.3
+                ? "bg-[#00bfa6] text-[#0f2a2a]"
+                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
+            }`}
+          >
+            01 • Rise
+          </span>
+          <span
+            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
+              progress >= 0.3 && progress < 0.64
+                ? "bg-[#FF5A52] text-white"
+                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
+            }`}
+          >
+            02 • Cascade
+          </span>
+          <span
+            className={`px-2 py-0.5 rounded-full font-bold transition-colors ${
+              progress >= 0.64
+                ? "bg-[#00bfa6] text-[#0f2a2a]"
+                : "text-[#0f2a2a]/60 dark:text-[#d9faf4]/60"
+            }`}
+          >
+            03 • Studio Folder
+          </span>
         </div>
       </div>
     </section>
