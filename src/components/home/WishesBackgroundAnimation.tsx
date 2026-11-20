@@ -171,7 +171,8 @@ const FLOATER_ITEMS: FloaterConfig[] = [
     wordIndex: 1,
     baseX: 88,
     baseY: 14,
-    size: 38-,
+    size: 30
+    ,
     depth: 1.2,
     duration: 19,
     delay: 1.5,
