@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Search, Heart, Download, X, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Search, Heart, Download, X, Sparkles, Plus, Trash2, MessageCircle, Film } from "lucide-react";
 import { useHistoryStore } from "../store/historyStore";
 import { deleteWish } from "../services/history";
+import { shareWishViaNativeOrWhatsApp } from "../services/whatsappShare";
+import { synthesizeCelebrationVideo, type GeneratedVideoResult } from "../services/videoGenerator";
 import { toast } from "../store/toastStore";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +24,39 @@ export default function HistoryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"generated" | "sent">("generated");
+  const [modalVideo, setModalVideo] = useState<GeneratedVideoResult | null>(null);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+
+  const handleCloseModal = () => {
+    if (modalVideo?.url) {
+      URL.revokeObjectURL(modalVideo.url);
+    }
+    setModalVideo(null);
+    setSelectedWish(null);
+  };
+
+  const handleGenerateModalVideo = async (wish: Wish) => {
+    if (isGeneratingVideo) return;
+    setIsGeneratingVideo(true);
+    try {
+      const vid = await synthesizeCelebrationVideo({
+        imageUrl: wish.generatedImage,
+        occasion: wish.occasion || "Celebration",
+        theme: wish.theme,
+        style: "cinematic-bokeh",
+      });
+      if (modalVideo?.url) {
+        URL.revokeObjectURL(modalVideo.url);
+      }
+      setModalVideo(vid);
+      toast.success("Animated celebration video ready!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate animated video");
+    } finally {
+      setIsGeneratingVideo(false);
+    }
+  };
 
   useEffect(() => {
     fetchHistory();
@@ -228,7 +263,7 @@ export default function HistoryPage() {
       {selectedWish && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm p-4"
-          onClick={() => setSelectedWish(null)}
+          onClick={handleCloseModal}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -237,23 +272,34 @@ export default function HistoryPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-md">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                Generation preview
+                Generation preview {modalVideo ? "· Animated Video" : ""}
               </h3>
               <button
-                onClick={() => setSelectedWish(null)}
+                onClick={handleCloseModal}
                 className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Image Area */}
+            {/* Modal Image / Video Area */}
             <div className="p-6 bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-              <img
-                src={selectedWish.generatedImage}
-                alt={selectedWish.occasion}
-                className="w-full max-h-[60vh] object-contain rounded-2xl shadow-sm"
-              />
+              {modalVideo ? (
+                <video
+                  src={modalVideo.url}
+                  controls
+                  autoPlay
+                  loop
+                  playsInline
+                  className="w-full max-h-[60vh] object-contain rounded-2xl shadow-sm bg-slate-950"
+                />
+              ) : (
+                <img
+                  src={selectedWish.generatedImage}
+                  alt={selectedWish.occasion}
+                  className="w-full max-h-[60vh] object-contain rounded-2xl shadow-sm"
+                />
+              )}
             </div>
 
             {/* Modal Footer */}
@@ -266,24 +312,57 @@ export default function HistoryPage() {
                 })}{" "}
                 · {selectedWish.aiProvider || "Gemini"}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleDelete(selectedWish._id)}
                   disabled={deletingId === selectedWish._id}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                   <span>{deletingId === selectedWish._id ? "Deleting..." : "Delete"}</span>
                 </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[11px] font-bold rounded-full transition-colors cursor-pointer">
-                  <Heart size={14} /> Save
+                <button
+                  type="button"
+                  onClick={() => handleGenerateModalVideo(selectedWish)}
+                  disabled={isGeneratingVideo}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <Film size={13} className="text-[#00bfa6]" />
+                  <span>{isGeneratingVideo ? "Rendering Video..." : modalVideo ? "Re-Render Video" : "Generate Video"}</span>
                 </button>
                 <button
-                  onClick={() => handleDownload(selectedWish.generatedImage)}
+                  type="button"
+                  onClick={() =>
+                    shareWishViaNativeOrWhatsApp({
+                      occasion: selectedWish.occasion,
+                      mediaUrl: selectedWish.generatedImage,
+                      mediaBlob: modalVideo?.blob,
+                      mediaFilename: modalVideo?.filename,
+                    })
+                  }
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold rounded-full transition-colors cursor-pointer shadow-sm"
+                >
+                  <MessageCircle size={13} />
+                  <span>WhatsApp</span>
+                </button>
+                <button className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-[11px] font-bold rounded-full transition-colors cursor-pointer">
+                  <Heart size={13} /> Save
+                </button>
+                <button
+                  onClick={() => {
+                    if (modalVideo) {
+                      const a = document.createElement("a");
+                      a.href = modalVideo.url;
+                      a.download = modalVideo.filename;
+                      a.click();
+                    } else {
+                      handleDownload(selectedWish.generatedImage);
+                    }
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-[11px] font-bold rounded-full transition-colors shadow-sm shadow-teal-500/20 cursor-pointer"
                 >
-                  <Download size={14} /> Download
+                  <Download size={13} /> {modalVideo ? "Download Video" : "Download"}
                 </button>
               </div>
             </div>

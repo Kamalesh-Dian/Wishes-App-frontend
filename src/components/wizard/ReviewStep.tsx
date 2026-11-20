@@ -1,8 +1,9 @@
-import { Check, RefreshCw, Download, Edit2, Save, Sparkles, Wand2 } from "lucide-react";
+import { Check, RefreshCw, Download, Edit2, Save, Sparkles, Wand2, MessageCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWishStore } from "../../store/wishesStore";
 import { generateWish } from "../../services/generateWish";
+import { shareWishViaNativeOrWhatsApp } from "../../services/whatsappShare";
 import { toast } from "../../store/toastStore";
 
 const GENERATION_STAGES = [
@@ -249,6 +250,20 @@ export default function ReviewStep() {
                   className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
                 >
                   <Download size={14} /> Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!generatedImage) return;
+                    shareWishViaNativeOrWhatsApp({
+                      occasion: occasion || "Celebration",
+                      customMessage,
+                      mediaUrl: generatedImage,
+                    });
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-colors shadow-sm cursor-pointer"
+                >
+                  <MessageCircle size={14} /> WhatsApp
                 </button>
                 <button
                   onClick={() => {

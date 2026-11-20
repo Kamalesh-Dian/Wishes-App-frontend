@@ -38,9 +38,10 @@
   --shadow-glow: 0 0 28px -4px rgba(0, 191, 166, 0.4);
   --shadow-elevated: 0 20px 40px -15px rgba(15, 42, 42, 0.1);
 
-  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-manow: 'Manow', 'Manow Bold', 'Syne', 'Unbounded', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Manow', 'Manow Bold', 'Syne', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Manow', 'Syne', 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   color-scheme: light;
 }
@@ -90,14 +91,15 @@ body {
   overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4 {
-  letter-spacing: -0.02em;
+  font-family: var(--font-manow);
+  letter-spacing: -0.025em;
 }
 
 * {
