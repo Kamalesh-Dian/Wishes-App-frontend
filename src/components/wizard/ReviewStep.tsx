@@ -5,6 +5,9 @@ import { useWishStore } from "../../store/wishesStore";
 import { generateWish } from "../../services/generateWish";
 import { shareWishViaNativeOrWhatsApp } from "../../services/whatsappShare";
 import { toast } from "../../store/toastStore";
+import { useSubscriptionStore } from "../../store/subscriptionStore";
+import UpgradeModal from "../ui/UpgradeModal";
+import PlanUsageBadge from "../ui/PlanUsageBadge";
 
 const GENERATION_STAGES = [
   { threshold: 25, label: "Analyzing occasion and stylistic requirements..." },
@@ -52,6 +55,15 @@ export default function ReviewStep() {
   };
 
   const handleGenerate = async () => {
+    const { canGenerateImage, openUpgradeModal, getPlanConfig, usedImages, recordImageGeneration } = useSubscriptionStore.getState();
+    if (!canGenerateImage()) {
+      const plan = getPlanConfig();
+      openUpgradeModal(
+        `Image generation limit reached for your ${plan.name} Plan (${usedImages}/${plan.imageLimit} images used). Upgrade to Pro ($5) for 75 images or Ultimate ($12) for 150 images.`
+      );
+      return;
+    }
+
     setIsGenerating(true);
     setProgress(5);
 
@@ -81,6 +93,7 @@ export default function ReviewStep() {
       const response = await generateWish(payload);
 
       if (response.success && response.imageURL) {
+        recordImageGeneration();
         setProgress(100);
         setGeneratedImage(response.imageURL);
         toast.success("Wish image generated successfully!");
@@ -216,6 +229,14 @@ export default function ReviewStep() {
             </div>
           )}
 
+          {/* Subscription Credits Bar */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Plan Credits:
+            </span>
+            <PlanUsageBadge />
+          </div>
+
           <div className="flex flex-wrap items-center gap-3">
             {!generatedImage ? (
               <button
@@ -280,6 +301,7 @@ export default function ReviewStep() {
           </div>
         </div>
       </div>
+      <UpgradeModal />
     </div>
   );
 }

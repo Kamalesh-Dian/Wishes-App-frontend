@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useSubscriptionStore, resolveTierFromEmail } from "./subscriptionStore";
 
 interface User {
   uid: string;
@@ -7,6 +8,8 @@ interface User {
   displayName: string | null;
   photoURL?: string | null;
   emailVerified: boolean;
+  demoToken?: string;
+  tier?: "free" | "pro" | "ultimate";
 }
 
 interface AuthState {
@@ -25,22 +28,32 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       authInitialized: false,
 
-      login: (user) =>
+      login: (user) => {
+        const assignedTier = user.tier || resolveTierFromEmail(user.email);
+        useSubscriptionStore.getState().syncUserEmail(user.email);
+        useSubscriptionStore.getState().setPlan(assignedTier);
+
         set({
-          user,
+          user: {
+            ...user,
+            tier: assignedTier,
+          },
           authInitialized: true,
-        }),
+        });
+      },
 
       updateUser: (updates) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         })),
 
-      logout: () =>
+      logout: () => {
+        useSubscriptionStore.getState().syncUserEmail(null);
         set({
           user: null,
           authInitialized: true,
-        }),
+        });
+      },
 
       setAuthInitialized: (initialized) =>
         set({

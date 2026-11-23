@@ -23,6 +23,9 @@ import {
   openWhatsAppDirect,
   shareWishViaNativeOrWhatsApp,
 } from "../../services/whatsappShare";
+import { useSubscriptionStore } from "../../store/subscriptionStore";
+import UpgradeModal from "../ui/UpgradeModal";
+import PlanUsageBadge from "../ui/PlanUsageBadge";
 
 export default function GenerateStep() {
   const {
@@ -86,6 +89,16 @@ export default function GenerateStep() {
 
   const handleSynthesizeVideo = async () => {
     if (!generatedImage || isGeneratingVideo) return;
+
+    const { canGenerateVideo, openUpgradeModal, getPlanConfig, usedVideos, recordVideoGeneration } = useSubscriptionStore.getState();
+    if (!canGenerateVideo()) {
+      const plan = getPlanConfig();
+      openUpgradeModal(
+        `Video generation limit reached for your ${plan.name} Plan (${usedVideos}/${plan.videoLimit} videos used). Upgrade to Pro ($5) for 25 videos or Ultimate ($12) for 50 videos.`
+      );
+      return;
+    }
+
     setIsGeneratingVideo(true);
     setVideoProgress(5);
     try {
@@ -101,6 +114,7 @@ export default function GenerateStep() {
         URL.revokeObjectURL(generatedVideo.url);
       }
       setGeneratedVideo(result);
+      recordVideoGeneration();
       setViewMode("video");
       toast.success("Animated celebration video generated!");
     } catch (error) {
@@ -432,6 +446,12 @@ export default function GenerateStep() {
             </button>
           </div>
 
+          {/* Subscription Credits Bar */}
+          <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Plan Usage:</span>
+            <PlanUsageBadge />
+          </div>
+
           {downloaded && (
             <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-[#00bfa6]/30 text-center">
               <span className="text-[11px] font-semibold text-[#00bfa6] block">
@@ -441,6 +461,7 @@ export default function GenerateStep() {
           )}
         </div>
       </div>
+      <UpgradeModal />
     </div>
   );
 }

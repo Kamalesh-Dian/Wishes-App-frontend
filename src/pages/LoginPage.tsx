@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useLocation, Link, Navigate } from "react-router-dom";
-import { Sparkles, Mail, Lock, ArrowRight } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Zap, Users, ShieldCheck } from "lucide-react";
 import { loginUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
+import { DUMMY_ACCOUNTS } from "../store/subscriptionStore";
 import { toast } from "../store/toastStore";
 import GoogleIcon from "../components/icons/GoogleIcon";
 
@@ -22,9 +23,35 @@ export default function LoginPage() {
     return <Navigate to={from} replace />;
   }
 
+  const loginWithDemoAccount = (demoEmail: string) => {
+    const account = DUMMY_ACCOUNTS[demoEmail];
+    if (!account) return;
+
+    login({
+      uid: `demo_uid_${account.tier}`,
+      email: account.email,
+      displayName: account.displayName,
+      photoURL: null,
+      emailVerified: true,
+      demoToken: `demo_token_${account.tier}`,
+      tier: account.tier,
+    });
+
+    toast.success(`Signed in as ${account.displayName} (${account.label})`);
+    navigate(from, { replace: true });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (DUMMY_ACCOUNTS[normalizedEmail]) {
+      loginWithDemoAccount(normalizedEmail);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const user = await loginUser(email, password);
       login({
@@ -80,6 +107,91 @@ export default function LoginPage() {
         </p>
       </div>
 
+      {/* Demo Tier Test Accounts Box */}
+      <div className="mb-6 p-4 rounded-2xl bg-slate-100/80 dark:bg-black/20 border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#00bfa6] flex items-center gap-1.5">
+            <ShieldCheck size={13} />
+            <span>1-Click Demo Accounts (Test Tiers)</span>
+          </span>
+          <span className="text-[9px] font-mono text-[#0f2a2a]/50 dark:text-[#d9faf4]/50">Instant Test Mode</span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2">
+          {/* Free Tier */}
+          <button
+            type="button"
+            onClick={() => loginWithDemoAccount("free@wishes.ai")}
+            className="w-full text-left p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.04] hover:border-[#00bfa6] hover:bg-white dark:hover:bg-white/[0.08] transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-700 dark:text-slate-300">
+                <Sparkles size={13} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4] group-hover:text-[#00bfa6] transition-colors">
+                  Free Plan ($0) • free@wishes.ai
+                </div>
+                <div className="text-[10px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
+                  5 Images • 3 Videos • No Event Scheduling • No OneDrive
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-[#00bfa6] opacity-0 group-hover:opacity-100 transition-opacity">
+              Sign In →
+            </span>
+          </button>
+
+          {/* $5 Pro Tier */}
+          <button
+            type="button"
+            onClick={() => loginWithDemoAccount("pro@wishes.ai")}
+            className="w-full text-left p-2.5 rounded-xl border border-[#00bfa6]/30 bg-teal-50/40 dark:bg-teal-950/20 hover:border-[#00bfa6] transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#00bfa6]/20 flex items-center justify-center text-[#00bfa6]">
+                <Zap size={13} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4] group-hover:text-[#00bfa6] transition-colors">
+                  Pro Plan ($5/mo) • pro@wishes.ai
+                </div>
+                <div className="text-[10px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
+                  100 Generations (75 Images, 25 Videos) • Events Included • No OneDrive
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-[#00bfa6] opacity-0 group-hover:opacity-100 transition-opacity">
+              Sign In →
+            </span>
+          </button>
+
+          {/* $12 Ultimate Tier */}
+          <button
+            type="button"
+            onClick={() => loginWithDemoAccount("ultimate@wishes.ai")}
+            className="w-full text-left p-2.5 rounded-xl border border-purple-500/30 bg-purple-50/30 dark:bg-purple-950/20 hover:border-purple-400 transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                <Users size={13} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4] group-hover:text-[#00bfa6] transition-colors">
+                  Ultimate Plan ($12/mo) • ultimate@wishes.ai
+                </div>
+                <div className="text-[10px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
+                  200 Generations (150 Images, 50 Videos) • No Restrictions • OneDrive Sync
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-[#00bfa6] opacity-0 group-hover:opacity-100 transition-opacity">
+              Sign In →
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Google SSO Button */}
       <button
         type="button"
@@ -95,7 +207,7 @@ export default function LoginPage() {
           <div className="w-full border-t border-[#0f2a2a]/10 dark:border-[#d9faf4]/10"></div>
         </div>
         <span className="relative px-3 bg-white dark:bg-[#143838] text-[10px] uppercase font-mono tracking-widest text-[#0f2a2a]/60 dark:text-[#d9faf4]/60 font-semibold">
-          or with email
+          or sign in with credentials
         </span>
       </div>
 
@@ -117,7 +229,7 @@ export default function LoginPage() {
               id="login-email"
               type="email"
               required
-              placeholder="you@company.com"
+              placeholder="you@company.com or free@wishes.ai"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 focus:border-[#00bfa6] rounded-xl text-xs font-medium text-[#0f2a2a] dark:text-[#d9faf4] placeholder-[#0f2a2a]/40 dark:placeholder-[#d9faf4]/40 focus:outline-none focus:ring-1 focus:ring-[#00bfa6] transition-all"
@@ -148,8 +260,7 @@ export default function LoginPage() {
             <input
               id="login-password"
               type="password"
-              required
-              placeholder="••••••••"
+              placeholder="•••••••• (optional for demo accounts)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-[#d9faf4]/40 dark:bg-[#0f2a2a]/50 border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 focus:border-[#00bfa6] rounded-xl text-xs font-medium text-[#0f2a2a] dark:text-[#d9faf4] placeholder-[#0f2a2a]/40 dark:placeholder-[#d9faf4]/40 focus:outline-none focus:ring-1 focus:ring-[#00bfa6] transition-all"

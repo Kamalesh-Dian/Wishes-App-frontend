@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import { Film, Sparkles, PartyPopper, Flame, Check } from "lucide-react";
 import { useWishStore } from "../../store/wishesStore";
+import { useSubscriptionStore } from "../../store/subscriptionStore";
+import UpgradeModal from "../ui/UpgradeModal";
+import PlanUsageBadge from "../ui/PlanUsageBadge";
 
 const VIDEO_PRESETS = [
   {
@@ -38,9 +41,28 @@ export default function AnimationStep() {
     VIDEO_PRESETS.find((p) => additionalInformation.includes(p.id))?.id ||
     "cinematic-bokeh";
 
+  const { canGenerateVideo, openUpgradeModal, getPlanConfig } = useSubscriptionStore();
+  const plan = getPlanConfig();
+
   const selectPreset = (presetId: string) => {
+    if (!canGenerateVideo()) {
+      openUpgradeModal(
+        `Video generation limit reached (${plan.videoLimit}/${plan.videoLimit} on ${plan.name} Plan). Upgrade to Pro ($5) for 25 videos or Ultimate ($12) for 50 videos.`
+      );
+      return;
+    }
     setAnimation(true);
     setAdditionalInformation(presetId);
+  };
+
+  const handleToggleAnimation = () => {
+    if (!animationEnabled && !canGenerateVideo()) {
+      openUpgradeModal(
+        `Video generation limit reached (${plan.videoLimit}/${plan.videoLimit} on ${plan.name} Plan). Upgrade to Pro ($5) for 25 videos or Ultimate ($12) for 50 videos.`
+      );
+      return;
+    }
+    setAnimation(!animationEnabled);
   };
 
   return (
@@ -58,18 +80,21 @@ export default function AnimationStep() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setAnimation(!animationEnabled)}
-          className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto shadow-sm ${
-            animationEnabled
-              ? "bg-[#00bfa6] text-[#0f2a2a] shadow-[0_0_20px_rgba(0,191,166,0.35)]"
-              : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-          }`}
-        >
-          <Film size={14} />
-          <span>Video Mode: {animationEnabled ? "✓ Enabled" : "Disabled"}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <PlanUsageBadge />
+          <button
+            type="button"
+            onClick={handleToggleAnimation}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto shadow-sm ${
+              animationEnabled
+                ? "bg-[#00bfa6] text-[#0f2a2a] shadow-[0_0_20px_rgba(0,191,166,0.35)]"
+                : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+            }`}
+          >
+            <Film size={14} />
+            <span>Video Mode: {animationEnabled ? "✓ Enabled" : "Disabled"}</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
@@ -113,6 +138,7 @@ export default function AnimationStep() {
           );
         })}
       </div>
+      <UpgradeModal />
     </div>
   );
 }

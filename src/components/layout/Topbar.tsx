@@ -5,6 +5,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useHistoryStore } from "../../store/historyStore";
 import { useEventStore } from "../../store/eventStore";
+import PlanUsageBadge from "../ui/PlanUsageBadge";
+import UpgradeModal from "../ui/UpgradeModal";
 
 export default function Topbar() {
   const { user } = useAuthStore();
@@ -188,6 +190,11 @@ export default function Topbar() {
 
         <div className="h-4 w-px bg-slate-200 dark:bg-slate-800"></div>
 
+        {/* Plan Usage & Tier Indicator */}
+        <div className="hidden md:block">
+          <PlanUsageBadge />
+        </div>
+
         {/* User Profile Avatar Link */}
         <Link 
           to="/profile" 
@@ -205,6 +212,7 @@ export default function Topbar() {
           </div>
         </Link>
       </div>
+      <UpgradeModal />
     </header>
   );
 }
