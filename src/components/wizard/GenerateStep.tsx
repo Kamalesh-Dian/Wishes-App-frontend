@@ -10,8 +10,10 @@ import {
   Film,
   MessageCircle,
   Send,
+  Mail,
   Image as ImageIcon,
 } from "lucide-react";
+import api from "../../services/api";
 import { useWishStore } from "../../store/wishesStore";
 import { toast } from "../../store/toastStore";
 import {
@@ -55,6 +57,53 @@ export default function GenerateStep() {
   const [showWhatsAppBox, setShowWhatsAppBox] = useState(false);
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [recipientName, setRecipientName] = useState("");
+
+  // Email composer state
+  const [showEmailBox, setShowEmailBox] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState("kamaleshe76@gmail.com");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  const handleSendEmail = async () => {
+    if (!emailRecipient.trim()) {
+      toast.error("Please enter a recipient email address");
+      return;
+    }
+
+    try {
+      setIsSendingEmail(true);
+
+      let videoBase64: string | undefined = undefined;
+      if (generatedVideo?.blob) {
+        videoBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(generatedVideo.blob);
+        });
+      }
+
+      const res = await api.post("/generate/send-email", {
+        to: emailRecipient.trim(),
+        name: recipientName.trim() || undefined,
+        occasion: occasion || "Celebration",
+        customMessage,
+        imageUrl: generatedImage,
+        videoBase64,
+      });
+
+      if (res.data?.success) {
+        toast.success(`Celebration wish & video sent to ${emailRecipient.trim()}!`);
+        setShowEmailBox(false);
+      } else {
+        toast.error(res.data?.error || "Failed to send email");
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error("Failed to dispatch email. Please verify SMTP or email address.");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -420,7 +469,45 @@ export default function GenerateStep() {
             </button>
           </div>
 
-          {/* 3. Standard Export & Reset Actions */}
+          {/* 3. Email Wish Card & Video */}
+          <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-bold text-xs">
+                <Mail size={16} />
+                <span>Send to Email</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmailBox(!showEmailBox)}
+                className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              >
+                {showEmailBox ? "Hide" : "Compose"}
+              </button>
+            </div>
+
+            {showEmailBox && (
+              <div className="space-y-2 pt-1">
+                <input
+                  type="email"
+                  value={emailRecipient}
+                  onChange={(e) => setEmailRecipient(e.target.value)}
+                  placeholder="recipient@example.com"
+                  className="w-full px-3 py-2 rounded-lg text-xs bg-white dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+                <button
+                  type="button"
+                  disabled={isSendingEmail}
+                  onClick={handleSendEmail}
+                  className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm"
+                >
+                  <Send size={12} />
+                  <span>{isSendingEmail ? "Dispatching Email..." : "Send Celebration & Video"}</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Standard Export & Reset Actions */}
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <button
