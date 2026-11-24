@@ -107,6 +107,7 @@ export default function EngineStep() {
             {/* Option 1: Google Gemini Omni 1.2 Flash */}
             <div
               onClick={() => {
+                setAnimation(true);
                 setVideoModel("gemini-omni");
                 setAIEngine("gemini-omni");
               }}
@@ -154,6 +155,7 @@ export default function EngineStep() {
             {/* Option 2: Stable Video Diffusion (SVD XT 1.1) */}
             <div
               onClick={() => {
+                setAnimation(true);
                 setVideoModel("svd");
                 setAIEngine("svd");
                 setVideoDuration(4);

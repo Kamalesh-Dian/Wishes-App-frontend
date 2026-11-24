@@ -47,15 +47,9 @@ export async function synthesizeCelebrationVideo(
 
   const durationSec = Math.min(8, Math.max(4, Math.round(durationMs / 1000)));
 
-  if (onProgress) onProgress(15);
+  if (onProgress) onProgress(20);
 
   try {
-    let currentProgress = 15;
-    const progressTimer = setInterval(() => {
-      currentProgress = Math.min(92, currentProgress + 10);
-      if (onProgress) onProgress(currentProgress);
-    }, 700);
-
     const response = await api.post(
       "/generate/video",
       {
@@ -76,8 +70,7 @@ export async function synthesizeCelebrationVideo(
       }
     );
 
-    clearInterval(progressTimer);
-    if (onProgress) onProgress(96);
+    if (onProgress) onProgress(90);
 
     const data = response.data;
     if (!data?.success || !data?.videoUrl) {

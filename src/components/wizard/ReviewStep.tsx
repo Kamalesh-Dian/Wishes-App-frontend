@@ -1,5 +1,5 @@
 import { Check, RefreshCw, Download, Edit2, Save, Sparkles, Wand2, MessageCircle } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWishStore } from "../../store/wishesStore";
 import { generateWish } from "../../services/generateWish";
@@ -8,18 +8,25 @@ import { toast } from "../../store/toastStore";
 import { useSubscriptionStore } from "../../store/subscriptionStore";
 import PlanUsageBadge from "../ui/PlanUsageBadge";
 
-const GENERATION_STAGES = [
+const IMAGE_GENERATION_STAGES = [
   { threshold: 25, label: "Analyzing occasion and stylistic requirements..." },
   { threshold: 60, label: "Synthesizing visual art with AI generative model..." },
   { threshold: 85, label: "Enhancing details, lighting, and celebratory textures..." },
   { threshold: 98, label: "Finalizing composition and optimizing image..." },
 ];
 
+const VIDEO_GENERATION_STAGES = [
+  { threshold: 25, label: "Stage 1/2: Synthesizing celebration portrait card with AI..." },
+  { threshold: 50, label: "Stage 1/2: Applying festive decor, party lighting & typography..." },
+  { threshold: 75, label: "Stage 2/2: Diffusing video motion with AI video engine..." },
+  { threshold: 98, label: "Stage 2/2: Rendering cinematic motion frames & compiling 1080p MP4..." },
+];
+
 export default function ReviewStep() {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
-  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>("");
 
   const navigate = useNavigate();
   const {
@@ -37,64 +44,98 @@ export default function ReviewStep() {
     setCustomMessage,
     animationEnabled,
     aiEngine,
+    videoModel,
     additionalInformation,
   } = useWishStore();
 
-  useEffect(() => {
-    return () => {
-      if (progressTimerRef.current) {
-        clearInterval(progressTimerRef.current);
-      }
-    };
-  }, []);
+  const isVideoMode = Boolean(
+    animationEnabled || videoModel === "svd" || videoModel === "gemini-omni" || aiEngine === "svd" || aiEngine === "gemini-omni"
+  );
 
   const currentStageLabel = () => {
-    for (const stage of GENERATION_STAGES) {
+    if (statusMessage) return statusMessage;
+    const stages = isVideoMode ? VIDEO_GENERATION_STAGES : IMAGE_GENERATION_STAGES;
+    for (const stage of stages) {
       if (progress <= stage.threshold) return stage.label;
     }
-    return "Wrapping up render...";
+    return isVideoMode ? "Finalizing video render..." : "Wrapping up render...";
   };
 
   const handleGenerate = async () => {
-    const { canGenerateImage, openUpgradeModal, getPlanConfig, usedImages, recordImageGeneration } = useSubscriptionStore.getState();
-    if (!canGenerateImage()) {
-      const plan = getPlanConfig();
-      openUpgradeModal(
-        `Image generation limit reached for your ${plan.name} Plan (${usedImages}/${plan.imageLimit} images used). Upgrade to Pro ($5) for 75 images or Ultimate ($12) for 150 images.`
-      );
-      return;
+    const {
+      canGenerateImage,
+      canGenerateVideo,
+      openUpgradeModal,
+      getPlanConfig,
+      usedImages,
+      usedVideos,
+      recordImageGeneration,
+      recordVideoGeneration,
+    } = useSubscriptionStore.getState();
+    const plan = getPlanConfig();
+
+    if (isVideoMode) {
+      if (!canGenerateVideo()) {
+        openUpgradeModal(
+          `Video generation limit reached for your ${plan.name} Plan (${usedVideos}/${plan.videoLimit} videos used). Upgrade to Pro ($5) for 10 videos or Ultimate ($12) for 25 videos.`
+        );
+        return;
+      }
+    } else {
+      if (!canGenerateImage()) {
+        openUpgradeModal(
+          `Image generation limit reached for your ${plan.name} Plan (${usedImages}/${plan.imageLimit} images used). Upgrade to Pro ($5) for 75 images or Ultimate ($12) for 150 images.`
+        );
+        return;
+      }
     }
 
     setIsGenerating(true);
-    setProgress(5);
-
-    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
-    progressTimerRef.current = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) return prev;
-        const increment = prev < 50 ? 5 : prev < 80 ? 3 : 1;
-        return Math.min(95, prev + increment);
-      });
-    }, 400);
+    setProgress(10);
+    setStatusMessage("Submitting celebration generation request...");
 
     try {
       const trimmedMessage = customMessage.trim();
+      const effectiveVideoModel = isVideoMode
+        ? (videoModel || (aiEngine === "svd" ? "svd" : "gemini-omni"))
+        : undefined;
+
       const payload = {
         occasion,
         theme,
         people,
         decorations,
         customMessage: trimmedMessage,
-        animationEnabled,
-        aiEngine,
+        animationEnabled: isVideoMode,
+        aiEngine: isVideoMode ? (effectiveVideoModel === "svd" ? "svd" : "gemini") : aiEngine,
+        videoModel: effectiveVideoModel,
         uploadedImage,
         additionalInformation,
       };
 
-      const response = await generateWish(payload);
+      const response = await generateWish(payload, {
+        onStatusUpdate: (status) => {
+          if (status === "queued") {
+            setProgress(20);
+            setStatusMessage("Queued in generation pipeline...");
+          } else if (status === "image") {
+            setProgress(50);
+            setStatusMessage("Synthesizing clean celebration portrait card...");
+          } else if (status === "video") {
+            setProgress(80);
+            setStatusMessage(`Diffusing video motion with ${videoModel === "svd" ? "ComfyUI SVD XT 1.1" : "Gemini Omni 1.2"}...`);
+          } else if (status === "done") {
+            setProgress(100);
+            setStatusMessage("Finalizing output...");
+          }
+        },
+      });
 
       if (response.success && response.imageURL) {
         recordImageGeneration();
+        if (response.videoURL) {
+          recordVideoGeneration();
+        }
         setProgress(100);
         setGeneratedImage(response.imageURL);
         if (response.videoURL) {
@@ -108,10 +149,9 @@ export default function ReviewStep() {
       }
     } catch (error: unknown) {
       console.error(error);
-      const errMessage = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      toast.error(errMessage || "An error occurred while generating the image.");
+      const errMessage = (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error || (error as Error)?.message;
+      toast.error(errMessage || `An error occurred while generating the celebration ${isVideoMode ? "video" : "wish"}.`);
     } finally {
-      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
       setIsGenerating(false);
     }
   };

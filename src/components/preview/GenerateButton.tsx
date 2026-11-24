@@ -37,10 +37,10 @@ export default function GenerateButton() {
         aiEngine,
       });
 
-      if (result.success) {
-        console.log(result)
+      if (result.success && result.imageURL) {
+        console.log(result);
         setGeneratedImage(result.imageURL);
-        navigate("/result",{replace:true,});
+        navigate("/result", { replace: true });
       }
     } catch (error) {
       console.error("Generation Failed:", error);
