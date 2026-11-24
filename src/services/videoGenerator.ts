@@ -23,6 +23,7 @@ export interface GeneratedVideoResult {
   filename: string;
   mimeType: string;
   model?: string;
+  tier?: "ai-video" | "animated-card";
 }
 
 /**
@@ -101,13 +102,11 @@ export async function synthesizeCelebrationVideo(
       filename,
       mimeType: data.mimeType || "video/mp4",
       model: data.model || "Stable Video Diffusion (AI Model)",
+      tier: data.tier || "ai-video",
     };
   } catch (modelErr) {
-    console.warn(
-      "AI Video Model request failed, falling back to local synthesis:",
-      modelErr
-    );
-    return await synthesizeCelebrationVideoLocal(options);
+    console.error("AI Video Model generation failed:", modelErr);
+    throw modelErr;
   }
 }
 

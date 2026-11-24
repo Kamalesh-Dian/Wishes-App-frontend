@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, Download, Sparkles, RefreshCw, ArrowLeft } from "lucide-react";
+import { Film, Download, Sparkles, RefreshCw, AlertCircle, ArrowLeft } from "lucide-react";
 import { useWishStore } from "../store/wishesStore";
-import { synthesizeCelebrationVideo, type GeneratedVideoResult } from "../services/videoGenerator";
+import { synthesizeCelebrationVideo, synthesizeCelebrationVideoLocal, type GeneratedVideoResult } from "../services/videoGenerator";
 import { toast } from "../store/toastStore";
 
 export default function ResultPage() {
@@ -11,6 +11,7 @@ export default function ResultPage() {
   const [videoResult, setVideoResult] = useState<GeneratedVideoResult | null>(null);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const [activeEngine, setActiveEngine] = useState<"gemini" | "svd" | null>(null);
+  const [showFallbackOption, setShowFallbackOption] = useState(false);
 
   useEffect(() => {
     const handleBack = () => {
@@ -80,12 +81,35 @@ export default function ResultPage() {
       );
     } catch (err) {
       console.error(err);
+      setShowFallbackOption(true);
       toast.error(
-        err instanceof Error ? err.message : "Failed to generate celebration video"
+        "AI video generation failed. You can choose to make a simple animated card instead."
       );
     } finally {
       setIsGeneratingVideo(false);
       setActiveEngine(null);
+    }
+  };
+
+  const handleCreateAnimatedCard = async () => {
+    if (!generatedImage || isGeneratingVideo) return;
+    setIsGeneratingVideo(true);
+    try {
+      toast.info("Generating simple animated card...");
+      const res = await synthesizeCelebrationVideoLocal({
+        imageUrl: generatedImage,
+        occasion: occasion || "Celebration",
+        theme: theme || "",
+        customMessage: customMessage || "",
+        durationMs: 5000,
+      });
+      setVideoResult({ ...res, tier: "animated-card", model: "Animated card (AI video unavailable)" });
+      setShowFallbackOption(false);
+      toast.success("Animated card created successfully!");
+    } catch (err) {
+      toast.error("Failed to create animated card");
+    } finally {
+      setIsGeneratingVideo(false);
     }
   };
 
@@ -200,7 +224,10 @@ export default function ResultPage() {
           <div className="bg-white dark:bg-slate-900 border border-teal-500/40 p-4 rounded-[32px] shadow-xl max-w-full text-center">
             <div className="flex items-center justify-between px-2 mb-3">
               <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00bfa6] flex items-center gap-1.5">
-                <Film size={14} /> {videoResult.model || "Celebration Video"}
+                <Film size={14} />{" "}
+                {videoResult.tier === "animated-card"
+                  ? "Animated card (AI video unavailable)"
+                  : videoResult.model || "Celebration Video"}
               </span>
               <button
                 onClick={handleDownloadVideo}
@@ -245,6 +272,20 @@ export default function ResultPage() {
                 Try SVD (4s)
               </button>
             </div>
+            {showFallbackOption && (
+              <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs flex flex-col items-center gap-2 max-w-sm">
+                <div className="flex items-center gap-2">
+                  <AlertCircle size={15} className="text-amber-500 shrink-0" />
+                  <span>AI video generation model is currently unavailable.</span>
+                </div>
+                <button
+                  onClick={handleCreateAnimatedCard}
+                  className="mt-1 px-4 py-2 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-all cursor-pointer shadow-xs"
+                >
+                  Make a simple animated card instead
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
