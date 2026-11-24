@@ -1,4 +1,4 @@
-import { Search, Bell, Command, History, Settings, CheckCheck, Sparkles, Mail } from "lucide-react";
+import { Search, Bell, Command, History, Settings, CheckCheck, Palette, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useHistoryStore } from "../../store/historyStore";
 import { useEventStore } from "../../store/eventStore";
 import PlanUsageBadge from "../ui/PlanUsageBadge";
-import UpgradeModal from "../ui/UpgradeModal";
 
 export default function Topbar() {
   const { user } = useAuthStore();
@@ -47,10 +46,10 @@ export default function Topbar() {
     history.forEach((h, i) => {
       notifs.push({
         id: `gen-${h._id || i}`,
-        title: "AI Generation Ready",
+        title: "Celebration Ready",
         desc: `Generated ${h.occasion} wish`,
         time: h.createdAt ? new Date(h.createdAt).toLocaleDateString() : 'Recently',
-        icon: Sparkles,
+        icon: Palette,
         color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40",
         date: new Date(h.createdAt || 0)
       });
@@ -212,7 +211,6 @@ export default function Topbar() {
           </div>
         </Link>
       </div>
-      <UpgradeModal />
     </header>
   );
 }

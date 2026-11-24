@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useLocation, Link, Navigate } from "react-router-dom";
-import { Sparkles, Mail, Lock, ArrowRight, Zap, Users, ShieldCheck } from "lucide-react";
+import { Layers, Mail, Lock, ArrowRight, Zap, Users, ShieldCheck } from "lucide-react";
 import { loginUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
 import { DUMMY_ACCOUNTS } from "../store/subscriptionStore";
@@ -94,7 +94,7 @@ export default function LoginPage() {
       {/* Card Header */}
       <div className="mb-7">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00bfa6]/15 border border-[#00bfa6]/30 mb-4">
-          <Sparkles size={12} className="text-[#00bfa6]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00bfa6]" />
           <span className="text-[10px] font-mono tracking-widest uppercase text-[#00bfa6] font-bold">
             Member Access
           </span>
@@ -126,7 +126,7 @@ export default function LoginPage() {
           >
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-white/10 flex items-center justify-center text-slate-700 dark:text-slate-300">
-                <Sparkles size={13} />
+                <Layers size={13} />
               </div>
               <div>
                 <div className="text-xs font-bold text-[#0f2a2a] dark:text-[#d9faf4] group-hover:text-[#00bfa6] transition-colors">
@@ -157,7 +157,7 @@ export default function LoginPage() {
                   Pro Plan ($5/mo) • pro@wishes.ai
                 </div>
                 <div className="text-[10px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
-                  100 Generations (75 Images, 25 Videos) • Events Included • No OneDrive
+                  50 Generations (40 Images, 10 Videos 8s) • Events Included • No OneDrive
                 </div>
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                   Ultimate Plan ($12/mo) • ultimate@wishes.ai
                 </div>
                 <div className="text-[10px] text-[#0f2a2a]/60 dark:text-[#d9faf4]/60">
-                  200 Generations (150 Images, 50 Videos) • No Restrictions • OneDrive Sync
+                  100 Generations (75 Images, 25 Videos 8s) • No Restrictions • OneDrive Sync
                 </div>
               </div>
             </div>

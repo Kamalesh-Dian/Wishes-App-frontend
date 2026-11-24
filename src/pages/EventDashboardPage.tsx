@@ -5,7 +5,6 @@ import { useEventStore } from "../store/eventStore";
 import { useSubscriptionStore } from "../store/subscriptionStore";
 import ImportedEventsTable from "../components/events/ImportedEventsTable";
 import AddEventModal from "../components/events/AddEventModal";
-import UpgradeModal from "../components/ui/UpgradeModal";
 import PlanUsageBadge from "../components/ui/PlanUsageBadge";
 
 export default function EventDashboardPage() {
@@ -151,7 +150,6 @@ export default function EventDashboardPage() {
 
       {/* Add Event Modal */}
       <AddEventModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      <UpgradeModal />
     </div>
   );
 }

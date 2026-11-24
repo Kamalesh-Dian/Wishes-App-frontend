@@ -1,6 +1,7 @@
-import { Search, Filter, Cake, Heart, Cloud, FileSpreadsheet } from "lucide-react";
+import { Search, Filter, Cake, Heart, Cloud, FileSpreadsheet, MessageSquare, Film, Sparkles, Play } from "lucide-react";
 import { useEventStore } from "../../store/eventStore";
-import { updateEvent as updateEventApi, deleteEvent as deleteEventApi } from "../../services/event";
+import { updateEvent as updateEventApi, deleteEvent as deleteEventApi, sendEventWhatsApp } from "../../services/event";
+import { openWhatsAppDirect } from "../../services/whatsappShare";
 import { useMemo, useState } from "react";
 import { toast } from "../../store/toastStore";
 import { confirmDialog } from "../../store/confirmStore";
@@ -210,6 +211,8 @@ export default function ImportedEventsTable() {
               <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Contact</th>
               <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Source</th>
               <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Type</th>
+              <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Media</th>
+              <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Channel</th>
               <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Date</th>
               <th className="py-4 px-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status</th>
               <th className="py-4 px-6 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Actions</th>
@@ -225,15 +228,23 @@ export default function ImportedEventsTable() {
                 <td className="py-3 pl-6 pr-2">
                   <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:ring-slate-900 dark:focus:ring-slate-400 cursor-pointer" />
                 </td>
-                <td className="py-3 px-4 flex items-center gap-3">
-                  {row.photoUrl ? (
-                    <img src={row.photoUrl} alt={row.Name} className="w-6 h-6 rounded-md object-cover" />
-                  ) : (
-                    <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                      {getInitials(row.Name)}
+                <td className="py-3 px-4">
+                  <div className="flex items-center gap-3">
+                    {row.photoUrl ? (
+                      <img src={row.photoUrl} alt={row.Name} className="w-7 h-7 rounded-md object-cover border border-slate-200 dark:border-slate-700" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                        {getInitials(row.Name)}
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-[13px] font-bold text-slate-900 dark:text-white">{row.Name}</div>
+                      <div className="text-[11px] text-slate-400 dark:text-slate-500 font-mono flex items-center gap-2">
+                        <span>{row.Email}</span>
+                        {row.phone && <span>• {row.phone}</span>}
+                      </div>
                     </div>
-                  )}
-                  <span className="text-[13px] font-bold text-slate-900 dark:text-white">{row.Name}</span>
+                  </div>
                 </td>
                 <td className="py-3 px-4">
                   {row.source === "onedrive" ? (
@@ -252,6 +263,38 @@ export default function ImportedEventsTable() {
                     {row.EventType}
                   </div>
                 </td>
+                <td className="py-3 px-4">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    row.mediaType === "both"
+                      ? "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
+                      : row.mediaType === "video"
+                      ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300"
+                      : "bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300"
+                  }`}>
+                    {row.mediaType === "both" ? (
+                      <>
+                        <Sparkles size={11} /> Both
+                      </>
+                    ) : row.mediaType === "video" ? (
+                      <>
+                        <Film size={11} /> Video
+                      </>
+                    ) : (
+                      "🖼️ Image"
+                    )}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    row.deliveryChannel === "both"
+                      ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300"
+                      : row.deliveryChannel === "whatsapp"
+                      ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                      : "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300"
+                  }`}>
+                    {row.deliveryChannel === "both" ? "🚀 Email+WA" : row.deliveryChannel === "whatsapp" ? "💬 WA" : "✉️ Email"}
+                  </span>
+                </td>
                 <td className="py-3 px-4 text-xs font-semibold text-slate-600 dark:text-slate-300">
                   {row.EventDate ? new Date(row.EventDate).toLocaleDateString("en-GB") : ""}
                 </td>
@@ -262,7 +305,56 @@ export default function ImportedEventsTable() {
                   </span>
                 </td>
                 <td className="py-3 px-6 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-1.5">
+                    {/* 1-Click WhatsApp Share / Send Button */}
+                    <button
+                      onClick={async () => {
+                        const media = row.generatedWishImage || row.photoUrl || "";
+                        const video = row.generatedWishVideo;
+                        const targetMedia = video || media;
+                        const phone = row.phone || window.prompt(`Enter recipient WhatsApp number for ${row.Name} (+countrycode):`);
+
+                        if (phone) {
+                          openWhatsAppDirect({
+                            phone,
+                            recipientName: row.Name,
+                            occasion: row.EventType,
+                            customMessage: row.customMessage,
+                            mediaUrl: targetMedia,
+                          });
+
+                          if (row._id && !row._id.startsWith("manual")) {
+                            try {
+                              await sendEventWhatsApp(row._id, phone);
+                              useEventStore.getState().updateEvent(row._id, { whatsappStatus: "sent", phone });
+                            } catch {
+                              // Ignore background sync error
+                            }
+                          }
+                          toast.success(`Opened WhatsApp for ${row.Name}`);
+                        }
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-md transition-colors"
+                      title="Send / Share via WhatsApp"
+                      aria-label={`Send WhatsApp wish to ${row.Name}`}
+                    >
+                      <MessageSquare size={14} className="text-emerald-500" />
+                    </button>
+
+                    {/* Celebration Video Preview Button */}
+                    {row.generatedWishVideo && (
+                      <a
+                        href={row.generatedWishVideo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 rounded-md transition-colors"
+                        title="Watch Celebration Video"
+                        aria-label={`Watch celebration video for ${row.Name}`}
+                      >
+                        <Play size={14} className="text-indigo-500" />
+                      </a>
+                    )}
+
                     <button 
                       onClick={async () => {
                         const newName = window.prompt("Modify Event Name:", row.Name);
@@ -277,7 +369,7 @@ export default function ImportedEventsTable() {
                           }
                         }
                       }}
-                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
                       title="Modify Event"
                       aria-label={`Modify event for ${row.Name}`}
                     >
@@ -302,7 +394,7 @@ export default function ImportedEventsTable() {
                           },
                         });
                       }}
-                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                       title="Delete Event"
                       aria-label={`Delete event for ${row.Name}`}
                     >

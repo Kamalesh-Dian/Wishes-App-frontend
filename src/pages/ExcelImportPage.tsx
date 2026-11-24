@@ -2,7 +2,6 @@ import { FileSpreadsheet, ShieldCheck, Clock, ArrowLeft, Lock, Zap, ArrowRight }
 import { Link } from "react-router-dom";
 import ExcelUploader from "../components/events/ExcelUploader";
 import { useSubscriptionStore } from "../store/subscriptionStore";
-import UpgradeModal from "../components/ui/UpgradeModal";
 import PlanUsageBadge from "../components/ui/PlanUsageBadge";
 
 export default function ExcelImportPage() {
@@ -88,8 +87,6 @@ export default function ExcelImportPage() {
       ) : (
         <ExcelUploader />
       )}
-
-      <UpgradeModal />
     </div>
   );
 }

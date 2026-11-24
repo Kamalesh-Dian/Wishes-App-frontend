@@ -1,4 +1,4 @@
-import { Sparkles, ArrowRight, ArrowUp, Shield, Globe, Cloud } from "lucide-react";
+import { ArrowRight, ArrowUp, Shield, Globe, Cloud } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function CTASection() {
@@ -33,7 +33,7 @@ export default function CTASection() {
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#FF5A52]/15 rounded-full blur-[90px] pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#00bfa6]/20 rounded-full blur-[90px] pointer-events-none" />
 
-          <h2 className="font-sans text-[clamp(2.2rem,5.5vw,4.4rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06] mb-5">
+          <h2 className="font-display text-[clamp(2.2rem,5.5vw,4.4rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06] mb-5">
             Give them a celebration they will{" "}
             <span className="text-[#00bfa6]">remember forever.</span>
           </h2>
@@ -48,7 +48,6 @@ export default function CTASection() {
               to="/create"
               className="group relative inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[#00bfa6] text-[#0f2a2a] font-bold text-sm sm:text-base shadow-[0_0_35px_rgba(0,191,166,0.35)] hover:shadow-[0_0_50px_rgba(0,191,166,0.6)] transition-all hover:scale-[1.03]"
             >
-              <Sparkles size={18} className="text-[#0f2a2a]" />
               <span>Create Wish</span>
               <ArrowRight
                 size={16}

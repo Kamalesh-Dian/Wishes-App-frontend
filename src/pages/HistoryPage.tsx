@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Heart, Download, X, Sparkles, Plus, Trash2, MessageCircle, Film } from "lucide-react";
+import { Search, Heart, Download, X, Palette, Plus, Trash2, MessageCircle, Film } from "lucide-react";
 import { useHistoryStore } from "../store/historyStore";
 import { deleteWish } from "../services/history";
 import { shareWishViaNativeOrWhatsApp } from "../services/whatsappShare";
@@ -35,7 +35,7 @@ export default function HistoryPage() {
     setSelectedWish(null);
   };
 
-  const handleGenerateModalVideo = async (wish: Wish) => {
+  const handleGenerateModalVideo = async (wish: Wish, engine: "video-model" | "svd" = "video-model") => {
     if (isGeneratingVideo) return;
     setIsGeneratingVideo(true);
     try {
@@ -44,12 +44,13 @@ export default function HistoryPage() {
         occasion: wish.occasion || "Celebration",
         theme: wish.theme,
         style: "cinematic-bokeh",
+        aiEngine: engine,
       });
       if (modalVideo?.url) {
         URL.revokeObjectURL(modalVideo.url);
       }
       setModalVideo(vid);
-      toast.success("Animated celebration video ready!");
+      toast.success(`${engine === "svd" ? "SVD 4s" : "Gemini Omni 8s"} celebration video ready!`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to generate animated video");
@@ -186,14 +187,14 @@ export default function HistoryPage() {
               className="w-full max-w-lg mx-auto mt-12 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-[32px] p-10 border border-white/60 dark:border-slate-800 shadow-sm text-center"
             >
               <div className="w-20 h-20 mx-auto bg-teal-50 dark:bg-teal-500/10 text-teal-500 rounded-3xl flex items-center justify-center mb-6 rotate-3">
-                <Sparkles size={32} />
+                <Palette size={32} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
-                No magic created yet
+                No creations yet
               </h3>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto leading-relaxed">
-                Your generated wishes, images, and sent emails will appear here. Start creating
-                beautiful, AI-powered wishes for your team today.
+                Your generated wishes, celebration scenes, and sent emails will appear here. Start creating
+                personalized celebration keepsakes today.
               </p>
 
               <button
@@ -322,15 +323,27 @@ export default function HistoryPage() {
                   <Trash2 size={13} />
                   <span>{deletingId === selectedWish._id ? "Deleting..." : "Delete"}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateModalVideo(selectedWish)}
-                  disabled={isGeneratingVideo}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  <Film size={13} className="text-[#00bfa6]" />
-                  <span>{isGeneratingVideo ? "Rendering Video..." : modalVideo ? "Re-Render Video" : "Generate Video"}</span>
-                </button>
+                <div className="flex items-center gap-1.5 p-1 rounded-full bg-slate-100 dark:bg-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateModalVideo(selectedWish, "video-model")}
+                    disabled={isGeneratingVideo}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50 shadow-xs"
+                    title="Generate 8-second cinematic celebration video using Gemini Omni"
+                  >
+                    <Film size={12} className="text-[#00bfa6]" />
+                    <span>{isGeneratingVideo ? "Rendering..." : "Gemini 8s"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateModalVideo(selectedWish, "svd")}
+                    disabled={isGeneratingVideo}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#00bfa6]/15 hover:bg-[#00bfa6]/25 text-[#00bfa6] dark:text-[#2dd4bf] text-[11px] font-bold rounded-full transition-colors cursor-pointer disabled:opacity-50"
+                    title="Generate 3-4 second video diffusion directly from image via ComfyUI SVD XT"
+                  >
+                    <span>SVD 4s</span>
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() =>

@@ -36,3 +36,11 @@ export const updateEvent = (eventId: string, payload: any) => {
 export const deleteEvent = (eventId: string) => {
   return api.delete(`/events/${eventId}`);
 };
+
+export const sendEventWhatsApp = (eventId: string, phone?: string) => {
+  return api.post(`/events/${eventId}/send-whatsapp`, { phone });
+};
+
+export const sendEventEmail = (eventId: string, email?: string) => {
+  return api.post(`/events/${eventId}/send-email`, { email });
+};

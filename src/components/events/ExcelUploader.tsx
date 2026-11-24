@@ -9,7 +9,7 @@ import {
   Mail,
   User,
   Phone,
-  Sparkles,
+  Gift,
   AlertCircle,
   FileCheck2,
   TableProperties,
@@ -31,6 +31,9 @@ export interface RosterRow {
   Phone?: string;
   PhotoURL?: string;
   CustomMessage?: string;
+  MediaType?: "image" | "video" | "both";
+  DeliveryChannel?: "email" | "whatsapp" | "both";
+  VideoModel?: "gemini-omni" | "svd";
 }
 
 export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
@@ -43,6 +46,8 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+1 415 555 0192",
     PhotoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Wishing our lead designer an extraordinary birthday celebration!",
+    MediaType: "both",
+    DeliveryChannel: "both",
   },
   {
     Name: "Arjun Patel",
@@ -53,6 +58,9 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+91 98765 43210",
     PhotoURL: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Celebrating 5 years of engineering excellence and mentorship!",
+    MediaType: "video",
+    DeliveryChannel: "whatsapp",
+    VideoModel: "gemini-omni",
   },
   {
     Name: "Sarah Jenkins",
@@ -63,6 +71,8 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+1 212 555 0148",
     PhotoURL: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Happy Birthday Sarah! Thank you for bringing vibrant energy to our campaigns.",
+    MediaType: "image",
+    DeliveryChannel: "email",
   },
   {
     Name: "David Kim",
@@ -73,6 +83,8 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+1 650 555 0184",
     PhotoURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Celebrating your 3rd year with Acme. Thank you for keeping everything running smoothly!",
+    MediaType: "both",
+    DeliveryChannel: "both",
   },
   {
     Name: "Aisha Rahman",
@@ -83,6 +95,9 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+44 20 7946 0912",
     PhotoURL: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Wishing you and your family a luminous, joyous and blessed Diwali!",
+    MediaType: "video",
+    DeliveryChannel: "whatsapp",
+    VideoModel: "svd",
   },
   {
     Name: "Carlos Mendez",
@@ -93,6 +108,8 @@ export const SAMPLE_ROSTER_ROWS: RosterRow[] = [
     Phone: "+1 312 555 0177",
     PhotoURL: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&auto=format&fit=crop&q=80",
     CustomMessage: "Congratulations on your promotion to Senior Product Director!",
+    MediaType: "image",
+    DeliveryChannel: "email",
   },
 ];
 
@@ -137,7 +154,21 @@ export const ROSTER_FIELD_SPECIFICATIONS = [
     required: false,
     type: "Phone (+E.164)",
     example: "+1 415 555 0192 or +91 98765 43210",
-    description: "International phone with country code. Enables 1-click WhatsApp wish dispatching.",
+    description: "International phone with country code. Enables automated WhatsApp wish delivery.",
+  },
+  {
+    field: "MediaType",
+    required: false,
+    type: "image | video | both",
+    example: "both (default: image)",
+    description: "Format of celebration media. Generates FLUX 4K portrait, Motion Video, or Both.",
+  },
+  {
+    field: "DeliveryChannel",
+    required: false,
+    type: "email | whatsapp | both",
+    example: "both (default: email)",
+    description: "Dispatch channel on milestone date (9:00 AM). Delivers via Email, WhatsApp, or Both.",
   },
   {
     field: "PhotoURL",
@@ -167,6 +198,8 @@ export const downloadRosterExcelFile = () => {
     { wch: 14 }, // EventDate
     { wch: 20 }, // Department
     { wch: 18 }, // Phone
+    { wch: 14 }, // MediaType
+    { wch: 16 }, // DeliveryChannel
     { wch: 45 }, // PhotoURL
     { wch: 50 }, // CustomMessage
   ];
@@ -182,7 +215,7 @@ export const downloadRosterExcelFile = () => {
     }))
   );
   wsInstructions["!cols"] = [
-    { wch: 16 }, // Column Name
+    { wch: 18 }, // Column Name
     { wch: 14 }, // Requirement
     { wch: 40 }, // Expected Format
     { wch: 60 }, // Field Purpose
@@ -211,13 +244,20 @@ export default function ExcelUploader() {
       ...event,
       Name: event.name || event.Name,
       Email: event.email || event.Email,
+      Phone: event.phone || event.Phone,
       Department: event.department || event.Department,
       EventType: event.occasion || event.EventType,
       EventDate: event.eventDate || event.EventDate,
+      MediaType: event.mediaType || event.MediaType || "image",
+      DeliveryChannel: event.deliveryChannel || event.DeliveryChannel || "email",
+      VideoModel: event.videoModel || event.VideoModel || "gemini-omni",
       photoUrl: event.photoUrl || event.PhotoURL || event.PhotoUrl,
       customMessage: event.customMessage || event.CustomMessage,
       generatedWishImage: event.generatedWishImage,
+      generatedWishVideo: event.generatedWishVideo,
       generatedWishText: event.generatedWishText,
+      whatsappStatus: event.whatsappStatus,
+      emailStatus: event.emailStatus,
       status: event.status || "Pending",
     }));
 
@@ -588,7 +628,7 @@ export default function ExcelUploader() {
               onClick={handleLoadSampleRoster}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 hover:border-[#00bfa6] text-[#0f2a2a] dark:text-[#d9faf4] text-xs font-bold transition-all hover:scale-105 cursor-pointer bg-slate-50/50 dark:bg-white/5"
             >
-              <Sparkles size={14} className="text-[#00bfa6]" />
+              <FileSpreadsheet size={14} className="text-[#00bfa6]" />
               <span>Load Sample Data</span>
             </button>
           </div>
@@ -650,7 +690,7 @@ export default function ExcelUploader() {
                       </th>
                       <th className="py-3 px-5">
                         <div className="flex items-center gap-1.5">
-                          <Sparkles size={12} className="text-[#00bfa6]" />
+                          <Gift size={12} className="text-[#00bfa6]" />
                           <span>EventType</span>
                           <span className="text-[#FF5A52] font-mono">*</span>
                         </div>
@@ -669,6 +709,8 @@ export default function ExcelUploader() {
                           <span>Phone (WhatsApp)</span>
                         </div>
                       </th>
+                      <th className="py-3 px-5">Media Type</th>
+                      <th className="py-3 px-5">Delivery Channel</th>
                       <th className="py-3 px-5">CustomMessage</th>
                     </tr>
                   </thead>
@@ -710,6 +752,28 @@ export default function ExcelUploader() {
                         </td>
                         <td className="py-3 px-5 font-mono text-[11px] text-[#0f2a2a]/70 dark:text-[#d9faf4]/70">
                           {row.Phone}
+                        </td>
+                        <td className="py-3 px-5">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            row.MediaType === "both"
+                              ? "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
+                              : row.MediaType === "video"
+                              ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300"
+                              : "bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300"
+                          }`}>
+                            {row.MediaType === "both" ? "✨ Both" : row.MediaType === "video" ? "🎬 Video" : "🖼️ Image"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-5">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            row.DeliveryChannel === "both"
+                              ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300"
+                              : row.DeliveryChannel === "whatsapp"
+                              ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                              : "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300"
+                          }`}>
+                            {row.DeliveryChannel === "both" ? "🚀 Email + WA" : row.DeliveryChannel === "whatsapp" ? "💬 WhatsApp" : "✉️ Email"}
+                          </span>
                         </td>
                         <td className="py-3 px-5 text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 max-w-xs truncate">
                           {row.CustomMessage}

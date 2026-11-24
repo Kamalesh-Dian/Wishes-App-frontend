@@ -26,7 +26,6 @@ import {
   shareWishViaNativeOrWhatsApp,
 } from "../../services/whatsappShare";
 import { useSubscriptionStore } from "../../store/subscriptionStore";
-import UpgradeModal from "../ui/UpgradeModal";
 import PlanUsageBadge from "../ui/PlanUsageBadge";
 
 export default function GenerateStep() {
@@ -35,8 +34,12 @@ export default function GenerateStep() {
     occasion,
     theme,
     customMessage,
+    people,
+    decorations,
     animationEnabled,
     additionalInformation,
+    videoDuration = 8,
+    setVideoDuration,
     resetWish,
     prevStep,
   } = useWishStore();
@@ -74,11 +77,12 @@ export default function GenerateStep() {
 
       let videoBase64: string | undefined = undefined;
       if (generatedVideo?.blob) {
+        const currentBlob = generatedVideo.blob;
         videoBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
           reader.onerror = reject;
-          reader.readAsDataURL(generatedVideo.blob);
+          reader.readAsDataURL(currentBlob);
         });
       }
 
@@ -143,10 +147,12 @@ export default function GenerateStep() {
     if (!canGenerateVideo()) {
       const plan = getPlanConfig();
       openUpgradeModal(
-        `Video generation limit reached for your ${plan.name} Plan (${usedVideos}/${plan.videoLimit} videos used). Upgrade to Pro ($5) for 25 videos or Ultimate ($12) for 50 videos.`
+        `Video generation limit reached for your ${plan.name} Plan (${usedVideos}/${plan.videoLimit} videos used). Upgrade to Pro ($5) for 10 videos (10s each) or Ultimate ($12) for 25 videos (10s each).`
       );
       return;
     }
+
+    const { videoDuration = 10 } = useWishStore.getState();
 
     setIsGeneratingVideo(true);
     setVideoProgress(5);
@@ -156,7 +162,11 @@ export default function GenerateStep() {
         occasion: occasion || "Celebration",
         theme,
         customMessage,
+        people,
+        decorations,
+        additionalInformation,
         style: videoStyle,
+        durationMs: (videoDuration || 8) * 1000,
         onProgress: (p) => setVideoProgress(p),
       });
       if (generatedVideo?.url) {
@@ -315,10 +325,10 @@ export default function GenerateStep() {
             <div className="flex flex-col items-center justify-center p-8 text-center text-white max-w-sm">
               <Film size={36} className="text-[#00bfa6] animate-bounce mb-3" />
               <p className="font-bold text-sm mb-1">
-                Synthesizing Animated Celebration Video...
+                Gemini Omni 1.2 Flash Generating Video...
               </p>
               <p className="text-xs text-slate-400 mb-4">
-                Rendering 30fps Ken Burns motion, festive bokeh, and greeting overlay
+                Google gemini-omni-1.2-flash synthesizing cinematic celebration motion & MP4 encoding
               </p>
               <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
                 <div
@@ -356,15 +366,21 @@ export default function GenerateStep() {
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
                 <Film size={15} className="text-[#00bfa6]" />
-                Celebration Video Generator
+                Gemini Omni 1.2 Flash Video Engine
               </span>
-              {animationEnabled && (
-                <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
-                  MOTION READY
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#00bfa6]/20 text-[#00bfa6]">
+                  {videoDuration}s MP4
                 </span>
-              )}
+                {animationEnabled && (
+                  <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
+                    GEMINI OMNI READY
+                  </span>
+                )}
+              </div>
             </div>
 
+            {/* Motion Style Selector */}
             <div className="grid grid-cols-3 gap-1.5">
               {[
                 { id: "cinematic-bokeh", label: "Bokeh Zoom" },
@@ -386,6 +402,29 @@ export default function GenerateStep() {
               ))}
             </div>
 
+            {/* Quick Duration Stepper (4s to 8s) */}
+            <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-xs">
+              <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                Duration: <strong className="text-[#00bfa6] font-mono">{videoDuration} seconds</strong>
+              </span>
+              <div className="flex items-center gap-1">
+                {[4, 6, 8].map((sec) => (
+                  <button
+                    key={sec}
+                    type="button"
+                    onClick={() => setVideoDuration(sec)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold cursor-pointer transition-colors ${
+                      videoDuration === sec
+                        ? "bg-[#00bfa6] text-[#0f2a2a]"
+                        : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                    }`}
+                  >
+                    {sec}s
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="button"
@@ -396,10 +435,10 @@ export default function GenerateStep() {
                 <Film size={14} />
                 <span>
                   {isGeneratingVideo
-                    ? `Rendering ${videoProgress}%...`
+                    ? `Generating with Gemini Omni ${videoProgress}%...`
                     : generatedVideo
-                      ? "Re-Render Video"
-                      : "Generate Video"}
+                      ? "Re-Generate Video"
+                      : "Generate AI Video (Gemini Omni)"}
                 </span>
               </button>
 
@@ -548,7 +587,6 @@ export default function GenerateStep() {
           )}
         </div>
       </div>
-      <UpgradeModal />
     </div>
   );
 }

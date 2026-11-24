@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Sparkles, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { registerUser, loginWithGoogle } from "../services/auth";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "../store/toastStore";
@@ -65,7 +65,7 @@ export default function RegisterPage() {
       {/* Card Header */}
       <div className="mb-7">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00bfa6]/15 border border-[#00bfa6]/30 mb-4">
-          <Sparkles size={12} className="text-[#00bfa6]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00bfa6]" />
           <span className="text-[10px] font-mono tracking-widest uppercase text-[#00bfa6] font-bold">
             Get Started
           </span>

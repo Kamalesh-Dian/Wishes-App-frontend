@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Home, ArrowLeft, Sparkles } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function NotFoundPage() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.04] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/10 backdrop-blur-md mb-6">
-            <Sparkles size={12} className="text-[#00bfa6]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00bfa6]" />
             <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-[#00bfa6]">
               Page Not Found
             </span>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Camera, Palette, Gift, CheckCircle2, ArrowRight } from "lucide-react";
+import { Camera, Palette, Gift, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -40,7 +40,7 @@ const STEPS = [
       "In under 60 seconds, your studio-grade celebration scene is rendered. Download for framing, share a direct link, or automate delivery via OneDrive roster sync.",
     icon: Gift,
     previewBadge: "4K",
-    image: "/showcase/celebration.webp",
+    image: "/showcase/final.png",
     imageCaption: "Final 4K Celebration Scene • Studio Ray-Traced Output",
   },
 ];
@@ -86,10 +86,10 @@ export default function HowItWorksSection() {
         {/* Section Header */}
         <div className="mb-14 sm:mb-20 max-w-3xl">
           <div className="inline-flex items-center gap-2 text-[11px] font-mono font-bold tracking-[0.25em] uppercase text-[#FF5A52] mb-3">
-            <Sparkles size={13} className="text-[#FF5A52]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A52]" />
             <span>The Creative Process</span>
           </div>
-          <h2 className="font-sans text-[clamp(2.1rem,4.6vw,3.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
+          <h2 className="font-display text-[clamp(1.8rem,2.6vw,3rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
             How a candid photograph becomes{" "}
             <span className="text-[#00bfa6]">celebration art.</span>
           </h2>

@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
-  Sparkles,
-  Wand2,
+  Eye,
 } from "lucide-react";
 import { emitActiveCardTheme } from "./WishesBackgroundAnimation";
 
@@ -214,7 +213,7 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
         {/* Left Column: Editorial Headline & Primary Actions */}
         <div className="lg:col-span-5 text-center lg:text-left flex flex-col items-center lg:items-start">
-          <h1 className="font-sans text-[clamp(2.35rem,4.6vw,4.3rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
+          <h1 className="font-display text-[clamp(2rem,3.5vw,3.7rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.06]">
             Turn one candid portrait into a{" "}
             <span className="text-[#00bfa6]">celebration</span>{" "}
             <span className="underline decoration-[#00bfa6]/80 decoration-wavy underline-offset-8">
@@ -234,7 +233,6 @@ export default function HeroSection() {
               to="/create"
               className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#00bfa6] text-[#0f2a2a] font-bold text-sm sm:text-base shadow-[0_10px_30px_rgba(0,191,166,0.38)] hover:shadow-[0_12px_42px_rgba(0,191,166,0.6)] transition-all hover:scale-[1.03]"
             >
-              <Sparkles size={17} className="text-[#0f2a2a]" />
               <span>Create Wish</span>
               <ArrowRight
                 size={16}
@@ -246,7 +244,7 @@ export default function HeroSection() {
               onClick={handleLearnMore}
               className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/20 bg-white/75 dark:bg-white/[0.06] text-[#0f2a2a] dark:text-[#d9faf4] text-sm font-semibold hover:border-[#FF5A52] hover:text-[#FF5A52] transition-all backdrop-blur-md cursor-pointer"
             >
-              <Wand2 size={15} className="text-[#FF5A52]" />
+              <Eye size={15} className="text-[#FF5A52]" />
               <span>Explore Process</span>
             </button>
           </div>

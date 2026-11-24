@@ -1,3 +1,5 @@
+import api from "./api";
+
 export type VideoMotionStyle = "cinematic-bokeh" | "confetti-party" | "diya-lanterns";
 
 export interface GenerateVideoOptions {
@@ -5,16 +7,115 @@ export interface GenerateVideoOptions {
   occasion: string;
   theme?: string;
   customMessage?: string;
+  people?: string[];
+  decorations?: string[];
+  additionalInformation?: string;
+  prompt?: string;
   style?: VideoMotionStyle;
   durationMs?: number;
+  aiEngine?: "video-model" | "svd" | "gemini";
   onProgress?: (percent: number) => void;
 }
 
 export interface GeneratedVideoResult {
   url: string;
-  blob: Blob;
+  blob?: Blob;
   filename: string;
   mimeType: string;
+  model?: string;
+}
+
+/**
+ * Primary Video Generation: Calls the AI Video Diffusion Model backend API
+ */
+export async function synthesizeCelebrationVideo(
+  options: GenerateVideoOptions
+): Promise<GeneratedVideoResult> {
+  const {
+    imageUrl,
+    occasion,
+    theme = "",
+    customMessage = "",
+    people = [],
+    decorations = [],
+    additionalInformation = "",
+    prompt = "",
+    style = "cinematic-bokeh",
+    durationMs = 8000,
+    onProgress,
+  } = options;
+
+  const durationSec = Math.min(8, Math.max(4, Math.round(durationMs / 1000)));
+
+  if (onProgress) onProgress(15);
+
+  try {
+    let currentProgress = 15;
+    const progressTimer = setInterval(() => {
+      currentProgress = Math.min(92, currentProgress + 10);
+      if (onProgress) onProgress(currentProgress);
+    }, 700);
+
+    const response = await api.post(
+      "/generate/video",
+      {
+        imageUrl,
+        occasion,
+        theme,
+        customMessage,
+        people,
+        decorations,
+        additionalInformation,
+        prompt,
+        duration: durationSec,
+        motionStyle: style,
+        aiEngine: options.aiEngine || "video-model",
+      },
+      {
+        timeout: 180000,
+      }
+    );
+
+    clearInterval(progressTimer);
+    if (onProgress) onProgress(96);
+
+    const data = response.data;
+    if (!data?.success || !data?.videoUrl) {
+      throw new Error(data?.error || "AI Video Model returned invalid response");
+    }
+
+    const videoUrl = data.videoUrl;
+    let videoBlob: Blob | undefined = undefined;
+
+    try {
+      const blobRes = await fetch(videoUrl);
+      if (blobRes.ok) {
+        videoBlob = await blobRes.blob();
+      }
+    } catch {
+      // Direct stream or CORS
+    }
+
+    if (onProgress) onProgress(100);
+
+    const filename = `wishes-ai-${(occasion || "celebration")
+      .toLowerCase()
+      .replace(/\s+/g, "-")}-${Date.now()}.mp4`;
+
+    return {
+      url: videoUrl,
+      blob: videoBlob,
+      filename,
+      mimeType: data.mimeType || "video/mp4",
+      model: data.model || "Stable Video Diffusion (AI Model)",
+    };
+  } catch (modelErr) {
+    console.warn(
+      "AI Video Model request failed, falling back to local synthesis:",
+      modelErr
+    );
+    return await synthesizeCelebrationVideoLocal(options);
+  }
 }
 
 interface Particle {
@@ -30,7 +131,10 @@ interface Particle {
   isRibbon: boolean;
 }
 
-export async function synthesizeCelebrationVideo(
+/**
+ * Fallback Local Video Synthesizer
+ */
+export async function synthesizeCelebrationVideoLocal(
   options: GenerateVideoOptions
 ): Promise<GeneratedVideoResult> {
   const {
@@ -39,9 +143,12 @@ export async function synthesizeCelebrationVideo(
     theme = "",
     customMessage = "",
     style = "cinematic-bokeh",
-    durationMs = 4500,
+    durationMs = 8000,
     onProgress,
   } = options;
+
+  // Clamp duration to between 4s (4000ms) and 8s (8000ms)
+  const effectiveDurationMs = Math.min(8000, Math.max(4000, durationMs));
 
   // 1. Load source image with CORS
   const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -120,7 +227,7 @@ export async function synthesizeCelebrationVideo(
   recorder.start(100);
 
   const fps = 30;
-  const totalFrames = Math.max(60, Math.round((durationMs / 1000) * fps));
+  const totalFrames = Math.max(60, Math.round((effectiveDurationMs / 1000) * fps));
   const frameInterval = 1000 / fps;
 
   // Aspect-cover base dimensions

@@ -34,13 +34,17 @@ interface WishState {
   customMessage: string;
   additionalInformation: string;
   animationEnabled: boolean;
+  videoDuration: number;
   aiEngine: string;
+  videoModel: string;
   currentStep: number;
   generatedImage: string | null;
+  generatedVideo: string | null;
   photoConsent: boolean;
 
   setAdditionalInformation: (info: string) => void;
   setGeneratedImage: (url: string) => void;
+  setGeneratedVideo: (url: string | null) => void;
   setImage: (img: string | null) => void;
   setOccasion: (occasion: string) => void;
   setTheme: (theme: string) => void;
@@ -48,7 +52,9 @@ interface WishState {
   setDecorations: (decorations: string[]) => void;
   setCustomMessage: (message: string) => void;
   setAnimation: (state: boolean) => void;
+  setVideoDuration: (duration: number) => void;
   setAIEngine: (engine: string) => void;
+  setVideoModel: (model: string) => void;
   setPhotoConsent: (consent: boolean) => void;
   setCurrentStep: (step: number) => void;
   nextStep: () => void;
@@ -67,14 +73,22 @@ export const useWishStore = create<WishState>()(
       customMessage: "",
       additionalInformation: "",
       animationEnabled: false,
+      videoDuration: 8,
       aiEngine: "gemini",
+      videoModel: "gemini-omni",
       currentStep: 1,
       generatedImage: null,
+      generatedVideo: null,
       photoConsent: false,
 
       setAdditionalInformation: (info) =>
         set({
           additionalInformation: info,
+        }),
+
+      setGeneratedVideo: (url) =>
+        set({
+          generatedVideo: url,
         }),
 
       setImage: (img) =>
@@ -112,9 +126,19 @@ export const useWishStore = create<WishState>()(
           animationEnabled: state,
         }),
 
+      setVideoDuration: (duration) =>
+        set({
+          videoDuration: Math.min(8, Math.max(4, Math.round(duration))),
+        }),
+
       setAIEngine: (engine) =>
         set({
           aiEngine: engine,
+        }),
+
+      setVideoModel: (model) =>
+        set({
+          videoModel: model,
         }),
 
       setPhotoConsent: (consent) =>
@@ -152,9 +176,12 @@ export const useWishStore = create<WishState>()(
           customMessage: "",
           additionalInformation: "",
           animationEnabled: false,
+          videoDuration: 8,
           currentStep: 1,
           generatedImage: null,
+          generatedVideo: null,
           aiEngine: "gemini",
+          videoModel: "gemini-omni",
           photoConsent: false,
         }),
     }),

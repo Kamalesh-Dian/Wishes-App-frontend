@@ -169,7 +169,13 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
-/* Cinematic Utilities */
+/* Cinematic & Display Utilities */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-manow {
+  font-family: var(--font-manow);
+}
 .font-serif {
   font-family: var(--font-serif);
 }

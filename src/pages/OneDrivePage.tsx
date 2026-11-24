@@ -1,7 +1,6 @@
 import { Lock, Users, ArrowRight } from "lucide-react";
 import OneDriveSync from "../components/events/oneDriveSync";
 import { useSubscriptionStore } from "../store/subscriptionStore";
-import UpgradeModal from "../components/ui/UpgradeModal";
 import PlanUsageBadge from "../components/ui/PlanUsageBadge";
 
 export default function OneDrivePage() {
@@ -75,8 +74,6 @@ export default function OneDrivePage() {
       ) : (
         <OneDriveSync />
       )}
-
-      <UpgradeModal />
     </div>
   );
 }

@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { Menu, X, ArrowRight, Sun, Moon } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { useTheme } from "../../hooks/useTheme";
-import PlanUsageBadge from "../ui/PlanUsageBadge";
-import UpgradeModal from "../ui/UpgradeModal";
 
 export default function CinematicNavbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -106,7 +104,6 @@ export default function CinematicNavbar() {
           {/* User Auth Link & Plan Usage */}
           {user ? (
             <div className="hidden lg:flex items-center gap-2">
-              <PlanUsageBadge />
               <Link
                 to="/dashboard"
                 className="hidden sm:inline-flex text-xs font-semibold px-4 py-2 rounded-full border border-[#0f2a2a]/15 dark:border-[#d9faf4]/15 text-[#0f2a2a] dark:text-[#d9faf4] hover:border-[#00bfa6] hover:text-[#00bfa6] transition-all"
@@ -193,7 +190,6 @@ export default function CinematicNavbar() {
           </Link>
         </div>
       )}
-      <UpgradeModal />
     </header>
   );
 }

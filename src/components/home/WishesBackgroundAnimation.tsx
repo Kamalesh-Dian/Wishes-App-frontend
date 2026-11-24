@@ -3,7 +3,6 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   Gift,
   Heart,
-  Sparkles,
   Star,
   PartyPopper,
   Mail,
@@ -272,7 +271,7 @@ const FLOATER_ITEMS: FloaterConfig[] = [
   {
     id: 10,
     kind: "icon",
-    Icon: Sparkles,
+    Icon: Star,
     wordIndex: 1,
     baseX: 53,
     baseY: 12,

@@ -6,7 +6,6 @@ import { generateWish } from "../../services/generateWish";
 import { shareWishViaNativeOrWhatsApp } from "../../services/whatsappShare";
 import { toast } from "../../store/toastStore";
 import { useSubscriptionStore } from "../../store/subscriptionStore";
-import UpgradeModal from "../ui/UpgradeModal";
 import PlanUsageBadge from "../ui/PlanUsageBadge";
 
 const GENERATION_STAGES = [
@@ -28,6 +27,8 @@ export default function ReviewStep() {
     uploadedImage,
     generatedImage,
     setGeneratedImage,
+    generatedVideo,
+    setGeneratedVideo,
     occasion,
     theme,
     people,
@@ -96,9 +97,14 @@ export default function ReviewStep() {
         recordImageGeneration();
         setProgress(100);
         setGeneratedImage(response.imageURL);
-        toast.success("Wish image generated successfully!");
+        if (response.videoURL) {
+          setGeneratedVideo(response.videoURL);
+          toast.success("Celebration image & motion video synthesized successfully!");
+        } else {
+          toast.success("Wish image generated successfully!");
+        }
       } else {
-        toast.error(response.error || "Failed to generate image.");
+        toast.error(response.error || "Failed to generate wish.");
       }
     } catch (error: unknown) {
       console.error(error);
@@ -170,6 +176,15 @@ export default function ReviewStep() {
                 {progress}% completed
               </span>
             </div>
+          ) : generatedVideo ? (
+            <video
+              src={generatedVideo}
+              controls
+              autoPlay
+              loop
+              playsInline
+              className="w-full h-full object-contain bg-black"
+            />
           ) : generatedImage ? (
             <img src={generatedImage} alt="Generated wish" className="w-full h-full object-cover" />
           ) : uploadedImage ? (
@@ -249,7 +264,13 @@ export default function ReviewStep() {
                 }`}
               >
                 <Sparkles size={14} strokeWidth={2.5} />{" "}
-                {isGenerating ? "Synthesizing..." : "Generate Image"}
+                {isGenerating
+                  ? animationEnabled
+                    ? "Synthesizing Video..."
+                    : "Synthesizing..."
+                  : animationEnabled
+                  ? "Generate Wish & Video"
+                  : "Generate Image"}
               </button>
             ) : (
               <>
@@ -301,7 +322,6 @@ export default function ReviewStep() {
           </div>
         </div>
       </div>
-      <UpgradeModal />
     </div>
   );
 }

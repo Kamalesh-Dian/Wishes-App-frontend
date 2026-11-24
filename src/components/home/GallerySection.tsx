@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import {
   Eye,
   Plus,
-  Sparkles,
-  Wand2,
+  Film,
+  SlidersHorizontal,
   Camera,
   Palette,
   Layers,
@@ -34,7 +34,7 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     title: "Diwali Twilight",
     occasion: "Festival of Lights",
     subtitle: "Warm brass diyas & marigold bokeh",
-    image: "/people/family.jpg",
+    image: "/showcase/Diwali.png",
     bgTint: "#F5E6D3",
   },
   {
@@ -43,7 +43,7 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     occasion: "30th Milestone Soirée",
     subtitle:
       "Upload one candid photo and stage keepsakes worth staying up for.",
-    image: "/people/friends.jpg",
+    image: "/showcase/Celebration.png",
     bgTint: "#F4F1EA",
     isEditorialInCascade: true,
   },
@@ -52,7 +52,7 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     title: "Royal Sangeet",
     occasion: "Palace Heritage",
     subtitle: "Sandstone arches & jasmine garlands",
-    image: "/themes/luxury-hotel.jpg",
+    image: "/showcase/Sangeet.png",
     bgTint: "#D9E8E4",
   },
   {
@@ -60,7 +60,7 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     title: "Team Milestone",
     occasion: "Work Anniversary",
     subtitle: "Automated OneDrive roster dispatch",
-    image: "/people/colleagues.jpg",
+    image: "/showcase/Team.png",
     bgTint: "#E8DFD5",
   },
   {
@@ -68,7 +68,7 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     title: "Alpine Retreat",
     occasion: "Adventure Wish",
     subtitle: "Emerald peaks & crystal lake horizon",
-    image: "/themes/mountain.jpg",
+    image: "/showcase/Adventure.png",
     bgTint: "#CBEFE3",
   },
   {
@@ -76,15 +76,15 @@ const SHOWCASE_CARDS: ShowcaseCardData[] = [
     title: "Sunset Reverie",
     occasion: "Silver Anniversary",
     subtitle: "Tropical horizon & golden twilight",
-    image: "/themes/beach.jpg",
+    image: "/showcase/Anniversary.png",
     bgTint: "#FCD5B5",
   },
 ];
 
 const FLOATING_TOOLS = [
-  { icon: Wand2, x: "18%", y: "10%" },
+  { icon: Film, x: "18%", y: "10%" },
   { icon: Camera, x: "4%", y: "42%" },
-  { icon: Sparkles, x: "28%", y: "46%" },
+  { icon: SlidersHorizontal, x: "28%", y: "46%" },
   { icon: Compass, x: "46%", y: "58%" },
   { icon: Palette, x: "12%", y: "78%" },
   { icon: Layers, x: "34%", y: "84%" },
@@ -224,24 +224,14 @@ export default function GallerySection() {
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-[#A78BFA]" />
             </div>
 
-            <h2 className="font-sans text-[clamp(1.75rem,4.2vw,3.5rem)] font-bold tracking-tight text-[#0f2a2a] dark:text-[#f4f1ea] leading-[1.18]">
+            <h2 className="font-display text-[clamp(1.75rem,2.6vw,3.2rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#f4f1ea] leading-[1.18]">
               Whether you&apos;re crafting a personal keepsake{" "}
               <br className="hidden sm:inline" />
               <span className="text-[#0f2a2a]/80 dark:text-[#f4f1ea]/85">
                 / or celebrating milestones across your team
-              </span>{" "}
-              <span className="inline-block align-middle w-9 h-6 sm:w-11 sm:h-7 rounded-lg overflow-hidden border border-[#00bfa6]/50 mx-1 shadow-sm">
-                <img
-                  src="/showcase/diwali.webp"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </span>{" "}
+              </span>{" "}{" "}
               Wishes AI
               <br className="hidden sm:inline" /> connects portrait{" "}
-              <span className="inline-flex items-center justify-center align-middle w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#F5B24A] text-[#0f2a2a] mx-1 shadow-md">
-                <Sparkles size={16} />
-              </span>{" "}
               &amp; emotion.
             </h2>
           </div>
@@ -459,7 +449,7 @@ export default function GallerySection() {
                       {card.occasion}
                     </p>
                   </div>
-                  <Sparkles size={11} className="text-[#FF5A52] shrink-0 ml-1" />
+                  <ArrowRight size={11} className="text-[#FF5A52] shrink-0 ml-1 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                 </div>
               </Link>
             );

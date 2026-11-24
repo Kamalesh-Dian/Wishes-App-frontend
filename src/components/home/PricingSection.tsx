@@ -1,4 +1,4 @@
-import { Check, Sparkles, Zap, Users, ArrowRight } from "lucide-react";
+import { Check, Layers, Zap, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function PricingSection() {
@@ -10,10 +10,10 @@ export default function PricingSection() {
       generations: "8 Generations",
       badge: null,
       description: "Ideal for trying out neural likeness celebration scenes for personal moments.",
-      icon: Sparkles,
+      icon: Layers,
       features: [
         "5 AI image generations",
-        "3 animated celebration video generations",
+        "3 animated celebration video generations (8s each)",
         "Total 8 generations included",
         "Biometric facial likeness lock",
         "Standard celebration presets",
@@ -30,14 +30,14 @@ export default function PricingSection() {
       name: "Pro",
       price: "$5",
       period: "per month",
-      generations: "100 Generations",
+      generations: "50 Generations",
       badge: "MOST POPULAR",
-      description: "100 generations with event scheduling for active celebrants and growing teams.",
+      description: "50 generations (40 images, 10 videos of 8s each) with event scheduling for active celebrants and growing teams.",
       icon: Zap,
       features: [
-        "100 total generations (75 images, 25 videos)",
-        "75 4K studio image generations (300 DPI)",
-        "25 animated celebration video generations",
+        "50 total generations (40 images, 10 videos - 8s each)",
+        "40 4K studio image generations (300 DPI)",
+        "10 animated celebration video generations (8s each)",
         "Event scheduling included (calendar & milestones)",
         "Manual Excel roster import (.xlsx)",
         "Priority FLUX GPU generation queue",
@@ -52,14 +52,14 @@ export default function PricingSection() {
       name: "Ultimate",
       price: "$12",
       period: "per month",
-      generations: "200 Generations",
+      generations: "100 Generations",
       badge: "NO RESTRICTIONS",
-      description: "Full workplace automation engine with 24/7 automated OneDrive synchronization.",
+      description: "100 generations (75 images, 25 videos of 8s each) with 24/7 automated OneDrive synchronization.",
       icon: Users,
       features: [
-        "200 total generations (150 images, 50 videos)",
-        "150 4K Ultra-HD image generations",
-        "50 animated celebration video generations",
+        "100 total generations (75 images, 25 videos - 8s each)",
+        "75 4K Ultra-HD image generations",
+        "25 animated celebration video generations (8s each)",
         "No restrictions on features",
         "Full event scheduling & milestone tracking",
         "Automated OneDrive & Microsoft 365 cloud sync",
@@ -84,20 +84,19 @@ export default function PricingSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.05] border border-[#0f2a2a]/10 dark:border-[#d9faf4]/15 backdrop-blur-md mb-4 shadow-sm">
-            <Sparkles size={12} className="text-[#FF5A52]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A52]" />
             <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#FF5A52]">
               Simple & Transparent
             </span>
           </div>
 
-          <h2 className="font-sans text-[clamp(2.1rem,4.6vw,3.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
+          <h2 className="font-display text-[clamp(2.1rem,4.6vw,3.9rem)] font-extrabold tracking-tight text-[#0f2a2a] dark:text-[#d9faf4] leading-[1.08]">
             Plans designed to celebrate{" "}
             <span className="text-[#00bfa6]">everyone.</span>
           </h2>
 
           <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed max-w-xl mx-auto">
-            Start free with 10 generations. Upgrade anytime to unlock 4K studio outputs, all festive
-            presets, and automated workplace calendar sync.
+            Start free with 8 generations (5 images & 3 videos of 8s each). Upgrade anytime to unlock 4K studio outputs, all festive presets, and automated workplace calendar sync.
           </p>
         </div>
 

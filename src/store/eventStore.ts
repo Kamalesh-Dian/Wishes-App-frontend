@@ -6,16 +6,27 @@ export interface EventRecord {
   userId: string;
   Name: string;
   Email: string;
+  Phone?: string;
+  phone?: string;
   EventType: string;
   EventDate: string;
   Department: string;
   WhatsAppGroup?: string;
   photoUrl?: string;
   customMessage?: string;
+  mediaType?: "image" | "video" | "both";
+  MediaType?: "image" | "video" | "both";
+  deliveryChannel?: "email" | "whatsapp" | "both";
+  DeliveryChannel?: "email" | "whatsapp" | "both";
+  videoModel?: "gemini-omni" | "svd";
+  VideoModel?: "gemini-omni" | "svd";
   generatedWishImage?: string;
+  generatedWishVideo?: string;
   generatedWishText?: string;
   generatedAt?: string;
-  status: "pending" | "approved" | "generated" | "sent" | "failed";
+  whatsappStatus?: "pending" | "sent" | "failed";
+  emailStatus?: "pending" | "sent" | "failed";
+  status: "pending" | "approved" | "generating" | "generated" | "sending" | "sent" | "failed";
   source: "excel" | "onedrive";
 }
 

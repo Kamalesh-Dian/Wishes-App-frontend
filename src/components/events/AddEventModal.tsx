@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { X, Calendar, User, Mail, Tag, Building } from "lucide-react";
+import { X, Calendar, User, Mail, Tag, Building, Phone, Film, Sparkles, Image as ImageIcon, Send, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEventStore, type EventRecord } from "../../store/eventStore";
 import { useAuthStore } from "../../store/authStore";
+import { importOneDriveEvents } from "../../services/event";
+import { toast } from "../../store/toastStore";
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -15,9 +17,13 @@ export default function AddEventModal({ isOpen, onClose }: AddEventModalProps) {
   const [formData, setFormData] = useState({
     Name: "",
     Email: "",
+    Phone: "",
     EventType: "Birthday",
     EventDate: "",
     Department: "",
+    MediaType: "image" as "image" | "video" | "both",
+    DeliveryChannel: "email" as "email" | "whatsapp" | "both",
+    VideoModel: "gemini-omni" as "gemini-omni" | "svd",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,22 +31,62 @@ export default function AddEventModal({ isOpen, onClose }: AddEventModalProps) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Create new event payload matching the table's normalized format
-    const newEvent: EventRecord = {
-      _id: Date.now().toString(),
-      userId: user?.uid || "manual-entry",
-      ...formData,
-      status: "pending",
-      source: "excel"
-    };
+    try {
+      // Create new event payload matching the table's normalized format
+      const newEvent: EventRecord = {
+        _id: Date.now().toString(),
+        userId: user?.uid || "manual-entry",
+        ...formData,
+        phone: formData.Phone,
+        mediaType: formData.MediaType,
+        deliveryChannel: formData.DeliveryChannel,
+        videoModel: formData.VideoModel,
+        status: "pending",
+        source: "excel"
+      };
 
-    // Add to local store immediately for UI update
-    setManualEvents([...manualEvents, newEvent]);
-    
-    // Reset and close
-    setFormData({ Name: "", Email: "", EventType: "Birthday", EventDate: "", Department: "" });
-    setIsSubmitting(false);
-    onClose();
+      // Add to local store immediately for UI update
+      setManualEvents([...manualEvents, newEvent]);
+
+      // Persist to backend MongoDB database for cron scheduler
+      if (user?.uid) {
+        await importOneDriveEvents([{
+          name: formData.Name,
+          email: formData.Email,
+          phone: formData.Phone,
+          occasion: formData.EventType,
+          eventDate: formData.EventDate,
+          department: formData.Department,
+          mediaType: formData.MediaType,
+          deliveryChannel: formData.DeliveryChannel,
+          videoModel: formData.VideoModel,
+          source: "excel",
+          status: "pending",
+        }]);
+      }
+      
+      toast.success("Event scheduled successfully");
+      
+      // Reset and close
+      setFormData({
+        Name: "",
+        Email: "",
+        Phone: "",
+        EventType: "Birthday",
+        EventDate: "",
+        Department: "",
+        MediaType: "image",
+        DeliveryChannel: "email",
+        VideoModel: "gemini-omni",
+      });
+      onClose();
+    } catch (err) {
+      console.error("Error creating event:", err);
+      toast.error("Event added locally, could not sync with server.");
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -90,18 +136,38 @@ export default function AddEventModal({ isOpen, onClose }: AddEventModalProps) {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input 
-                      required
-                      type="email" 
-                      value={formData.Email}
-                      onChange={e => setFormData({...formData, Email: e.target.value})}
-                      placeholder="e.g. maya@example.com"
-                      className="pl-9 pr-4 py-2.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Email Address</label>
+                    <div className="relative">
+                      <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input 
+                        required
+                        type="email" 
+                        value={formData.Email}
+                        onChange={e => setFormData({...formData, Email: e.target.value})}
+                        placeholder="maya@example.com"
+                        className="pl-9 pr-4 py-2.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 flex items-center justify-between">
+                      <span>WhatsApp / Phone</span>
+                      {formData.DeliveryChannel !== "email" && <span className="text-teal-600 dark:text-teal-400 font-semibold normal-case text-[10px]">Required for WA</span>}
+                    </label>
+                    <div className="relative">
+                      <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input 
+                        required={formData.DeliveryChannel !== "email"}
+                        type="tel" 
+                        value={formData.Phone}
+                        onChange={e => setFormData({...formData, Phone: e.target.value})}
+                        placeholder="+91 98765 43210"
+                        className="pl-9 pr-4 py-2.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -132,6 +198,8 @@ export default function AddEventModal({ isOpen, onClose }: AddEventModalProps) {
                       >
                         <option value="Birthday">Birthday</option>
                         <option value="Anniversary">Anniversary</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Diwali Celebration">Diwali Celebration</option>
                         <option value="Custom">Custom</option>
                       </select>
                     </div>
@@ -149,6 +217,122 @@ export default function AddEventModal({ isOpen, onClose }: AddEventModalProps) {
                         className="pl-9 pr-4 py-2.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Media Generation Type */}
+                <div className="pt-1">
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">
+                    AI Generation Media
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, MediaType: "image" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.MediaType === "image"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <ImageIcon size={16} className="mb-1" />
+                      <span>Image Only</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, MediaType: "video" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.MediaType === "video"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Film size={16} className="mb-1" />
+                      <span>Video Only</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, MediaType: "both" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.MediaType === "both"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Sparkles size={16} className="mb-1" />
+                      <span>Both (Img+Vid)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Video Engine Selection (when Video or Both is selected) */}
+                {formData.MediaType !== "image" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5"
+                  >
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Video Diffusion Engine
+                    </label>
+                    <select
+                      value={formData.VideoModel}
+                      onChange={e => setFormData({ ...formData, VideoModel: e.target.value as "gemini-omni" | "svd" })}
+                      className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    >
+                      <option value="gemini-omni">Gemini Omni 1.2 Flash (Fast cinematic motion)</option>
+                      <option value="svd">Stable Video Diffusion SVD XT 1.1 (ComfyUI)</option>
+                    </select>
+                  </motion.div>
+                )}
+
+                {/* Delivery Channel */}
+                <div className="pt-1">
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">
+                    Scheduled Delivery Channel
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, DeliveryChannel: "email" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.DeliveryChannel === "email"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Mail size={16} className="mb-1" />
+                      <span>Email</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, DeliveryChannel: "whatsapp" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.DeliveryChannel === "whatsapp"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <MessageSquare size={16} className="mb-1" />
+                      <span>WhatsApp</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, DeliveryChannel: "both" })}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                        formData.DeliveryChannel === "both"
+                          ? "bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-300 shadow-sm"
+                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <Send size={16} className="mb-1" />
+                      <span>Email + WA</span>
+                    </button>
                   </div>
                 </div>
               </div>
