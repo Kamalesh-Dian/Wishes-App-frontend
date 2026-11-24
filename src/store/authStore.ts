@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthState>()(
         const assignedTier = user.tier || resolveTierFromEmail(user.email);
         useSubscriptionStore.getState().syncUserEmail(user.email);
         useSubscriptionStore.getState().setPlan(assignedTier);
+        useSubscriptionStore.getState().fetchSubscriptionStatus();
 
         set({
           user: {

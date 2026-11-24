@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import api from "../services/api";
 
 export type PlanTier = "free" | "pro" | "ultimate";
 
@@ -25,16 +26,16 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
     price: "$0",
     priceNumeric: 0,
     imageLimit: 5,
-    videoLimit: 3,
-    totalGenerations: 8,
+    videoLimit: 0,
+    totalGenerations: 5,
     canScheduleEvents: false,
     canConnectOneDrive: false,
     description: "Personal starter package to create individual celebrations.",
     highlights: [
       "5 AI image generations",
-      "3 AI video generations",
+      "0 AI video generations (images only)",
       "Standard celebration presets",
-      "Direct image & video download",
+      "Direct image download",
       "Single-wish creation only",
       "No event scheduling",
       "No OneDrive sync",
@@ -148,6 +149,7 @@ interface SubscriptionState {
   upgradeModalReason: string | null;
 
   // Actions
+  fetchSubscriptionStatus: () => Promise<void>;
   setPlan: (tier: PlanTier) => void;
   syncUserEmail: (email: string | null) => void;
   recordImageGeneration: () => void;
@@ -175,6 +177,26 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       userEmail: null,
       isUpgradeModalOpen: false,
       upgradeModalReason: null,
+
+      fetchSubscriptionStatus: async () => {
+        try {
+          const res = await api.get<{
+            success: boolean;
+            plan: PlanTier;
+            usedImages?: number;
+            usedVideos?: number;
+          }>("/api/me");
+          if (res.data?.success && res.data.plan) {
+            set({
+              tier: res.data.plan,
+              usedImages: res.data.usedImages ?? 0,
+              usedVideos: res.data.usedVideos ?? 0,
+            });
+          }
+        } catch {
+          // Keep existing state if offline or endpoint fails
+        }
+      },
 
       setPlan: (tier: PlanTier) => {
         set({ tier });
