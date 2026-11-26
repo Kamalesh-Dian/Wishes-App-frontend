@@ -12,7 +12,6 @@ export default function WizardNavigation() {
     uploadedImage,
     photoConsent,
     theme,
-    people,
     decorations,
     aiEngine,
     generatedImage,
@@ -47,10 +46,8 @@ export default function WizardNavigation() {
           message: "Please choose a celebration site to continue.",
         };
       case 4:
-        return {
-          valid: people.length > 0,
-          message: "Please select at least one companion group to continue.",
-        };
+        // People/companions selection is optional
+        return { valid: true, message: "" };
       case 5:
         return {
           valid: decorations.length > 0,

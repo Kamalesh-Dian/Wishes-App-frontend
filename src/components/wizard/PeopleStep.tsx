@@ -72,11 +72,11 @@ export default function PeopleStep() {
             Who is celebrating with them?
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Select one or more groups to include in the celebration atmosphere.
+            Select one or more groups to include, or proceed without selection to keep the focus solely on the recipient (Optional).
           </p>
         </div>
 
-        {people.length > 0 && (
+        {people.length > 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -85,6 +85,10 @@ export default function PeopleStep() {
             <Sparkles size={13} className="text-[#00bfa6]" />
             <span>Selected: {people.join(", ")}</span>
           </motion.div>
+        ) : (
+          <span className="text-xs font-medium text-slate-400 dark:text-slate-500 italic self-start sm:self-auto">
+            Optional • Solo portrait by default
+          </span>
         )}
       </div>
 
