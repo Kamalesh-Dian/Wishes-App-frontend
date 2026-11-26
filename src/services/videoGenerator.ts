@@ -1,4 +1,5 @@
 import api from "./api";
+import { VIDEO_GENERATION_TIMEOUT_MS } from "../config/timeouts";
 
 export type VideoMotionStyle = "cinematic-bokeh" | "confetti-party" | "diya-lanterns";
 
@@ -67,7 +68,7 @@ export async function synthesizeCelebrationVideo(
         aiEngine: options.aiEngine || "video-model",
       },
       {
-        timeout: 180000,
+        timeout: VIDEO_GENERATION_TIMEOUT_MS,
       }
     );
 

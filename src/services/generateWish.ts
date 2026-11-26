@@ -1,4 +1,8 @@
 import api from "./api";
+import {
+  GENERATION_POLL_INTERVAL_MS,
+  GENERATION_POLL_TIMEOUT_MS,
+} from "../config/timeouts";
 
 export type WishStatus = "queued" | "image" | "video" | "done" | "failed";
 
@@ -35,9 +39,9 @@ export async function generateWish(
     callbacks.onStatusUpdate("queued", 0);
   }
 
-  // 2. Poll /generate/:wishId/status every 3s with a 10-minute timeout (200 attempts)
-  const pollIntervalMs = 3000;
-  const maxAttempts = 200; // 200 * 3s = 600s = 10 minutes
+  // 2. Poll /generate/:wishId/status using configurable timeout & interval
+  const pollIntervalMs = GENERATION_POLL_INTERVAL_MS;
+  const maxAttempts = Math.max(1, Math.ceil(GENERATION_POLL_TIMEOUT_MS / pollIntervalMs));
   const startTime = Date.now();
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
