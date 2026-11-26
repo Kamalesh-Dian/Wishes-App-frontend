@@ -40,7 +40,7 @@ const STEPS = [
       "In under 60 seconds, your studio-grade celebration scene is rendered. Download for framing, share a direct link, or automate delivery via OneDrive roster sync.",
     icon: Gift,
     previewBadge: "4K",
-    image: "/showcase/final.png",
+    image: "/showcase/Final.png",
     imageCaption: "Final 4K Celebration Scene • Studio Ray-Traced Output",
   },
 ];

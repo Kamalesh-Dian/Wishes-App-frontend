@@ -48,9 +48,7 @@ export default function ReviewStep() {
     additionalInformation,
   } = useWishStore();
 
-  const isVideoMode = Boolean(
-    animationEnabled || videoModel === "svd" || videoModel === "gemini-omni" || aiEngine === "svd" || aiEngine === "gemini-omni"
-  );
+  const isVideoMode = Boolean(animationEnabled);
 
   const currentStageLabel = () => {
     if (statusMessage) return statusMessage;
