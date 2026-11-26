@@ -13,7 +13,6 @@ export default function EngineStep() {
     setVideoModel,
     animationEnabled,
     setAnimation,
-    setVideoDuration,
   } = useWishStore();
 
   const { canGenerateVideo, openUpgradeModal, getPlanConfig } = useSubscriptionStore();
@@ -158,7 +157,6 @@ export default function EngineStep() {
                 setAnimation(true);
                 setVideoModel("svd");
                 setAIEngine("svd");
-                setVideoDuration(4);
               }}
               className={`border-2 rounded-2xl p-6 cursor-pointer transition-all shadow-sm relative overflow-hidden ${
                 videoModel === "svd" || aiEngine === "svd"
@@ -185,7 +183,7 @@ export default function EngineStep() {
                   </div>
                 </div>
                 <span className="text-[9px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest bg-teal-50 dark:bg-teal-950/50 px-2 py-0.5 rounded-md border border-teal-200/50 dark:border-teal-800/50">
-                  COMFYUI GPU • 4 SEC
+                  COMFYUI GPU • 4–8 SEC
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
@@ -196,7 +194,7 @@ export default function EngineStep() {
                   <Check size={11} /> 100% Image Geometry Match
                 </span>
                 <span className="flex items-center gap-1 text-[#00bfa6]">
-                  <Check size={11} /> 3–4s Motion
+                  <Check size={11} /> 4–8s Smooth MP4
                 </span>
               </div>
             </div>
