@@ -7,24 +7,24 @@ import PlanUsageBadge from "../ui/PlanUsageBadge";
 const VIDEO_PRESETS = [
   {
     id: "cinematic-bokeh",
-    title: "Gemini Omni 1.2 Flash (Cinematic Bokeh)",
-    desc: "Google Gemini Omni native video generation with 3D camera pan, depth parallax & golden lighting",
+    title: "Cinematic Bokeh",
+    desc: "Smooth AI video motion with 3D camera pan, depth parallax & warm golden bokeh lighting",
     icon: Sparkles,
-    badge: "GEMINI OMNI 1.2 FLASH • RECOMMENDED",
+    badge: "RECOMMENDED",
   },
   {
     id: "confetti-party",
-    title: "Gemini Omni 1.2 Flash (Confetti Celebration)",
-    desc: "Dynamic celebration motion with flying confetti ribbons, party energy & festive atmosphere",
+    title: "Confetti Celebration",
+    desc: "Dynamic celebration motion with falling confetti ribbons, party energy & festive atmosphere",
     icon: PartyPopper,
-    badge: "GEMINI OMNI 1.2 FLASH",
+    badge: "PARTY MOTION",
   },
   {
     id: "diya-lanterns",
-    title: "Gemini Omni 1.2 Flash (Diya Lanterns & Glow)",
+    title: "Diya Lanterns & Glow",
     desc: "Rising festive lanterns, warm amber illumination, and gentle twilight motion",
     icon: Flame,
-    badge: "FESTIVAL GEMINI MODEL",
+    badge: "FESTIVAL MOTION",
   },
 ];
 
@@ -77,13 +77,13 @@ export default function AnimationStep() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[#00bfa6] mb-1">
-            <Film size={13} /> Step 6 • Gemini Omni 1.2 Flash Video
+            <Film size={13} /> Step 6 • AI Video Animation
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            AI Video Generation (Gemini Omni 1.2 Flash)
+            AI Video Animation
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Use Google gemini-omni-1.2-flash to synthesize photorealistic MP4 video motion directly from your celebration portrait.
+            Synthesize smooth photorealistic MP4 video motion directly from your celebration portrait using your chosen AI engine.
           </p>
         </div>
 
@@ -212,7 +212,7 @@ export default function AnimationStep() {
             <div className="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 px-1">
               <span>Short teaser clip</span>
               <span className="font-mono text-[#00bfa6] font-semibold">
-                Gemini Omni 1.2 Flash • {videoDuration}s MP4
+                AI Video Engine • {videoDuration}s MP4
               </span>
               <span>Full 8s cinematic experience</span>
             </div>

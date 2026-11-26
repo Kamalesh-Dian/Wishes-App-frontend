@@ -26,16 +26,16 @@ export const PLAN_CONFIGS: Record<PlanTier, PlanConfig> = {
     price: "$0",
     priceNumeric: 0,
     imageLimit: 5,
-    videoLimit: 0,
-    totalGenerations: 5,
+    videoLimit: 3,
+    totalGenerations: 8,
     canScheduleEvents: false,
     canConnectOneDrive: false,
     description: "Personal starter package to create individual celebrations.",
     highlights: [
       "5 AI image generations",
-      "0 AI video generations (images only)",
+      "3 AI video generations",
       "Standard celebration presets",
-      "Direct image download",
+      "Direct image & video download",
       "Single-wish creation only",
       "No event scheduling",
       "No OneDrive sync",
@@ -284,6 +284,18 @@ export const useSubscriptionStore = create<SubscriptionState>()(
     }),
     {
       name: "wishes-subscription-storage",
+      version: 2,
+      migrate: (persistedState: unknown, version: number) => {
+        const state = (persistedState || {}) as Partial<SubscriptionState>;
+        if (version < 2) {
+          return {
+            ...state,
+            usedImages: 0,
+            usedVideos: 0,
+          };
+        }
+        return state;
+      },
       partialize: (state) => ({
         tier: state.tier,
         usedImages: state.usedImages,

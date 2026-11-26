@@ -183,7 +183,11 @@ export default function GenerateStep() {
       return;
     }
 
-    const { videoDuration = 10 } = useWishStore.getState();
+    const { videoDuration = 10, aiEngine, videoModel } = useWishStore.getState();
+    const chosenVideoEngine =
+      videoModel === "svd" || aiEngine === "flux" || aiEngine === "svd"
+        ? "svd"
+        : "video-model";
 
     setIsGeneratingVideo(true);
     setVideoProgress(5);
@@ -198,6 +202,7 @@ export default function GenerateStep() {
         additionalInformation,
         style: videoStyle,
         durationMs: (videoDuration || 8) * 1000,
+        aiEngine: chosenVideoEngine,
         onProgress: (p) => setVideoProgress(p),
       });
       if (generatedVideo?.url) {
@@ -207,9 +212,13 @@ export default function GenerateStep() {
       recordVideoGeneration();
       setViewMode("video");
       toast.success("Animated celebration video generated!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Video synthesis error:", error);
-      toast.error("Failed to generate animated video");
+      const errMsg =
+        (error as { response?: { data?: { error?: string } }; message?: string })?.response?.data?.error ||
+        (error as Error)?.message ||
+        "Failed to generate animated video";
+      toast.error(errMsg);
     } finally {
       setIsGeneratingVideo(false);
     }
@@ -356,10 +365,10 @@ export default function GenerateStep() {
             <div className="flex flex-col items-center justify-center p-8 text-center text-white max-w-sm">
               <Film size={36} className="text-[#00bfa6] animate-bounce mb-3" />
               <p className="font-bold text-sm mb-1">
-                Gemini Omni 1.2 Flash Generating Video...
+                AI Video Engine Generating Video...
               </p>
               <p className="text-xs text-slate-400 mb-4">
-                Google gemini-omni-1.2-flash synthesizing cinematic celebration motion & MP4 encoding
+                Synthesizing cinematic celebration motion & MP4 encoding
               </p>
               <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
                 <div
@@ -397,7 +406,7 @@ export default function GenerateStep() {
             <div className="flex items-center justify-between">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
                 <Film size={15} className="text-[#00bfa6]" />
-                Gemini Omni 1.2 Flash Video Engine
+                AI Video Generation Engine
               </span>
               <div className="flex items-center gap-1.5">
                 <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#00bfa6]/20 text-[#00bfa6]">
@@ -405,7 +414,7 @@ export default function GenerateStep() {
                 </span>
                 {animationEnabled && (
                   <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#00bfa6]/15 text-[#00bfa6]">
-                    GEMINI OMNI READY
+                    AI VIDEO READY
                   </span>
                 )}
               </div>
@@ -466,10 +475,10 @@ export default function GenerateStep() {
                 <Film size={14} />
                 <span>
                   {isGeneratingVideo
-                    ? `Generating with Gemini Omni ${videoProgress}%...`
+                    ? `Generating AI Video ${videoProgress}%...`
                     : generatedVideo
                       ? "Re-Generate Video"
-                      : "Generate AI Video (Gemini Omni)"}
+                      : "Generate AI Video"}
                 </span>
               </button>
 
