@@ -185,7 +185,7 @@ export const useSubscriptionStore = create<SubscriptionState>()(
             plan: PlanTier;
             usedImages?: number;
             usedVideos?: number;
-          }>("/api/me");
+          }>("/me");
           if (res.data?.success && res.data.plan) {
             set({
               tier: res.data.plan,
