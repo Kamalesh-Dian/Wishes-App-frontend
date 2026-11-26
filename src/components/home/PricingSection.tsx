@@ -1,20 +1,23 @@
 import { Check, Layers, Zap, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { PRICING_CONFIG } from "../../config/pricing";
 
 export default function PricingSection() {
+  const { free, pro, ultimate } = PRICING_CONFIG;
+
   const plans = [
     {
       name: "Free",
-      price: "$0",
+      price: free.price,
       period: "forever",
-      generations: "8 Generations",
+      generations: `${free.totalGenerations} Generations`,
       badge: null,
       description: "Ideal for trying out neural likeness celebration scenes for personal moments.",
       icon: Layers,
       features: [
-        "5 AI image generations",
-        "3 animated celebration video generations (8s each)",
-        "Total 8 generations included",
+        `${free.imageLimit} AI image generations`,
+        `${free.videoLimit} animated celebration video generations (4–8s each)`,
+        `Total ${free.totalGenerations} generations included`,
         "Biometric facial likeness lock",
         "Standard celebration presets",
         "Direct image & video download",
@@ -28,45 +31,45 @@ export default function PricingSection() {
     },
     {
       name: "Pro",
-      price: "$5",
+      price: pro.price,
       period: "per month",
-      generations: "50 Generations",
+      generations: `${pro.totalGenerations} Generations`,
       badge: "MOST POPULAR",
-      description: "50 generations (40 images, 10 videos of 8s each) with event scheduling for active celebrants and growing teams.",
+      description: `${pro.totalGenerations} generations (${pro.imageLimit} images, ${pro.videoLimit} videos of 4–8s each) with event scheduling for active celebrants and growing teams.`,
       icon: Zap,
       features: [
-        "50 total generations (40 images, 10 videos - 8s each)",
-        "40 4K studio image generations (300 DPI)",
-        "10 animated celebration video generations (8s each)",
+        `${pro.totalGenerations} total generations (${pro.imageLimit} images, ${pro.videoLimit} videos - 4–8s each)`,
+        `${pro.imageLimit} 4K studio image generations (300 DPI)`,
+        `${pro.videoLimit} animated celebration video generations (4–8s each)`,
         "Event scheduling included (calendar & milestones)",
         "Manual Excel roster import (.xlsx)",
         "Priority FLUX GPU generation queue",
         "Direct email & WhatsApp dispatch",
         "No OneDrive option (manual roster only)",
       ],
-      ctaText: "Get Started with Pro ($5)",
+      ctaText: `Get Started with Pro (${pro.price})`,
       ctaLink: "/create",
       highlighted: true,
     },
     {
       name: "Ultimate",
-      price: "$12",
+      price: ultimate.price,
       period: "per month",
-      generations: "100 Generations",
+      generations: `${ultimate.totalGenerations} Generations`,
       badge: "NO RESTRICTIONS",
-      description: "100 generations (75 images, 25 videos of 8s each) with 24/7 automated OneDrive synchronization.",
+      description: `${ultimate.totalGenerations} generations (${ultimate.imageLimit} images, ${ultimate.videoLimit} videos of 4–8s each) with 24/7 automated OneDrive synchronization.`,
       icon: Users,
       features: [
-        "100 total generations (75 images, 25 videos - 8s each)",
-        "75 4K Ultra-HD image generations",
-        "25 animated celebration video generations (8s each)",
+        `${ultimate.totalGenerations} total generations (${ultimate.imageLimit} images, ${ultimate.videoLimit} videos - 4–8s each)`,
+        `${ultimate.imageLimit} 4K Ultra-HD image generations`,
+        `${ultimate.videoLimit} animated celebration video generations (4–8s each)`,
         "No restrictions on features",
         "Full event scheduling & milestone tracking",
         "Automated OneDrive & Microsoft 365 cloud sync",
         "Automated local 9:00 AM delivery to inboxes",
         "Multi-recipient team broadcast & VIP support",
       ],
-      ctaText: "Get Ultimate ($12)",
+      ctaText: `Get Ultimate (${ultimate.price})`,
       ctaLink: "/onedrive",
       highlighted: false,
     },
@@ -96,7 +99,7 @@ export default function PricingSection() {
           </h2>
 
           <p className="mt-4 text-sm sm:text-base text-[#0f2a2a]/70 dark:text-[#d9faf4]/70 leading-relaxed max-w-xl mx-auto">
-            Start free with 8 generations (5 images & 3 videos of 8s each). Upgrade anytime to unlock 4K studio outputs, all festive presets, and automated workplace calendar sync.
+            Start free with {free.totalGenerations} generations ({free.imageLimit} images & {free.videoLimit} videos of 4–8s each). Upgrade anytime to unlock 4K studio outputs, all festive presets, and automated workplace calendar sync.
           </p>
         </div>
 
