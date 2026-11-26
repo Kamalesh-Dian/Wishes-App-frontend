@@ -14,7 +14,7 @@ const steps = [
 ];
 
 export default function ProgressBar() {
-  const { currentStep, setCurrentStep } = useWishStore();
+  const { currentStep, setCurrentStep, generatedImage } = useWishStore();
 
   return (
     <div className="w-full overflow-x-auto pb-8 scrollbar-hide -mb-8">
@@ -29,27 +29,30 @@ export default function ProgressBar() {
         const stepNum = index + 1;
         const isActive = currentStep === stepNum;
         const isCompleted = currentStep > stepNum;
+        const isClickable = isCompleted || (stepNum === 9 && Boolean(generatedImage));
 
         return (
           <div key={step} className="flex flex-col items-center relative z-10">
             <button
               type="button"
-              onClick={() => isCompleted && setCurrentStep(stepNum)}
-              disabled={!isCompleted}
+              onClick={() => isClickable && setCurrentStep(stepNum)}
+              disabled={!isClickable && !isActive}
               aria-label={`Step ${stepNum}: ${step}`}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                 isCompleted
                   ? "bg-teal-500 text-white shadow-sm hover:ring-2 hover:ring-teal-400 cursor-pointer"
                   : isActive
                     ? "bg-teal-500 text-white ring-4 ring-teal-500/30 dark:ring-teal-500/20 shadow-sm"
-                    : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-default"
+                    : isClickable
+                      ? "bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/40 hover:bg-teal-500 hover:text-white cursor-pointer"
+                      : "bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-default"
               }`}
             >
               {isCompleted ? <Check size={14} strokeWidth={3} /> : stepNum}
             </button>
 
             <span className={`absolute top-10 text-[10px] sm:text-xs font-bold tracking-wide text-center whitespace-nowrap ${
-              isActive || isCompleted
+              isActive || isCompleted || isClickable
                 ? "text-slate-800 dark:text-slate-200"
                 : "text-slate-400 dark:text-slate-500"
             }`}>

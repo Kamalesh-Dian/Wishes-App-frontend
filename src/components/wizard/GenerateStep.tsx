@@ -31,6 +31,7 @@ import PlanUsageBadge from "../ui/PlanUsageBadge";
 export default function GenerateStep() {
   const {
     generatedImage,
+    setGeneratedImage,
     occasion,
     theme,
     customMessage,
@@ -108,6 +109,36 @@ export default function GenerateStep() {
       setIsSendingEmail(false);
     }
   };
+
+  // Attempt auto-recovery of recently generated wish if state was lost on navigation/reload
+  useEffect(() => {
+    if (!generatedImage) {
+      api
+        .get("/wishes")
+        .then((res) => {
+          const wishes = res.data?.wishes || (Array.isArray(res.data) ? res.data : []);
+          if (wishes && wishes.length > 0) {
+            const latest = wishes[0];
+            const candidateImage = latest.generatedImage || latest.cleanImage;
+            if (candidateImage) {
+              setGeneratedImage(candidateImage);
+              if (latest.videoUrl) {
+                setGeneratedVideo({
+                  url: latest.videoUrl,
+                  filename: `wishes-ai-video-${Date.now()}.mp4`,
+                  mimeType: "video/mp4",
+                  model: latest.aiProvider || "video-model",
+                  tier: "ai-video",
+                });
+              }
+            }
+          }
+        })
+        .catch(() => {
+          // Gracefully ignore network errors on recovery attempt
+        });
+    }
+  }, [generatedImage, setGeneratedImage]);
 
   useEffect(() => {
     return () => {

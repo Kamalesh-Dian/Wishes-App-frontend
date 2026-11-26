@@ -13,7 +13,16 @@ const safeSessionStorage = {
     try {
       sessionStorage.setItem(name, value);
     } catch {
-      // ignore in incognito or restricted storage
+      // If quota exceeded (e.g. large base64 uploadedImage), strip huge fields and retry
+      try {
+        const parsed = JSON.parse(value);
+        if (parsed?.state?.uploadedImage && parsed.state.uploadedImage.length > 300000) {
+          parsed.state.uploadedImage = null;
+          sessionStorage.setItem(name, JSON.stringify(parsed));
+        }
+      } catch {
+        // ignore in incognito or restricted storage
+      }
     }
   },
   removeItem: (name: string): void => {

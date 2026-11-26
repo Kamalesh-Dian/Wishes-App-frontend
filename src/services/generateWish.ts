@@ -56,12 +56,19 @@ export async function generateWish(
     }
 
     if (currentStatus === "done") {
+      const finalImage =
+        statusData.imageUrl ||
+        statusData.generatedImage ||
+        statusData.imageURL ||
+        statusData.cleanImageUrl ||
+        statusData.cleanImage ||
+        "";
       return {
         success: true,
         wishId,
-        imageURL: statusData.imageUrl,
-        cleanImageURL: statusData.cleanImageUrl,
-        videoURL: statusData.videoUrl,
+        imageURL: finalImage,
+        cleanImageURL: statusData.cleanImageUrl || statusData.cleanImage,
+        videoURL: statusData.videoUrl || statusData.videoURL,
         status: "done",
       };
     }

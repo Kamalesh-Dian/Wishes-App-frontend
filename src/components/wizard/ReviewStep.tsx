@@ -31,6 +31,7 @@ export default function ReviewStep() {
   const navigate = useNavigate();
   const {
     resetWish,
+    nextStep,
     uploadedImage,
     generatedImage,
     setGeneratedImage,
@@ -129,19 +130,27 @@ export default function ReviewStep() {
         },
       });
 
-      if (response.success && response.imageURL) {
+      const finalUrl =
+        response.imageURL ||
+        (response as any).imageUrl ||
+        (response as any).generatedImage ||
+        (response as any).cleanImageURL;
+
+      if (response.success && finalUrl) {
         recordImageGeneration();
         if (response.videoURL) {
           recordVideoGeneration();
         }
         setProgress(100);
-        setGeneratedImage(response.imageURL);
+        setGeneratedImage(finalUrl);
         if (response.videoURL) {
           setGeneratedVideo(response.videoURL);
           toast.success("Celebration image & motion video synthesized successfully!");
         } else {
           toast.success("Wish image generated successfully!");
         }
+        // Auto-advance to Step 9 (GenerateStep - Output view)
+        nextStep();
       } else {
         toast.error(response.error || "Failed to generate wish.");
       }
